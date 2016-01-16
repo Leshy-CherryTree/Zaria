@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Editing Maps</title>
+</head>
+
+<body>
+<h1>Editing Maps</h1>
+
+<h2>Creating a new map</h2>
+<p>To create a new map choose File->New Work File->New Zone Map</p>
+<p>A map needs a previously created <a href="library_edit.html">Zone Library</a>, located in <a href="assets.html">Work Files</a>.</p>
+
+<h2>Editor View</h2>
+<p><img src="editor_view.png" alt=""></p>
+<ol>
+    <li>Placable object library - objects that can be placed on the map.</li>
+    <li>Placable objects list - objects that are one this map.</li>
+    <li>Map view</li>
+    <li>Manipulation mode buttons</li>
+    <li>Properties view</li>
+</ol>
+
+<p>Map can also be edited in Text and Graph mode like all <a href="zone_edit.html">Zone files</a>. MapSystems can be modified only in these modes.</p>
+
+<h2>Placing objects</h2>
+<p>To place on objects switch to placement mode, by pressing <img src="../icons/tools/place.png" alt=""> and choose the appropriate object from the Placable Object Library (1).
+Alternativelly at any time you can double click on object in the library to immediately switch to placement mode and start placing the chosen item.</p>
+
+<h2>Map conversion</h2>
+<p>To be usable in game the map has to be converted. This will create a Zone file with converted data in the <a href="assets.html">Assets</a> directory using the same relative path as the Zonemap file. Conversion bakes lightmaps, optimizes geometry and generates data that is needed for map to function efficiently in-game.</p>
+<p>To convert the map press <img src="../icons/big/caution-high-voltage-icon.png" alt="">.</p>
+<p>The editor uses lower resolution lightmaps to preview how the map will look like.</p>
+<p>To bake preview lightmaps press <img src="../icons/big/light-icon.png" alt="">.</p>
+
+<h2>Map geometry</h2>
+<p>You don't place meshes directly on the map. Geometries are defined by <b>MapGeometryDefinitions</b>.</p>
+<p>They can be created only in <a href="assets.html">Work Files</a> and to be usable, they have to present in an appropriate <a href="library_edit.html">Zone Library</a>.</p>
+
+<h2>Keyboard shortcuts</h2>
+
+<h3>Camera</h3>
+<ul>
+    <li>W - Move camera forward</li>
+    <li>S - Move camera backward</li>
+    <li>A - Move camera right</li>
+    <li>D - Move camera left</li>
+    <li>Q - Move camera up</li>
+    <li>E - Move camera down</li>
+    <li>SPACE - Center view on selected object</li>
+	<li>1 - Orient the camera along the X axis</li>
+	<li>2 - Orient the camera along the Y axis</li>
+	<li>3 - Orient the camera along the Z axis</li>
+	<li>4 - Orient the camera along the negative X axis</li>
+	<li>5 - Orient the camera along the negative Y axis</li>
+	<li>6 - Orient the camera along the negative Z axis</li>
+</ul>
+
+<h3>Object manipulation</h3>
+<ul>
+    <li>R - Rotation mode</li>
+    <li>T - Translation mode</li>
+    <li>Y - Scale mode</li>
+    <li>F - Drop selected object(s) to ground</li>
+    <li>DELETE - Delete object</li>
+    <li>ESCAPE - Go to select mode / deselect all</li>
+    <li>CONTROL - Hold while manipulating to manipulate by discrete values</li>
+    <li>ALT - Hold while in translation mode to translate in relative coordinates.</li>
+</ul>
+<h3>Axes and planes</h3>
+
+<p>While in a manipulation mode press any of these to manipulate only along a specific axis or plane.</p>
+
+<ul>
+    <li>Z - Z axis</li>
+    <li>X - X axis</li>
+    <li>C - Y axis</li>
+    <li>V - XZ plane</li>
+    <li>B - XY plane</li>
+    <li>N - YZ plane</li>
+</ul>
+
+<div style="text-align: right"><a href="index.html">Back to index</a></div>
+</body>
+
+</html>

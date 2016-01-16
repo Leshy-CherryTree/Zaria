@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Assets and Work Files</title>
+</head>
+<body>
+<h1>Assets and Work Files</h1>
+
+<p>Assets are mainly stored in two directories: Assets and Work Files. There is a clear distinction what kind of file should be where.</p>
+<p>When editing a Zone file in the Assets directory a different set of Object Definitions will available compared to a Zone file from the Work Files directory.</p>
+
+<h2>Assets directory</h2>
+
+<p>Assets directory should contain files that are to be used directly by the game and don't need conversion:</p>
+<ul>
+    <li>Textures</li>
+    <li>Audio files</li>
+    <li>Models in .j3o format</li>
+    <li>Zone files that are used directly by the game (most of them).</li>
+</ul>
+
+<p>This is also the directory used for storing assets by the jMonkey Engine SDK.</p>
+
+<h2>Work Files directory</h2>
+<p>Work Files should contain files that need to processed before they can be used by the game:</p>
+<ul>
+    <li>Meshes in .obj and .blend formats</li>
+    <li>Maps</li>
+    <li>Zone file containing definitions used for map creation.</li>
+</ul>
+
+<h2>Conversion</h2>
+<p>Right now files that need conversion are:</p>
+<ul>
+    <li>Meshes in .obj and .blend formats</li>
+    <li>Maps</li>
+</ul>
+
+<p>To convert meshes double click on it in the file view. A converted version will be created in the Assets directory using the same relative path.</p>
+<p>Meshes after conversion are stripped of their materials. To be used properly a mesh needs to be part of a <b>GeometryDefinition</b>.</p>
+<p>Maps used unconverted meshes through <b>MapGeometryDefinitions</b>. If a mesh is only to be part of the map geometry it doesn't need to be converted.</p>
+<p>In the file view Meshes are are shown using <img src="../icons/zone/mesh_exported.png" alt=""> icon, if they have been already converted and <img src="../icons/zone/mesh_notexported.png" alt=""> if not.
+If the file format is no supported <img src="../icons/zone/mesh_invalid.png" alt=""> wil be used.</p>
+
+<div style="text-align: right"><a href="index.html">Back to index</a></div>
+</body>
+</html>

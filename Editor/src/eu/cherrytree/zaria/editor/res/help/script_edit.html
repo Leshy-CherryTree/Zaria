@@ -1,0 +1,29 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Editing Scripts</title>
+</head>
+<body>
+<h1>Editing Scripts</h1>
+
+<p>Scripting in Zaria is done using JavaScript syntax with small additions. To learn more about JavaScript in general visit <a href="https://developer.mozilla.org/en/docs/Web/JavaScript">JavaScript section on MDN</a>.</p>
+
+<h2>Imports</h2>
+<p>The most significant difference between normal JavaScript and ZoneScript is the addition of <b>imports</b>.</p>
+<p>The syntax is the same as imports in Java:</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>import</b> path.to.file;</p>
+<p>The path takes the Scripts directory as root. The .zonescript extension is not part of the import.</p>
+<p>Imports work similarly to imports in Objective-C. All of the source file is put in place of the import command. However the preprocessor makes sure, that nothing is duplicated and no cycles exist.
+That means that you can use all variables and functions defined from the included file.</p>
+<p>Keep in mind that every script has its own context, so changing a value of a variable from the imported file will not impact any other script, than the one which is importing.</p>
+<p>You can drag script files from the file view on the right into the editing area. Proper syntax for importing the file will be generated automatically.</p>
+
+<h2>Function list</h2>
+<p>On the right you will have a list of functions that are available to the script. You can drag any of them from the list into the editing area.</p>
+
+<h2>Packaging</h2>
+<p>For the scripts to be usable in game they have to be packaged. To do that press <img src="../icons/big/application-x-jar.png" alt="">. That will generate a scripts.jar file at the location specified in config.xml.</p>
+
+<div style="text-align: right"><a href="index.html">Back to index</a></div>
+</body>
+</html>
