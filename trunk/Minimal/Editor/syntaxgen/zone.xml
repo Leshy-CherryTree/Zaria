@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<TokenMakerDefinition>
+  <general>
+    <package>eu.cherrytree.zaria.editor.modes</package>
+    <className>ZoneTokenMarker</className>
+    <extendedClass>AbstractJFlexCTokenMaker</extendedClass>
+    <classComment/>
+    <ignoreCase>false</ignoreCase>
+    <booleanLiterals>false</booleanLiterals>
+  </general>
+  <comments>
+    <lineComments enabled="true" start="//"/>
+    <multiLineComments enabled="true" end="*/" start="/*"/>
+    <docComments enabled="false" end="" start=""/>
+  </comments>
+  <keywords>
+    <keyword>@class</keyword>
+  </keywords>
+  <keywords2>
+    <keyword>false</keyword>
+    <keyword>null</keyword>
+    <keyword>true</keyword>
+  </keywords2>
+  <dataTypes/>
+  <functions/>
+  <numbers>
+    <hexLiteral>0x{HexDigit}+</hexLiteral>
+    <intLiteral>{Digit}+</intLiteral>
+    <floatLiteral>({Digit}+)("."{Digit}+)?(e[+-]?{Digit}+)? | ({Digit}+)?("."{Digit}+)(e[+-]?{Digit}+)?</floatLiteral>
+  </numbers>
+  <stringLiterals enabled="false" multiLine="false"/>
+  <charLiterals enabled="false" multiLine="false"/>
+  <backtickLiterals enabled="false"/>
+  <operators>
+    <operator>"</operator>
+    <operator>,</operator>
+    <operator>:</operator>
+  </operators>
+</TokenMakerDefinition>

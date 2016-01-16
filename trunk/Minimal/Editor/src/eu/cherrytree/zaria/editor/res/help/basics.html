@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Basics</title>
+</head>
+<body>
+<h1>Basics</h1>
+
+<h2>Zone files</h2>
+
+<p>All game data, except for data inherently binary in nature, such as audio, images and meshes, is stored in ZONE format.
+ZONE is a text format that is derived from <a href="http://en.wikipedia.org/wiki/JSON">JSON</a>.</p>
+<p>All Zone files can be edited in text mode, and most of them also in graph mode.<br></p>
+<p>More on editing Zone Files can be found <a href="zone_edit.html">here</a>.</p>
+
+<h2>Libraries</h2>
+
+<p>To organize data Zone Libraries are used. A library is a file holding paths to Zone files.</p>
+<p>A library is needed to <a href="map_edit.html">edit maps</a> and to run a game based on the Zaria Framework.</p>
+<p>More on editing Zone Libraries can be found <a href="library_edit.html">here</a>.</p>
+
+<h2>Asset directories</h2>
+
+<p>Game assets are located in 3 directories</p>
+<ul>
+    <li>Assets - Assets that do not need conversion are to be put there. This directory is later packed into a .jar file and used as a source of assets for the running game.</li>
+    <li>Work Files - Assets that need conversion are to be put here. After conversion their counterparts are automatically put in the Assets directory.</li>
+    <li>Scripts - Only for scripts. This directory is packaged into a single jar for use by the game.</li>
+</ul>
+<p>More on Assets, Work Files and Conversion can be found <a href="assets.html">here</a>.</p>
+
+<div style="text-align: right"><a href="index.html">Back to index</a></div>
+</body>
+</html>

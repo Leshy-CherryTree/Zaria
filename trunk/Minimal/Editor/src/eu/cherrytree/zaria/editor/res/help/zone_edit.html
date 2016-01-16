@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Editing Zone Files</title>
+</head>
+<body>
+<h1>Editing Zone Files</h1>
+
+<h2>ObjectDefinition IDs</h2>
+<p>Every Object Definition has to have an ID. ID is a String which will be used to retrieve the reference the definition.
+It has to be unique per library. Meaning that in a single library only one definition can have a specific name.</p>
+<p>Valid characters that can be used in IDs are alphanumerical characters and the underscore.</p>
+
+<h2>Graph mode</h2>
+<p>Every ObjectDefinition is represented as a single node. Links to other definitions in that file are shown
+visually. It is possible to link to definitions in other files. However that can be done only through the property view.</p>
+<p>Properties of the definition that are not links are editable in the property view. Just select a node and its properties will visible on the right,
+under the Palette.</p>
+
+<p>Changing an ID of a definition will propagate to all other definitions that link to it in the same file. However all external links will have to be modified
+manually.</p>
+
+<h2>Text mode</h2>
+<p>In some cases it is useful to edit files in text mode, as it provides more information on the correctness and allows for quicker search/replace operations.</p>
+
+<h2>Palette</h2>
+<p>On the right of the editing view you will see the palette, which lists all available Object Definitions. Dragging any of them into the
+editing area will put it in the Zone file.</p>
+
+<div style="text-align: right"><a href="index.html">Back to index</a></div>
+</body>
+</html>
