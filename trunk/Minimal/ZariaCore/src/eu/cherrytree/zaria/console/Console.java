@@ -8,6 +8,7 @@
 package eu.cherrytree.zaria.console;
 
 import eu.cherrytree.zaria.debug.DebugManager;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -18,12 +19,14 @@ public abstract class Console
 {
 	//--------------------------------------------------------------------------
 	
-	protected static Console instance;
+	private static Console instance;
 	
 	//--------------------------------------------------------------------------
 	
 	private HashMap<String,ConsoleProcedure> consoleProcedures = new HashMap<>();
 	private HashMap<String,ConsoleFunction> consoleFunctions = new HashMap<>();
+	
+	protected ArrayList<String> commandHistory = new ArrayList<>();
 	
 	//--------------------------------------------------------------------------
 	
@@ -39,28 +42,31 @@ public abstract class Console
 	public abstract void printToStd(String str);
 	public abstract void printToErr(String str);
 	
+	public abstract void toggle();
+	public abstract boolean isConsoleOpen();
+	
 	//--------------------------------------------------------------------------
 	
 	public final void addConsoleCommand(ConsoleCommand command) throws CantAssignConsoleCommand
 	{
-		if(command instanceof ConsoleProcedure)
+		if (command instanceof ConsoleProcedure)
 		{
 			if(consoleProcedures.containsKey(command.getName()))
 				throw new CantAssignConsoleCommand(command, "Procedure already added to ApplicationState.");
 		
 			consoleProcedures.put(command.getName(), (ConsoleProcedure) command);
 		}
-		else if(command instanceof ConsoleFunction)
+		else if (command instanceof ConsoleFunction)
 		{
-			if(consoleFunctions.containsKey(command.getName()))
+			if (consoleFunctions.containsKey(command.getName()))
 				throw new CantAssignConsoleCommand(command, "Function already added to ApplicationState.");
 		
 			consoleFunctions.put(command.getName(), (ConsoleFunction) command);
 		}
 		
 		DebugManager.trace("Console command " + command.getName() + " added.");
-	}
-
+	}		
+	
 	//--------------------------------------------------------------------------
 	
 	public final void removeConsoleCommand(ConsoleCommand command)
@@ -86,16 +92,13 @@ public abstract class Console
 		char [] test = parameters.toCharArray();
 		int counter = 0;
 
-		for(int i = 0 ; i < test.length ; i++)
+		for (int i = 0 ; i < test.length ; i++)
 		{
 			if(test[i] == '\"')
 				counter++;
 		}
 
-		if((counter % 2) == 0)
-			return true;
-		else
-			return false;
+		return (counter % 2) == 0;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -158,8 +161,10 @@ public abstract class Console
 		
 	//--------------------------------------------------------------------------
 	
-	public final boolean onConsoleCommand(String command)
+	protected final boolean onConsoleCommand(String command)
 	{
+		commandHistory.add(command);
+		
 		if(command.equals("help"))
 		{
 			for (ConsoleProcedure procedure : consoleProcedures.values())
@@ -233,6 +238,7 @@ public abstract class Console
 	public static void printOut(String str)
 	{
 		instance.printToStd(str);
+		DebugManager.trace("[CONSOLE OUT]: " + str);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -240,6 +246,14 @@ public abstract class Console
 	public static void printErr(String str)
 	{
 		instance.printToErr(str);
+		DebugManager.trace("[CONSOLE ERR]: " + str);
+	}
+	
+	//--------------------------------------------------------------------------	
+	
+	public static boolean isOpen()
+	{
+		return instance.isConsoleOpen();
 	}
 	
 	//--------------------------------------------------------------------------	
