@@ -9,6 +9,13 @@
 package eu.cherrytree.zaria.base;
 
 import eu.cherrytree.zaria.console.Console;
+import eu.cherrytree.zaria.console.commands.CrashConsoleCommand;
+import eu.cherrytree.zaria.console.commands.ExitAppConsoleCommand;
+import eu.cherrytree.zaria.console.commands.GetApplicationPropertyConsoleCommand;
+import eu.cherrytree.zaria.console.commands.GetEnvironmentVariableConsoleCommand;
+import eu.cherrytree.zaria.console.commands.GetSystemPropertyConsoleCommand;
+import eu.cherrytree.zaria.console.commands.NoCrashConsoleCommand;
+import eu.cherrytree.zaria.console.commands.ShowMemoryConsoleCommand;
 import eu.cherrytree.zaria.debug.DebugManager;
 import eu.cherrytree.zaria.debug.DebugUI;
 import eu.cherrytree.zaria.game.GameObject;
@@ -109,8 +116,8 @@ public abstract class ZariaApplication<States extends Enum>
 	private StateMachine<States, ApplicationStateParams> stateMachine;
 	
     private Arguments arguments;
-	private Console console;
-	private ErrorUI errorUI;
+	protected Console console;
+	protected ErrorUI errorUI;
 
 	private long mainThreadId;
 	
@@ -239,6 +246,18 @@ public abstract class ZariaApplication<States extends Enum>
 			onInit();
 									
 			Runtime runtime = Runtime.getRuntime();
+			
+			// Adding standard console commands.
+			console.addConsoleCommand(new ExitAppConsoleCommand());
+			console.addConsoleCommand(new GetApplicationPropertyConsoleCommand());
+			console.addConsoleCommand(new GetEnvironmentVariableConsoleCommand());
+			console.addConsoleCommand(new GetSystemPropertyConsoleCommand());
+			console.addConsoleCommand(new ShowMemoryConsoleCommand());
+			
+			if (DebugManager.isActive())
+				console.addConsoleCommand(new CrashConsoleCommand());
+			else
+				console.addConsoleCommand(new NoCrashConsoleCommand());
 			
 			// Game initialized notify user.
 			Console.printOut("Memory: " + runtime.freeMemory() + " / " + runtime.totalMemory());								
@@ -431,15 +450,15 @@ public abstract class ZariaApplication<States extends Enum>
 
 	private void runState()
 	{
-		float deltatime = getDeltaTime();
+		float deltatime = getDeltaTime();	
 
+		update(deltatime);		
+		
 		console.update(deltatime);
 
-		update(deltatime);
-
-		console.render(deltatime);
-
 		render(deltatime);
+		
+		console.render(deltatime);
 	}
 	
 	//--------------------------------------------------------------------------
