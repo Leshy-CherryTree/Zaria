@@ -8,6 +8,8 @@
 
 package eu.cherrytree.zaria.base;
 
+import java.io.InputStream;
+
 
 /**
  *
@@ -18,30 +20,26 @@ public class ApplicationInstance
 	//--------------------------------------------------------------------------
 	
 	private static ZariaApplication instance;
-	private static float screenWidth;
-	private static float screenHeight;
 	
 	//--------------------------------------------------------------------------
 
-	public static void setInstance(ZariaApplication instance, float screenWidth, float screenHeight)
+	public static void setInstance(ZariaApplication instance)
 	{
 		ApplicationInstance.instance = instance;
-		ApplicationInstance.screenWidth = screenWidth;
-		ApplicationInstance.screenHeight = screenHeight;
 	}
 	
 	//--------------------------------------------------------------------------
 	
 	public static float getScreenHeight()
 	{
-		return screenHeight;
+		return instance.getScreenHeight();
 	}
 	
 	//--------------------------------------------------------------------------
 
 	public static float getScreenWidth()
 	{
-		return screenWidth;
+		return instance.getScreenWidth();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -116,10 +114,10 @@ public class ApplicationInstance
 	
 	//--------------------------------------------------------------------------
 	
-	public static Object loadAsset(String path)
+	public static <Type> Type loadAsset(String path, Class<Type> type)
 	{
-		return instance.loadAsset(path);
+		return (Type) instance.loadAsset(path, type);
 	}
-	
+
 	//--------------------------------------------------------------------------
 }

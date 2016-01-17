@@ -18,6 +18,7 @@ import eu.cherrytree.zaria.serialization.LoadCapsule;
 import eu.cherrytree.zaria.serialization.SaveCapsule;
 import eu.cherrytree.zaria.serialization.ValueAlreadySetException;
 import eu.cherrytree.zaria.utilities.Random;
+import java.io.File;
 import java.io.IOException;
 
 import java.util.ArrayList;
@@ -109,22 +110,34 @@ public abstract class ZariaApplication<States extends Enum>
 	
     private Arguments arguments;
 	private Console console;
+	private ErrorUI errorUI;
 
 	private long mainThreadId;
 	
     //--------------------------------------------------------------------------
 
-	public ZariaApplication(String[] args, States initialState, ApplicationStateParams initialParams, DebugUI debugUI)
-	{
+	public ZariaApplication(String[] args, States initialState, ApplicationStateParams initialParams, Console console, ErrorUI errorUI, DebugUI debugUI)
+	{				
 		try
 		{				
-			stateMachine = new StateMachine<>(initialState, initialParams);							
-
-			arguments = new Arguments(args);
+			assert initialState != null;
+			assert initialParams != null;
+			assert console != null;
+			assert errorUI != null;
 			
-			ApplicationProperties.load();
+			this.stateMachine = new StateMachine<>(initialState, initialParams);													
+			this.arguments = new Arguments(args);
+			this.console = console;			
+			this.errorUI = errorUI;
+			
+			// Setting the global application instance.
+			ApplicationInstance.setInstance(this);
 
-			if (DebugManager.isActive())
+			// Loading global properties.
+			ApplicationProperties.load();
+			
+			// Initializing debug ui.
+			if (DebugManager.isActive() && debugUI != null)
 			{
 				DebugManager.init(debugUI);
 
@@ -134,11 +147,17 @@ public abstract class ZariaApplication<States extends Enum>
 			else
 			{
 				Logger.getLogger("").setLevel(Level.OFF);
-			}
+			}						
 
+			// Initializing random number generator.
 			Random.init(System.currentTimeMillis());
 
+			// Gathering system properties.
 			SystemProperties.initOS();
+			
+			// Creating application save path.
+			File save = new File(getSavePath());
+			save.mkdirs();
 		}
 		catch(ApplicationProperties.ApplicationPropertiesNotFoundException e)
 		{
@@ -192,33 +211,38 @@ public abstract class ZariaApplication<States extends Enum>
 	{
 		try
 		{
+			// Initialzing the script engine.
 			ScriptEngine.init();
+			
+			// Seting global console instance.
 			Console.setInstance(console);
 			
-			mainThreadId = Thread.currentThread().getId();
-			
-			ApplicationInstance.setInstance(this, getScreenWidth(), getScreenHeight());
+			// Gettin ID of the main thread.
+			mainThreadId = Thread.currentThread().getId();						
 
 			float[] o_col = ApplicationProperties.getConsoleFontOutColor();
 			float[] e_col = ApplicationProperties.getConsoleFontErrColor();
 			float[] b_col = ApplicationProperties.getConsoleBackgroundColor();
 
+			// Initialzing console.
 			console.init(	o_col[0], o_col[1], o_col[2],
 							e_col[0], e_col[1], e_col[2],
 							b_col[0], b_col[1], b_col[2], b_col[3],
 							ApplicationProperties.getConsoleFontSize(), ApplicationProperties.getConsoleFontPath(),
 							getScreenWidth(), getScreenHeight(), 0.45f,
 							ApplicationProperties.getConsoleOpenSpeed());
-
+			
 			console.setFlush(arguments.flushConsole);
 			console.setEnabled(ApplicationProperties.isConsoleDefaultEnabled() || arguments.enableConsole);
 			
+			// Init callback.
 			onInit();
-						
+									
 			Runtime runtime = Runtime.getRuntime();
-
-			DebugManager.trace("Memory: " + runtime.freeMemory() + " / " + runtime.totalMemory());								
-			DebugManager.trace("Game intiated");
+			
+			// Game initialized notify user.
+			Console.printOut("Memory: " + runtime.freeMemory() + " / " + runtime.totalMemory());								
+			Console.printOut(ApplicationProperties.getApplicationFullName() + " intiated");
 		}
 		catch(Throwable e)
 		{
@@ -247,49 +271,49 @@ public abstract class ZariaApplication<States extends Enum>
 
 	//--------------------------------------------------------------------------
 
-	public String getFullApplicationName()
+	public final String getFullApplicationName()
 	{
 		return ApplicationProperties.getApplicationFullName();
 	}
 
 	//--------------------------------------------------------------------------
 
-	public String getShortApplicationName()
+	public final String getShortApplicationName()
 	{
 		return ApplicationProperties.getApplicationShortName();
 	}
 
 	//--------------------------------------------------------------------------
 
-	public String getDeveloperFullName()
+	public final String getDeveloperFullName()
 	{
 		return ApplicationProperties.getDeveloperFullName();
 	}
 
 	//--------------------------------------------------------------------------
 
-	public String getDeveloperShortName()
+	public final String getDeveloperShortName()
 	{
 		return ApplicationProperties.getDeveloperShortName();
 	}
 
 	//--------------------------------------------------------------------------
 
-	public String getVersion()
+	public final String getVersion()
 	{
 		return ApplicationProperties.getMajorVersionNumber() + "." + ApplicationProperties.getMinorVersionNumber() + "." + ApplicationProperties.getRevisionNumber();
 	}
 
 	//--------------------------------------------------------------------------
 	
-	public String getSavePath()
+	public final String getSavePath()
 	{
 		return SystemProperties.getUserHome() + "/." + ApplicationProperties.getApplicationShortName();
 	}
 
 	//--------------------------------------------------------------------------
 
-	public void run()
+	protected void run()
 	{
 		try
 		{
@@ -307,10 +331,18 @@ public abstract class ZariaApplication<States extends Enum>
 	
 	private void handleFatalError(Throwable throwable, String message)
 	{
-		DebugManager.showErrorDialog("Application error!", "Application has encountered a fatal error and will have to shutdown.\n" + throwable.toString());
+		if (DebugManager.isActive())
+		{
+			DebugManager.trace(throwable);			
+			DebugManager.trace(message);
+		}
+		else
+		{
+			System.err.println(message + "\n");
+			System.err.println(DebugManager.getThrowableText("", throwable));
+		}
 		
-		DebugManager.trace(throwable);			
-		DebugManager.trace(message);
+		errorUI.showDialog("Application error!", "Application has encountered a fatal error and will have to shutdown.\n" + throwable.toString());				
 
 		if (DebugManager.isActive())
 			DebugManager.dumpLog();
@@ -461,7 +493,7 @@ public abstract class ZariaApplication<States extends Enum>
     protected abstract void onInit();
     protected abstract void onExit();
 	
-	protected abstract Object loadAsset(String path);
+	protected abstract <Type> Type loadAsset(String path, Class<Type> type);
     
 	//--------------------------------------------------------------------------
 }

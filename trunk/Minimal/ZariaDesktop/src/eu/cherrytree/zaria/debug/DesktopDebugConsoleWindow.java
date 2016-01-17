@@ -49,6 +49,8 @@ import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
@@ -182,7 +184,7 @@ public class DesktopDebugConsoleWindow extends JFrame implements ActionListener,
 	//--------------------------------------------------------------------------
 	
 	public DesktopDebugConsoleWindow(String title)
-	{
+	{						
 		setTitle(title);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		getRootPane().setWindowDecorationStyle(JRootPane.NONE);
@@ -197,9 +199,7 @@ public class DesktopDebugConsoleWindow extends JFrame implements ActionListener,
 		catch (IOException ex)
 		{
 			ex.printStackTrace();
-		}		
-
-        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		}
 		
 		killButon.setText("Kill app");
 		saveButon.setText("Save to File");

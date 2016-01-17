@@ -54,12 +54,8 @@ public class DebugManager extends SecurityManager
     private boolean textPaused = false;
 
     private DebugUI debugUI;
-    private String debugFont;
 
     private SimpleDateFormat dateFormat;
-   
-
-    //private ZariaApplication application;
 			
 	// TODO Change all complex string operations to use the StringBuilder.
 
@@ -118,7 +114,7 @@ public class DebugManager extends SecurityManager
     {
         return active;
     }
-	
+
 	//--------------------------------------------------------------------------
 
     static synchronized void setTextOutPause(boolean pause)
@@ -184,13 +180,15 @@ public class DebugManager extends SecurityManager
 		}
 		else
 		{		
+			throwntext = indent + throwable.getClass().getCanonicalName() + "\n";
+			
 			if (throwable instanceof ApplicationRuntimeError)
-				throwntext = ((ApplicationRuntimeError)throwable).getInfo().replace("\n", "\n" + indent);
+				throwntext += ((ApplicationRuntimeError)throwable).getInfo().replace("\n", "\n" + indent);
 			else 
-				throwntext = throwable.getMessage() != null ? indent + throwable.getMessage().trim() + "\n" : "";
+				throwntext += throwable.getMessage() != null ? indent + throwable.getMessage().trim() + "\n" : "";
 
 			StackTraceElement[] stackElements = throwable.getStackTrace();
-
+						
 			for(int i = 0 ; i < stackElements.length ; i++)
 				throwntext += indent + i + ".\t" + stackElements[i].toString() + "\n";
 			
@@ -361,14 +359,16 @@ public class DebugManager extends SecurityManager
 	
 	public synchronized static void showErrorDialog(String title, String message)
 	{
-		instance.debugUI.showErrorDialog(title, message);
+		if (active)
+			instance.debugUI.showErrorDialog(title, message);
 	}
 	
     //--------------------------------------------------------------------------
 	
 	public synchronized static void showWarningDialog(String title, String message)
 	{
-		instance.debugUI.showWarningDialog(title, message);
+		if (active)
+			instance.debugUI.showWarningDialog(title, message);
 	}
 	
 	//--------------------------------------------------------------------------
