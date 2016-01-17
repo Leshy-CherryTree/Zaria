@@ -32,7 +32,7 @@ public class ApplicationProperties
     //--------------------------------------------------------------------------
 
 	private static Properties properties = new Properties();
-	private static String propertyPath = "/Configuration/app.properties";
+	private static String propertyPath = "/app.properties";
 	
     private static String applicationFullName;
     private static String applicationShortName;

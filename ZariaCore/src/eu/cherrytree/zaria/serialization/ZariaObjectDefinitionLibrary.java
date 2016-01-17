@@ -196,7 +196,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		
 		try
 		{
-			objects = (ZariaObjectDefinition[]) ApplicationInstance.loadAsset(file);
+			objects = ApplicationInstance.loadAsset(file, ZariaObjectDefinition[].class);
 		}
 		catch(Exception ex)
 		{
@@ -245,7 +245,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		
 		try
 		{
-			library = (ZariaObjectDefinitionLibrary) ApplicationInstance.loadAsset(file);
+			library = ApplicationInstance.loadAsset(file, ZariaObjectDefinitionLibrary.class);
 		}
 		catch(Exception ex)
 		{

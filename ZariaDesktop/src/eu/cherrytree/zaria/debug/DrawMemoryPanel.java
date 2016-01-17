@@ -1,3 +1,5 @@
+package eu.cherrytree.zaria.debug;
+
 /****************************************/
 /* DrawMemoryPanel.java					*/
 /* Created on: 13-Jun-2014				*/
@@ -5,7 +7,7 @@
 /* Released under EUPL v1.1				*/
 /****************************************/
 
-package eu.cherrytree.zaria.debug;
+
 
 import java.awt.Color;
 import java.awt.Font;
