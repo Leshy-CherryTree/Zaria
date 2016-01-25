@@ -26,9 +26,11 @@ import eu.cherrytree.zaria.serialization.SaveCapsule;
 import eu.cherrytree.zaria.serialization.ValueAlreadySetException;
 import eu.cherrytree.zaria.utilities.Random;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,7 +42,7 @@ import java.util.logging.Logger;
  */
 public abstract class ZariaApplication<States extends Enum>
 {
-    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
 
     private static class Arguments
     {
@@ -118,7 +120,12 @@ public abstract class ZariaApplication<States extends Enum>
     private Arguments arguments;
 	protected Console console;
 	protected ErrorUI errorUI;
+	
+	private ZariaApplicationState currentState;
+	
+	private ScheduledThreadPoolExecutor threadPoolExecutor;	
 
+	private boolean paused = false;
 	private long mainThreadId;
 	
     //--------------------------------------------------------------------------
@@ -163,7 +170,7 @@ public abstract class ZariaApplication<States extends Enum>
 			SystemProperties.initOS();
 			
 			// Creating application save path.
-			File save = new File(getSavePath());
+			File save = new File(ApplicationInstance.getUserDataLocation());
 			save.mkdirs();
 		}
 		catch(ApplicationProperties.ApplicationPropertiesNotFoundException e)
@@ -241,6 +248,10 @@ public abstract class ZariaApplication<States extends Enum>
 			
 			console.setFlush(arguments.flushConsole);
 			console.setEnabled(ApplicationProperties.isConsoleDefaultEnabled() || arguments.enableConsole);
+						
+			// Initializing threading system.
+			int max_threads = (int) Math.floor(SystemProperties.getMaxProcessors() * 2);			
+			threadPoolExecutor = new ScheduledThreadPoolExecutor( max_threads );
 			
 			// Init callback.
 			onInit();
@@ -290,53 +301,12 @@ public abstract class ZariaApplication<States extends Enum>
 
 	//--------------------------------------------------------------------------
 
-	public final String getFullApplicationName()
-	{
-		return ApplicationProperties.getApplicationFullName();
-	}
-
-	//--------------------------------------------------------------------------
-
-	public final String getShortApplicationName()
-	{
-		return ApplicationProperties.getApplicationShortName();
-	}
-
-	//--------------------------------------------------------------------------
-
-	public final String getDeveloperFullName()
-	{
-		return ApplicationProperties.getDeveloperFullName();
-	}
-
-	//--------------------------------------------------------------------------
-
-	public final String getDeveloperShortName()
-	{
-		return ApplicationProperties.getDeveloperShortName();
-	}
-
-	//--------------------------------------------------------------------------
-
-	public final String getVersion()
-	{
-		return ApplicationProperties.getMajorVersionNumber() + "." + ApplicationProperties.getMinorVersionNumber() + "." + ApplicationProperties.getRevisionNumber();
-	}
-
-	//--------------------------------------------------------------------------
-	
-	public final String getSavePath()
-	{
-		return SystemProperties.getUserHome() + "/." + ApplicationProperties.getApplicationShortName();
-	}
-
-	//--------------------------------------------------------------------------
-
 	protected void run()
 	{
 		try
 		{
-			executeMachineState();
+			if (!paused)
+				executeMachineState();
 		}
 		// Gotta catch'em all ^_^
 		catch(Throwable e)
@@ -371,36 +341,16 @@ public abstract class ZariaApplication<States extends Enum>
 	
 	public void load(String fileName)
 	{
-		try
-		{
-			LoadCapsule loadCapsule = Capsule.loadCapsule(fileName);
-			GameObject.loadCounters(loadCapsule);		
-			
-			onLoad(loadCapsule);
-		}
-		catch (IOException | ClassNotFoundException ex)
-		{
-			handleFatalError(ex, "Loading failed!");
-		}
+		if (currentState.isSaveLoadDone())
+			currentState.initLoad(fileName);	
 	}
 	
 	//--------------------------------------------------------------------------	
 	
 	public void save(String fileName)
 	{
-		try
-		{
-			Capsule saveCapsule = new Capsule();
-			GameObject.saveCounters(saveCapsule);
-			
-			onSave(saveCapsule);
-			
-			Capsule.saveCapsule(fileName, saveCapsule);
-		}
-		catch (ValueAlreadySetException | IOException ex)
-		{
-			handleFatalError(ex, "Saving failed!");
-		}
+		if (currentState.isSaveLoadDone())
+			currentState.initSave(fileName);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -422,7 +372,13 @@ public abstract class ZariaApplication<States extends Enum>
 	
 	private void startMachineState() throws Throwable
 	{	
-		startApplicationState(stateMachine.getState(), stateMachine.getStartParams());
+		assert currentState == null;
+		
+		ZariaApplicationState state = createState(stateMachine.getState());
+		
+		state.init(this, stateMachine.getStartParams());
+		
+		currentState = state;
 
 		stateMachine.setStateStarted();
 	}
@@ -431,10 +387,7 @@ public abstract class ZariaApplication<States extends Enum>
 
 	private void endMachineState() throws Throwable
 	{
-		endApplicationState();
-		
-		//Just in case.
-		System.gc();
+		removeState();
 
 		stateMachine.setStateEnded();
 	}
@@ -448,25 +401,46 @@ public abstract class ZariaApplication<States extends Enum>
 	
 	//--------------------------------------------------------------------------	
 
-	private void runState()
-	{
+	private void runState() throws IOException
+	{		
 		float deltatime = getDeltaTime();	
 
-		update(deltatime);		
+		currentState.updateState(deltatime);		
 		
 		console.update(deltatime);
-
-		render(deltatime);
+			
+		currentState.renderState(deltatime);
 		
 		console.render(deltatime);
 	}
 	
 	//--------------------------------------------------------------------------
 
+	protected final void attachState(ZariaApplicationState state)
+	{
+		currentState = state;			
+	}
+
+	//--------------------------------------------------------------------------
+
+	private void removeState()
+	{		
+		currentState.destroy();
+		currentState.freeLibrary();		
+		currentState = null;
+
+		//Just in case.
+		System.gc();
+	}
+
+	//--------------------------------------------------------------------------
+
 	protected final void exitApp(int status)
 	{
 		console.destroy();
 
+		threadPoolExecutor.shutdownNow();
+		
 		onExit();
 
 		if (DebugManager.isActive())
@@ -478,10 +452,30 @@ public abstract class ZariaApplication<States extends Enum>
 	}
 
 	//--------------------------------------------------------------------------
+	
+	public void pause()
+	{
+		if (!paused)
+			currentState.onPause();
+		
+		paused = true;
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public void resume()
+	{
+		if (paused)
+			currentState.onResume();
+		
+		paused = false;
+	}
+	
+	//--------------------------------------------------------------------------
 
 	public void quit(int status)
 	{
-		endApplicationState();				
+		removeState();				
 		
 		exitApp(status);
 	}
@@ -494,25 +488,51 @@ public abstract class ZariaApplication<States extends Enum>
 	}
 	
 	//--------------------------------------------------------------------------
-		
-	protected abstract void update(float deltatime);
-	protected abstract void render(float deltatime);
 	
+	ScheduledThreadPoolExecutor getThreadPoolExecutor()
+	{
+		return threadPoolExecutor;
+	}
+	
+	//--------------------------------------------------------------------------
+
+	LoadCapsule loadCapsule(String filePath) throws IOException, FileNotFoundException, ClassNotFoundException
+	{
+		LoadCapsule capsule;
+		
+		if (filePath != null)
+		{
+			capsule = Capsule.loadCapsule(filePath);
+			GameObject.loadCounters(capsule);
+		}
+		else
+		{
+			capsule = new Capsule();
+		}
+		
+		return capsule;
+	}
+	
+    //--------------------------------------------------------------------------
+
+	void saveCapsule(SaveCapsule capsule, String saveFilePath) throws ValueAlreadySetException, IOException
+	{
+		GameObject.saveCounters(capsule);
+		Capsule.saveCapsule(saveFilePath, capsule);
+	}
+	
+	
+	//--------------------------------------------------------------------------
+	
+	protected abstract ZariaApplicationState createState(States state);
+
 	protected abstract float getDeltaTime();
 	
 	protected abstract float getScreenWidth();
 	protected abstract float getScreenHeight();
-	
-	protected abstract void startApplicationState(States state, ApplicationStateParams startParams);
-	protected abstract void endApplicationState();
-	
-	protected abstract void onLoad(LoadCapsule capsule);
-	protected abstract void onSave(SaveCapsule capsule);
-	
+		
     protected abstract void onInit();
-    protected abstract void onExit();
-	
-	protected abstract <Type> Type loadAsset(String path, Class<Type> type);
+    protected abstract void onExit();	
     
 	//--------------------------------------------------------------------------
 }

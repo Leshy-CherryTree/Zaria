@@ -394,7 +394,7 @@ public class DebugManager extends SecurityManager
 		if (active)
 		{
 			SimpleDateFormat date_format = new SimpleDateFormat("dd-MM-yyy_HH-mm");
-			instance.debugUI.saveLog(ApplicationInstance.getSavePath() + "/log_" + date_format.format(new Date()) + ".txt"); 
+			instance.debugUI.saveLog(ApplicationInstance.getUserDataLocation() + "/log_" + date_format.format(new Date()) + ".txt"); 
 		}
 	}
 	

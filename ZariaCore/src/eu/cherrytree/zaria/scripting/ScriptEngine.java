@@ -30,7 +30,8 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.WrapFactory;
 
 /**
- *
+ * Wrapper around the Rhino JavaScript engine, that allows execution only of select methods and global functions.
+ * 
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
 public class ScriptEngine
@@ -241,7 +242,7 @@ public class ScriptEngine
 		returnValue = "Created object.",
 		parameters = {"name", "Name of the type of the object."}
 	)
-	public static Object load(String name)
+	public static Object create(String name)
 	{			
 		try
 		{
