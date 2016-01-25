@@ -52,6 +52,9 @@ public class AssetFileFilter extends FileFilter
 	{
 		if (f != null)
 		{
+			if (f.isDirectory())
+				return true;
+			
 			for (String extension : extensions)
 			{
 				if (f.getName().toLowerCase().endsWith(extension))
