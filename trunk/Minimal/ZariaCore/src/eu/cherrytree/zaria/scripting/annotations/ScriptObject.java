@@ -1,7 +1,7 @@
 /****************************************/
-/* ScriptObject.java					*/
+/* ScriptObject.java						*/
 /* Created on: 29-May-2014				*/
-/* Copyright Cherry Tree Studio 2014	*/
+/* Copyright Cherry Tree Studio 2014		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 

@@ -8,7 +8,7 @@
 
 package eu.cherrytree.zaria.base;
 
-import java.io.InputStream;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 
 /**
@@ -23,7 +23,7 @@ public class ApplicationInstance
 	
 	//--------------------------------------------------------------------------
 
-	public static void setInstance(ZariaApplication instance)
+	static void setInstance(ZariaApplication instance)
 	{
 		ApplicationInstance.instance = instance;
 	}
@@ -46,44 +46,37 @@ public class ApplicationInstance
 			
 	public static String getFullApplicationName()
 	{
-		return instance.getFullApplicationName();
+		return ApplicationProperties.getApplicationFullName();
 	}
 	
 	//--------------------------------------------------------------------------
 	
 	public static String getShortApplicationName()
 	{
-		return instance.getShortApplicationName();
+		return ApplicationProperties.getApplicationShortName();
 	}
 	
 	//--------------------------------------------------------------------------	
 	
 	public static String getDeveloperFullName()
 	{
-		return instance.getDeveloperFullName();
+		return ApplicationProperties.getDeveloperFullName();
 	}
 	
 	//--------------------------------------------------------------------------
 	
 	public static String getDeveloperShortName()
 	{
-		return instance.getDeveloperShortName();
+		return ApplicationProperties.getDeveloperShortName();
 	}
 	
 	//--------------------------------------------------------------------------
 	
 	public static String getVersion()
 	{
-		return instance.getVersion();
+		return ApplicationProperties.getMajorVersionNumber() + "." + ApplicationProperties.getMinorVersionNumber() + "." + ApplicationProperties.getRevisionNumber();
 	}
-	
-	//--------------------------------------------------------------------------
-	
-	public static String getSavePath()
-	{
-		return instance.getSavePath();
-	}
-	
+
 	//--------------------------------------------------------------------------
 	
 	public static void save(String fileName)
@@ -114,10 +107,31 @@ public class ApplicationInstance
 	
 	//--------------------------------------------------------------------------
 	
-	public static <Type> Type loadAsset(String path, Class<Type> type)
+	public static boolean isMainThread()
 	{
-		return (Type) instance.loadAsset(path, type);
+		return Thread.currentThread().getId() == instance.getMainThreadId();
 	}
 
+	//--------------------------------------------------------------------------
+
+	public static ScheduledThreadPoolExecutor getThreadPoolExecutor()
+	{
+		return instance.getThreadPoolExecutor();
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static String getSavePath()
+	{
+		return getUserDataLocation() + "/saves/";
+	}
+
+	//--------------------------------------------------------------------------
+
+	public static String getUserDataLocation()
+	{
+		return SystemProperties.getUserHome() + "/." + getShortApplicationName();
+	}
+	
 	//--------------------------------------------------------------------------
 }

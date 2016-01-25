@@ -9,6 +9,7 @@ package eu.cherrytree.zaria.serialization;
 
 import eu.cherrytree.zaria.base.ApplicationInstance;
 import eu.cherrytree.zaria.debug.DebugManager;
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -196,7 +197,12 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		
 		try
 		{
-			objects = ApplicationInstance.loadAsset(file, ZariaObjectDefinition[].class);
+			objects = ZoneDeserializer.loadDefinitions(file);
+		}
+		catch(IOException ex)
+		{
+			DebugManager.fatalAlert("Loading zone file failed!", DebugManager.getThrowableText("", ex));
+			return "";
 		}
 		catch(Exception ex)
 		{
@@ -245,20 +251,25 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		
 		try
 		{
-			library = ApplicationInstance.loadAsset(file, ZariaObjectDefinitionLibrary.class);
+			library = ZoneDeserializer.loadLibrary(file);
+		}
+		catch(IOException ex)
+		{
+			DebugManager.fatalAlert("Loading library failed!", DebugManager.getThrowableText("", ex));
+			return "";
 		}
 		catch(Exception ex)
 		{
 			ValidationException valex = findValidationException(ex);
 			
-			if(valex != null)
+			if (valex != null)
 			{
 				for(DefinitionValidation val : valex.getValidation())
 					validations.add(val);
 				
 				return "Validation of " + file + " failed."; 
 			}
-			else
+			else 
 			{
 				throw ex;
 			}

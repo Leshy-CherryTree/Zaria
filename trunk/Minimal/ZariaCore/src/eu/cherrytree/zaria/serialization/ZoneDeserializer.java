@@ -25,9 +25,24 @@ import java.util.ArrayList;
  */
 public class ZoneDeserializer
 {
+	
+	//--------------------------------------------------------------------------
+	
+	public static ZariaObjectDefinition[] loadDefinitions(String path) throws IOException, ValidationException
+	{
+		return loadDefinitions(ZoneDeserializer.class.getResourceAsStream(path));
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static ZariaObjectDefinitionLibrary loadLibrary(String path) throws IOException, ValidationException
+	{
+		return loadLibrary(ZoneDeserializer.class.getResourceAsStream(path));
+	}
+	
     //--------------------------------------------------------------------------
 
-    public ZariaObjectDefinition[] loadDefinitions(InputStream inputStream) throws IOException
+    public static ZariaObjectDefinition[] loadDefinitions(InputStream inputStream) throws IOException, ValidationException
     {
 		ObjectMapper mapper = new ObjectMapper();
 		
@@ -68,7 +83,7 @@ public class ZoneDeserializer
 
 	//--------------------------------------------------------------------------
 
-	public ZariaObjectDefinitionLibrary loadLibrary(InputStream inputStream) throws IOException
+	public static ZariaObjectDefinitionLibrary loadLibrary(InputStream inputStream) throws IOException, ValidationException
 	{
 		ObjectMapper mapper = new ObjectMapper();
 				
