@@ -10,6 +10,7 @@ package eu.cherrytree.zaria.editor.graph;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.util.mxUtils;
 import eu.cherrytree.zaria.editor.FastMath;
+import eu.cherrytree.zaria.editor.Settings;
 
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
 import eu.cherrytree.zaria.editor.classlist.ZoneClass;
@@ -30,9 +31,9 @@ public abstract class ZoneGraphElement extends mxCell
 {
 	//--------------------------------------------------------------------------
 	
-	protected final static FontMetrics nodeMetrics =  mxUtils.getFontMetrics(new Font("Monospaced", Font.PLAIN, 11));
-	protected final static FontMetrics portMetrics =  mxUtils.getFontMetrics(new Font("Monospaced", Font.PLAIN, 10));
-	protected final static FontMetrics externalMetrics =  mxUtils.getFontMetrics(new Font("Monospaced", Font.PLAIN, 8));
+	protected final static FontMetrics nodeMetrics =  mxUtils.getFontMetrics(new Font("Monospaced", Font.PLAIN, Settings.getNodeFontSize()));
+	protected final static FontMetrics portMetrics =  mxUtils.getFontMetrics(new Font("Monospaced", Font.PLAIN, Settings.getNodePortFontSize()));
+	protected final static FontMetrics externalMetrics =  mxUtils.getFontMetrics(new Font("Monospaced", Font.PLAIN, Settings.getNodeOutsideFontSize()));
 	
 	//--------------------------------------------------------------------------
 	
