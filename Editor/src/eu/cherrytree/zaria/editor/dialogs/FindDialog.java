@@ -156,6 +156,10 @@ public class FindDialog extends JDialog implements ActionListener
 		
 		scopeRadioButtonGroup.add(allRadioButton);
 		scopeRadioButtonGroup.add(selectionRadioButton);
+		
+		// For now RSyntaxTextArea does not support this.
+		selectionRadioButton.setEnabled(false);
+		selectionRadioButton.setToolTipText("Currently not supported");
 
         GroupLayout scopePanelLayout = new GroupLayout(scopePanel);
         scopePanel.setLayout(scopePanelLayout);
@@ -328,7 +332,8 @@ public class FindDialog extends JDialog implements ActionListener
 													caseSensitiveCheckBox.isSelected(), 
 													wholeWordCheckBox.isSelected(), 
 													wrapSearchCheckBox.isSelected(), 
-													markFoundCheckBox.isSelected()	);
+													markFoundCheckBox.isSelected(),
+													selectionRadioButton.isSelected());
 	}
 
 	//--------------------------------------------------------------------------

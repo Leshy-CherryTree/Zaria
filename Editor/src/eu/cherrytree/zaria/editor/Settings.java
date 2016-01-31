@@ -35,7 +35,8 @@ public class Settings
 	
 	private static final String antialiasing = "antialiasing";
 	private static final String fractionalFontMetrics = "fractionalFontMetrics";
-	private static final String editorTheme = "editorTheme";
+	private static final String editorFontSize = "editorFontSize";
+	private static final String largeUI = "largeUI";
 	
 	private static final String recentFile = "recentFile";
 	
@@ -203,16 +204,30 @@ public class Settings
 	
 	//--------------------------------------------------------------------------
 
-	public static TextEditorState.ThemeType getEditorTheme()
+	public static int getEditorFontSize()
 	{
-		return TextEditorState.ThemeType.values()[preferences.getInt(editorTheme, 0)];
+		return preferences.getInt(editorFontSize, 12);
 	}
 	
 	//--------------------------------------------------------------------------
 
-	public static void setEditorTheme(TextEditorState.ThemeType theme)
+	public static void setEditorFontSize(int size)
 	{
-		 preferences.putInt(editorTheme, theme.ordinal());
+		 preferences.putInt(editorFontSize, size);
+	}
+
+	//--------------------------------------------------------------------------
+
+	public static void setLargeUI(boolean large)
+	{
+		 preferences.putBoolean(largeUI, large);
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public static boolean getLargeUI()
+	{
+		 return preferences.getBoolean(largeUI, false);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -235,4 +250,20 @@ public class Settings
 	{
 		 preferences.remove(recentFile + " " + index);
 	}
+	
+	//--------------------------------------------------------------------------
+
+	public static String getUiFontSize()
+	{
+		return getLargeUI() ? "16" : "13";
+	}
+
+	//--------------------------------------------------------------------------
+	
+	public static String getSmallUiFontSize()
+	{
+		return getLargeUI() ? "14" : "10";
+	}
+	
+	//--------------------------------------------------------------------------
 }

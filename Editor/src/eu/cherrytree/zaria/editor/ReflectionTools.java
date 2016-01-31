@@ -26,13 +26,13 @@ public class ReflectionTools
 {
 	//--------------------------------------------------------------------------
 	
-	public static <Def extends ZariaObjectDefinition> Def createNewDefinition(Class<Def> cls, String id)
+	public static <Def extends ZariaObjectDefinition> Def createNewDefinition(Class<Def> cls, String id, UUID uuid)
 	{
 		try
 		{
 			Def obj = cls.getConstructor().newInstance();
 			setDefinitionFieldValue(obj, "id", id);
-			setDefinitionFieldValue(obj, "uuid", UUID.randomUUID());
+			setDefinitionFieldValue(obj, "uuid", uuid);
 			
 			return obj;
 		}
@@ -42,6 +42,13 @@ public class ReflectionTools
 		}
 			
 		return null;
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static <Def extends ZariaObjectDefinition> Def createNewDefinition(Class<Def> cls, String id)
+	{
+		return createNewDefinition(cls, cls.getSimpleName(), UUID.randomUUID());
 	}
 	
 	//--------------------------------------------------------------------------

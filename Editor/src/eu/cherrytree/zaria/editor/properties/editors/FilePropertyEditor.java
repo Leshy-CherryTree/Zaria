@@ -100,7 +100,7 @@ public abstract class FilePropertyEditor extends DialogPropertyEditor
 				}
 
 				if(!ok)
-					JOptionPane.showMessageDialog(getCustomEditor(), "Path:\n" + newpath + "\nis not valid!\nPath must be inside the Assets directory or the Work Files directory.", "Wrong path!", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getCustomEditor(), "Path:\n" + newpath + "\nis not valid!\nPath must be inside the Assets directory.", "Wrong path!", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 		else if(event.getSource() == textField)

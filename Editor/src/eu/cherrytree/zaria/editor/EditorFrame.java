@@ -1,7 +1,7 @@
 /****************************************/
 /* EditorFrame.java						*/
 /* Created on: 02-May-2013				*/
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -10,7 +10,6 @@ package eu.cherrytree.zaria.editor;
 import eu.cherrytree.zaria.debug.DebugManager;
 
 import eu.cherrytree.zaria.editor.classlist.ZoneClassList;
-import eu.cherrytree.zaria.editor.components.ObjectsLibraryTreeCellRenderer;
 import eu.cherrytree.zaria.editor.components.ZoneFileListCellRenderer;
 import eu.cherrytree.zaria.editor.listeners.FileViewController;
 import eu.cherrytree.zaria.editor.datamodels.file.FileNameWrapper;
@@ -36,6 +35,7 @@ import eu.cherrytree.zaria.editor.datamodels.palette.PaletteTransferHandler;
 import eu.cherrytree.zaria.editor.datamodels.palette.ScriptPaletteDataModel;
 import eu.cherrytree.zaria.editor.datamodels.palette.ZonePaletteDataModel;
 import eu.cherrytree.zaria.editor.dialogs.ExtendedInformationDialog;
+import eu.cherrytree.zaria.editor.dialogs.TextureAtlasDialog;
 import eu.cherrytree.zaria.editor.document.GraphEditorState;
 import eu.cherrytree.zaria.editor.scripting.JarCreator;
 import eu.cherrytree.zaria.editor.properties.Property;
@@ -44,16 +44,12 @@ import eu.cherrytree.zaria.editor.properties.propertysheet.PropertySheetPanel;
 import eu.cherrytree.zaria.editor.properties.renderers.ZonePropertyRendererFactory;
 import eu.cherrytree.zaria.editor.serialization.Serializer;
 import eu.cherrytree.zaria.serialization.ValidationException;
-import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinitionLibrary;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
@@ -77,7 +73,6 @@ import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
-import java.util.prefs.BackingStoreException;
 import javax.imageio.ImageIO;
 
 import javax.swing.AbstractAction;
@@ -101,7 +96,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
@@ -111,7 +105,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.WindowConstants;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
-import javax.swing.tree.TreePath;
 
 /**
  *
@@ -142,10 +135,10 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 					
 			memoryLabel.setText("Free memory: " + format.format(percent) + "% (" + format.format(freemem) + "MB / " + format.format(totalmem) + "MB)");
 			
-			if(percent < 25.0f)
+			if (percent < 25.0f)
 				memoryLabel.setForeground(Color.RED);
 			else
-				memoryLabel.setForeground(Color.BLACK);
+				memoryLabel.setForeground(Color.LIGHT_GRAY);
 		}
 	}
 	
@@ -158,12 +151,12 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		{
 			super.mouseClicked(e);
 			
-			if(splitPaneMain.getLeftComponent() == null)
+			if (splitPaneMain.getLeftComponent() == null)
 			{
 				ZoneDocument.EditType edit_type = ZoneDocument.EditType.TEXT_EDIT;
 				ZoneDocument.DocumentType doc_type = ZoneDocument.DocumentType.ZONE;
 				
-				if(documentManager.getCurrentDocument() != null)
+				if (documentManager.getCurrentDocument() != null)
 				{
 					edit_type = documentManager.getCurrentDocument().getEditType();
 					doc_type = documentManager.getCurrentDocument().getDocumentType();
@@ -186,14 +179,14 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		{
 			super.mouseClicked(e);
 			
-			if(splitPaneRight.getRightComponent() == null)
+			if (splitPaneRight.getRightComponent() == null)
 			{
-				if(	documentManager.getCurrentDocument().getDocumentType() != ZoneDocument.DocumentType.ZONE_LIBRARY)
+				if (	documentManager.getCurrentDocument().getDocumentType() != ZoneDocument.DocumentType.ZONE_LIBRARY)
 				{
 					ZoneDocument.EditType edit_type = ZoneDocument.EditType.TEXT_EDIT;
 					ZoneDocument.DocumentType doc_type = ZoneDocument.DocumentType.ZONE;
 
-					if(documentManager.getCurrentDocument() != null)
+					if (documentManager.getCurrentDocument() != null)
 					{
 						edit_type = documentManager.getCurrentDocument().getEditType();
 						doc_type = documentManager.getCurrentDocument().getDocumentType();
@@ -213,71 +206,71 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	private class FileListMouseAdapter extends MouseAdapter
 	{
 		@Override
-			public void mouseClicked(MouseEvent evt)
+		public void mouseClicked(MouseEvent evt)
+		{
+			JList list = (JList) evt.getSource();
+
+			if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2 && list.getSelectedIndex() >= 0)
 			{
-				JList list = (JList) evt.getSource();
-				
-				if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2 && list.getSelectedIndex() >= 0)
-				{
-					int index = list.locationToIndex(evt.getPoint());
-					FileNameWrapper filewrap = (FileNameWrapper) list.getModel().getElementAt(index);
-					String path = filewrap.getFile().getAbsolutePath();
-				
-					if(ZoneDocument.isZone(path) || ZoneDocument.isScript(path))
-						documentManager.openDocument(filewrap.getFile());
-				}
-			}
-			
-			private void openPopupMenu(JList list, int x, int y, int index)
-			{
+				int index = list.locationToIndex(evt.getPoint());
 				FileNameWrapper filewrap = (FileNameWrapper) list.getModel().getElementAt(index);
 				String path = filewrap.getFile().getAbsolutePath();
-				
-				popupMenu.removeAll();		
-				
-				if(ZoneDocument.isZone(path))
+
+				if (ZoneDocument.isZone(path) || ZoneDocument.isScript(path))
+					documentManager.openDocument(filewrap.getFile());
+			}
+		}
+
+		private void openPopupMenu(JList list, int x, int y, int index)
+		{
+			FileNameWrapper filewrap = (FileNameWrapper) list.getModel().getElementAt(index);
+			String path = filewrap.getFile().getAbsolutePath();
+
+			popupMenu.removeAll();		
+
+			if (ZoneDocument.isZone(path))
+			{
+				if (!documentManager.isFileOpened(path))
 				{
-					if(!documentManager.isFileOpened(path))
-					{
-						popupMenu.add(new OpenFileMenuItem(filewrap.getFile()));																		
-						popupMenu.add(new DeleteFileMenuItem(filewrap.getFile()));						
-						popupMenu.show(list, x, y);
-					}
-				}
-				else if(ZoneDocument.isScript(path))
-				{
-					if(!documentManager.isFileOpened(path))
-					{
-						popupMenu.add(new OpenFileMenuItem(filewrap.getFile()));																		
-						popupMenu.add(new DeleteFileMenuItem(filewrap.getFile()));
-					}
-				}
-				else
-				{
-					popupMenu.add(new DeleteFileMenuItem(filewrap.getFile()));
+					popupMenu.add(new OpenFileMenuItem(filewrap.getFile()));																		
+					popupMenu.add(new DeleteFileMenuItem(filewrap.getFile()));						
 					popupMenu.show(list, x, y);
 				}
-				
-				list.setSelectedIndex(index);
+			}
+			else if (ZoneDocument.isScript(path))
+			{
+				if (!documentManager.isFileOpened(path))
+				{
+					popupMenu.add(new OpenFileMenuItem(filewrap.getFile()));																		
+					popupMenu.add(new DeleteFileMenuItem(filewrap.getFile()));
+				}
+			}
+			else
+			{
+				popupMenu.add(new DeleteFileMenuItem(filewrap.getFile()));
+				popupMenu.show(list, x, y);
 			}
 
-			@Override
-			public void mousePressed(MouseEvent evt)
-			{
-				JList list = (JList) evt.getSource();
-				
-				if(evt.isPopupTrigger())
-					openPopupMenu(list, evt.getX(), evt.getY(), list.locationToIndex(evt.getPoint()));
-			}
+			list.setSelectedIndex(index);
+		}
 
-			@Override
-			public void mouseReleased(MouseEvent evt)
-			{
-				JList list = (JList) evt.getSource();
-				
-				if(evt.isPopupTrigger())
-					openPopupMenu(list, evt.getX(), evt.getY(), list.locationToIndex(evt.getPoint()));
-			}
+		@Override
+		public void mousePressed(MouseEvent evt)
+		{
+			JList list = (JList) evt.getSource();
+
+			if (evt.isPopupTrigger())
+				openPopupMenu(list, evt.getX(), evt.getY(), list.locationToIndex(evt.getPoint()));
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent evt)
+		{
+			JList list = (JList) evt.getSource();
+
+			if (evt.isPopupTrigger())
+				openPopupMenu(list, evt.getX(), evt.getY(), list.locationToIndex(evt.getPoint()));
+		}
 	}
 	
 	//--------------------------------------------------------------------------	
@@ -382,9 +375,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	private JMenuItem newGameZoneMenuItem;	
 	private JMenuItem newGameLibraryMenuItem;	
 	private JMenu newEditorMenu = new JMenu();	
-	private JMenuItem newEditorZoneMenuItem;	
-	private JMenuItem newEditorLibraryMenuItem;	
-	private JMenuItem newMapMenuItem;
 	private JMenuItem newScriptMenuItem;
 	private JMenuItem openMenuItem;
 	private JMenu recentMenu = new JMenu();
@@ -409,6 +399,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	
 	// Tools menu
 	private JMenu toolsMenu = new JMenu();
+	private JMenuItem textureAtlasBuilderMenuItem;
 	private JMenuItem libraryValidationMenuItem;	
 	private JPopupMenu.Separator packageScriptsMenuSeparator = new JPopupMenu.Separator();
 	private JMenuItem packageScriptsMenuItem;	
@@ -420,19 +411,25 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	private ButtonGroup viewButtonGroup = new ButtonGroup();
 	private JRadioButtonMenuItem textViewMenuItem = new JRadioButtonMenuItem();
 	private JRadioButtonMenuItem graphViewMenuItem = new JRadioButtonMenuItem();
-	private JRadioButtonMenuItem mapViewMenuItem = new JRadioButtonMenuItem();	
 	private JPopupMenu.Separator resetZoomViewMenuSeparator = new JPopupMenu.Separator();
 	private JMenuItem resetZoomViewMenuItem;
 	
 	// Options menu
 	private JMenu optionsMenu = new JMenu();
 	private JCheckBoxMenuItem debugConsoleMenuItem = new JCheckBoxMenuItem();
-	private JMenu themeMenu = new JMenu();
-	private ButtonGroup themeButtonGroup = new ButtonGroup();
-	private JPopupMenu.Separator themeSeparator = new JPopupMenu.Separator();
-	private JRadioButtonMenuItem darkThemeMenuItem = new JRadioButtonMenuItem();
-	private JRadioButtonMenuItem lightThemeMenuItem = new JRadioButtonMenuItem();
+	private JCheckBoxMenuItem largeUIMenuItem = new JCheckBoxMenuItem();
 	private JPopupMenu.Separator textRenderingSeparator = new JPopupMenu.Separator();
+	private JMenu textSizeMenu = new JMenu();
+	private ButtonGroup textSizeButtonGroup = new ButtonGroup();
+	private JRadioButtonMenuItem textSizeButton_8 = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem textSizeButton_10 = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem textSizeButton_12 = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem textSizeButton_14 = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem textSizeButton_16 = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem textSizeButton_18 = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem textSizeButton_20 = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem textSizeButton_22 = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem textSizeButton_24 = new JRadioButtonMenuItem();
 	private JCheckBoxMenuItem textAntialiasingMenuItem = new JCheckBoxMenuItem();
 	private JCheckBoxMenuItem fractionalFontMetricsMenuItem = new JCheckBoxMenuItem();
 	
@@ -445,7 +442,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	// Tool bar
 	private JToolBar toolBar = new JToolBar();
 	private JButton newGameToolBarButton;
-	private JButton newEditorToolBarButton;
 	private JButton newScriptToolBarButton;
 	private JButton openToolBarButton;
 	private JButton saveToolBarButton;
@@ -467,6 +463,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	private GoToLineDialog goToLineDialog;
 	private FindDialog findDialog;
 	private HelpFrame helpFrame;			
+	private TextureAtlasDialog textureAtlasDialog;
 	
 	// Managers
 	private DocumentManager documentManager;
@@ -474,7 +471,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	
 	// Timers
 	private Timer memoryLabelTimer = new Timer();
-					
+	
 	//--------------------------------------------------------------------------
 
 	public EditorFrame(String projectName)
@@ -507,7 +504,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				
 				boolean maximized = Settings.getWindowMaximized();
 				
-				if(maximized)
+				if (maximized)
 				{
 					bounds.x = 0;
 					bounds.y = 0;					
@@ -515,7 +512,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				
 				setBounds(bounds);
 				
-				if(maximized)
+				if (maximized)
 					setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
 			}			
 
@@ -528,7 +525,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				
 				boolean maximized = (getExtendedState() & JFrame.MAXIMIZED_BOTH) != 0;
 				
-				if(!maximized)
+				if (!maximized)
 				{
 					Settings.setWindowPosX(bounds.x);
 					Settings.setWindowPosY(bounds.y);
@@ -557,7 +554,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				DataBase.close(true);
 				
 				System.exit(0);
-			}							
+			}	
 		});
 		
 		initMainPanes();
@@ -620,6 +617,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		aboutDialog = new AboutDialog(this);
 		goToLineDialog = new GoToLineDialog(this, documentManager);
 		findDialog = new FindDialog(this, documentManager);
+		textureAtlasDialog = new TextureAtlasDialog(this, true);
 		
 		initEditorSettings();
 		
@@ -632,23 +630,45 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			@Override
 			public boolean dispatchKeyEvent(KeyEvent e)
 			{
-				if(e.getID() == KeyEvent.KEY_PRESSED)
+				if (e.getID() == KeyEvent.KEY_PRESSED)
 				{
-					if(e.getKeyCode() == KeyEvent.VK_CONTROL)
-						documentManager.setCtrlButton(true);
-					else if(e.getKeyCode() == KeyEvent.VK_ALT)
-						documentManager.setAltButton(true);		
-					else if(e.getKeyCode() == KeyEvent.VK_SHIFT)
-						documentManager.setShiftButton(true);	
+					switch (e.getKeyCode())
+					{
+						case KeyEvent.VK_CONTROL:
+							documentManager.setCtrlButton(true);
+							break;
+							
+						case KeyEvent.VK_ALT:	
+							documentManager.setAltButton(true);
+							break;
+							
+						case KeyEvent.VK_SHIFT:
+							documentManager.setShiftButton(true);
+							break;
+							
+						default:
+							break;
+					}
 				}
-				else if(e.getID() == KeyEvent.KEY_RELEASED)
+				else if (e.getID() == KeyEvent.KEY_RELEASED)
 				{
-					if(e.getKeyCode() == KeyEvent.VK_CONTROL)
-						documentManager.setCtrlButton(false);
-					else if(e.getKeyCode() == KeyEvent.VK_ALT)
-						documentManager.setAltButton(false);
-					else if(e.getKeyCode() == KeyEvent.VK_SHIFT)
-						documentManager.setShiftButton(false);	
+					switch (e.getKeyCode())
+					{
+						case KeyEvent.VK_CONTROL:
+							documentManager.setCtrlButton(false);
+							break;
+							
+						case KeyEvent.VK_ALT:	
+							documentManager.setAltButton(false);
+							break;
+							
+						case KeyEvent.VK_SHIFT:
+							documentManager.setShiftButton(false);
+							break;
+							
+						default:
+							break;
+					}
 						
 				}
 				return false;
@@ -705,7 +725,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			@Override
 			public void keyPressed(KeyEvent e)
 			{
-				if(e.getKeyCode() == KeyEvent.VK_ENTER && fileList.getSelectedIndex() >= 0)
+				if (e.getKeyCode() == KeyEvent.VK_ENTER && fileList.getSelectedIndex() >= 0)
 				{
 					FileNameWrapper filewrap = (FileNameWrapper) fileList.getSelectedValue();
 					documentManager.openDocument(filewrap.getFile());
@@ -762,14 +782,14 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	
 	private void initObjectDefinitionPalette()
 	{
-		if(paletteTree.getModel() != zonePaletteDataModel)
+		if (paletteTree.getModel() != zonePaletteDataModel)
 		{
 			paletteTree.setModel(zonePaletteDataModel);				
 			paletteTree.setCellRenderer(paletteCellRenderer);
 			paletteTree.setTransferHandler(paletteTransferHandler);
 		}
 		
-		if(documentManager.getCurrentDocument() != null && zonePaletteDataModel.getCurrentType() != documentManager.getCurrentDocument().getDocumentType())
+		if (documentManager.getCurrentDocument() != null && zonePaletteDataModel.getCurrentType() != documentManager.getCurrentDocument().getDocumentType())
 			zonePaletteDataModel.populate(documentManager.getCurrentDocument().getDocumentType());
 	}
 		
@@ -777,7 +797,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	
 	private void initScriptPalette()
 	{
-		if(paletteTree.getModel() != scriptPaletteDataModel)
+		if (paletteTree.getModel() != scriptPaletteDataModel)
 		{
 			paletteTree.setModel(scriptPaletteDataModel);	
 			paletteTree.setCellRenderer(paletteCellRenderer);
@@ -805,11 +825,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		
 		newEditorMenu.setText("New Work File");
 		newEditorMenu.setIcon(new ImageIcon(getClass().getResource("/eu/cherrytree/zaria/editor/res/icons/small/document-new.png")));
-												
-		newEditorZoneMenuItem = initMenuItem("New Zone", "document-new-zone-editor.png", null, newEditorMenu);
-		newMapMenuItem = initMenuItem("New Zone Map", "document-new-map.png", null, newEditorMenu);
-		newEditorLibraryMenuItem = initMenuItem("New Zone Library", "document-new-library.png", null, newEditorMenu);
-						
+																		
 		fileMenu.add(newEditorMenu);
 		
 		newScriptMenuItem = initMenuItem("New Zone Script", "document-new-script.png", null, fileMenu);
@@ -877,6 +893,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		toolsMenu.setMnemonic('t');
 		
 		libraryValidationMenuItem = initMenuItem("Validate library", "validate.png", null, toolsMenu);
+		textureAtlasBuilderMenuItem = initMenuItem("Texture Atlas Builder", null, null, toolsMenu);
 		
 		toolsMenu.add(packageScriptsMenuSeparator);
 		packageScriptsMenuItem = initMenuItem("Package scripts", "application-x-jar.png", null, toolsMenu);
@@ -908,20 +925,12 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		graphViewMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, getToolkit().getMenuShortcutKeyMask()));
 		viewButtonGroup.add(graphViewMenuItem);
 		viewMenu.add(graphViewMenuItem);
-		
-		mapViewMenuItem.setText("3D Map");
-		mapViewMenuItem.setSelected(false);
-		mapViewMenuItem.addActionListener(this);
-		mapViewMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, getToolkit().getMenuShortcutKeyMask()));
-		viewButtonGroup.add(mapViewMenuItem);
-		viewMenu.add(mapViewMenuItem);
 				
 		viewMenu.add(resetZoomViewMenuSeparator);
 		resetZoomViewMenuItem = initMenuItem("Reset zoom", null, null, viewMenu);
 		
 		menuBar.add(viewMenu);
 		
-		mapViewMenuItem.setEnabled(false);
 		textViewMenuItem.setEnabled(false);
 		graphViewMenuItem.setEnabled(false);
 	}
@@ -935,24 +944,62 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		
 		debugConsoleMenuItem.setSelected(false);
         debugConsoleMenuItem.setText("Show Console");
-		debugConsoleMenuItem.addActionListener(this);		
+		debugConsoleMenuItem.addActionListener(this);
         optionsMenu.add(debugConsoleMenuItem);
+	
+		largeUIMenuItem.setText("Large UI");
+		largeUIMenuItem.setSelected(Settings.getLargeUI());
+		largeUIMenuItem.addActionListener(this);
+        optionsMenu.add(largeUIMenuItem);
+				
+		textSizeMenu.setText("Editor Text Size");
 		
-		optionsMenu.add(themeSeparator);
+		textSizeButton_8.setText("8");
+		textSizeButton_8.addActionListener(this);		
+		textSizeButtonGroup.add(textSizeButton_8);
+		textSizeMenu.add(textSizeButton_8);
 		
-		themeMenu.setText("Theme");
-		optionsMenu.add(themeMenu);
+		textSizeButton_10.setText("10");
+		textSizeButton_10.addActionListener(this);		
+		textSizeButtonGroup.add(textSizeButton_10);
+		textSizeMenu.add(textSizeButton_10);
 		
-		darkThemeMenuItem.setText("Dark");		
-		darkThemeMenuItem.addActionListener(this);
-		themeButtonGroup.add(darkThemeMenuItem);
-		themeMenu.add(darkThemeMenuItem);
+		textSizeButton_12.setText("12");
+		textSizeButton_12.addActionListener(this);
+		textSizeButtonGroup.add(textSizeButton_12);
+		textSizeMenu.add(textSizeButton_12);
 		
-		lightThemeMenuItem.setText("Light");
-		lightThemeMenuItem.addActionListener(this);
-		themeButtonGroup.add(lightThemeMenuItem);
-		themeMenu.add(lightThemeMenuItem);
+		textSizeButton_14.setText("14");
+		textSizeButton_14.addActionListener(this);		
+		textSizeButtonGroup.add(textSizeButton_14);
+		textSizeMenu.add(textSizeButton_14);
 		
+		textSizeButton_16.setText("16");
+		textSizeButton_16.addActionListener(this);		
+		textSizeButtonGroup.add(textSizeButton_16);
+		textSizeMenu.add(textSizeButton_16);
+		
+		textSizeButton_18.setText("18");
+		textSizeButton_18.addActionListener(this);		
+		textSizeButtonGroup.add(textSizeButton_18);
+		textSizeMenu.add(textSizeButton_18);
+		
+		textSizeButton_20.setText("20");
+		textSizeButton_20.addActionListener(this);		
+		textSizeButtonGroup.add(textSizeButton_20);
+		textSizeMenu.add(textSizeButton_20);
+		
+		textSizeButton_22.setText("22");
+		textSizeButton_22.addActionListener(this);		
+		textSizeButtonGroup.add(textSizeButton_22);
+		textSizeMenu.add(textSizeButton_22);
+	
+		textSizeButton_24.setText("24");
+		textSizeButton_24.addActionListener(this);		
+		textSizeButtonGroup.add(textSizeButton_24);
+		textSizeMenu.add(textSizeButton_24);
+		
+		optionsMenu.add(textSizeMenu);
 		optionsMenu.add(textRenderingSeparator);
 		
 		textAntialiasingMenuItem.setText("Text Antialiasing");		
@@ -990,10 +1037,10 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	{
 		JMenuItem item = new JMenuItem();
 		
-		if(keyStroke != null)
+		if (keyStroke != null)
 			item.setAccelerator(keyStroke);
 		
-		if(icon != null)
+		if (icon != null)
 			item.setIcon(new ImageIcon(getClass().getResource("/eu/cherrytree/zaria/editor/res/icons/small/" + icon)));
 		
 		item.setText(text);
@@ -1016,7 +1063,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		toolBar.setRollover(true);
 
 		newGameToolBarButton = initToolBarButton("document-new.png", "New Game Zone File");
-		newEditorToolBarButton = initToolBarButton("document-new-editor.png", "New Editor Zone File");
 		newScriptToolBarButton = initToolBarButton("document-new-script.png", "New Zone Script");
 		openToolBarButton = initToolBarButton("document-open.png", "Open File");
 		saveToolBarButton = initToolBarButton("document-save.png", "Save File");
@@ -1065,91 +1111,90 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	{
 		TextEditorState.loadSettings();
 		
-		switch(TextEditorState.getCurrentTheme())
-		{				
-			case DARK_THEME:
-				darkThemeMenuItem.setSelected(true);
-				break;
-				
-			case LIGHT_THEME:
-				lightThemeMenuItem.setSelected(true);
-				break;
-		}
+		textSizeButton_8.setSelected(Settings.getEditorFontSize() == 8);
+		textSizeButton_10.setSelected(Settings.getEditorFontSize() == 10);
+		textSizeButton_12.setSelected(Settings.getEditorFontSize() == 12);
+		textSizeButton_14.setSelected(Settings.getEditorFontSize() == 14);
+		textSizeButton_16.setSelected(Settings.getEditorFontSize() == 16);
+		textSizeButton_18.setSelected(Settings.getEditorFontSize() == 18);
+		textSizeButton_20.setSelected(Settings.getEditorFontSize() == 20);
+		textSizeButton_22.setSelected(Settings.getEditorFontSize() == 22);
+		textSizeButton_24.setSelected(Settings.getEditorFontSize() == 24);
 		
 		fractionalFontMetricsMenuItem.setSelected(TextEditorState.isFractionalFontMetricsEnabled());
 		textAntialiasingMenuItem.setSelected(TextEditorState.isAntialiasingEnabled());		
 	}
-	
+
 	//--------------------------------------------------------------------------
 
 	@Override
 	public void actionPerformed(ActionEvent event)
 	{				
-		if(event.getSource() == newGameZoneMenuItem || event.getSource() == newGameToolBarButton)
+		if (event.getSource() == newGameZoneMenuItem || event.getSource() == newGameToolBarButton)
 		{
 			documentManager.newDocument(ZoneDocument.DocumentType.ZONE);
 		}
-		else if(event.getSource() == newGameLibraryMenuItem)
+		else if (event.getSource() == newGameLibraryMenuItem)
 		{
 			documentManager.newDocument(ZoneDocument.DocumentType.ZONE_LIBRARY);
 		}
-		else if(event.getSource() == newScriptMenuItem || event.getSource() == newScriptToolBarButton)
+		else if (event.getSource() == newScriptMenuItem || event.getSource() == newScriptToolBarButton)
 		{
 			documentManager.newDocument(ZoneDocument.DocumentType.ZONE_SCRIPT);
 		}
-		else if(event.getSource() == openMenuItem || event.getSource() == openToolBarButton)
+		else if (event.getSource() == openMenuItem || event.getSource() == openToolBarButton)
 		{						
 			documentManager.openDocument();
 		}
-		else if(event.getSource() == saveMenuItem || event.getSource() == saveToolBarButton)
+		else if (event.getSource() == saveMenuItem || event.getSource() == saveToolBarButton)
 		{
 			documentManager.saveDocument();
 		}
-		else if(event.getSource() == saveAsMenuItem)
+		else if (event.getSource() == saveAsMenuItem)
 		{
 			documentManager.saveDocumentAs();
 		}
-		else if(event.getSource() == saveAllMenuItem)
+		else if (event.getSource() == saveAllMenuItem)
 		{
 			documentManager.saveAllDocuments();
 		}
-		else if(event.getSource() == closeMenuItem || event.getSource() == closeToolBarButton)
+		else if (event.getSource() == closeMenuItem || event.getSource() == closeToolBarButton)
 		{
 			documentManager.closeDocument();
 		}
-		else if(event.getSource() == closeAllMenuItem)
+		else if (event.getSource() == closeAllMenuItem)
 		{
 			documentManager.closeAllDocuments();
 		}
-		else if(event.getSource() == exitMenuItem)
+		else if (event.getSource() == exitMenuItem)
 		{			
 			dispose();
 		}
-		else if(event.getSource() == undoMenuItem || event.getSource() == undoToolBarButton)
+		else if (event.getSource() == undoMenuItem || event.getSource() == undoToolBarButton)
 		{
 			documentManager.undo();
 		}
-		else if(event.getSource() == redoMenuItem || event.getSource() == redoToolBarButton)
+		else if (event.getSource() == redoMenuItem || event.getSource() == redoToolBarButton)
 		{
 			documentManager.redo();
 		}
-		else if(event.getSource() == cutMenuItem || event.getSource() == cutToolBarButton)
+		else if (event.getSource() == cutMenuItem || event.getSource() == cutToolBarButton)
 		{
 			documentManager.cut();
 		}
-		else if(event.getSource() == copyMenuItem || event.getSource() == copyToolBarButton)
+		else if (event.getSource() == copyMenuItem || event.getSource() == copyToolBarButton)
 		{
 			documentManager.copy();
 		}
-		else if(event.getSource() == pasteMenuItem || event.getSource() == pasteToolBarButton)
+		else if (event.getSource() == pasteMenuItem || event.getSource() == pasteToolBarButton)
 		{
 			documentManager.paste();
 		}
-		else if(event.getSource() == selectAllMenuItem)
+		else if (event.getSource() == selectAllMenuItem)
 		{
 			documentManager.selectAll();
 		}
-		else if(event.getSource() == findMenuItem || event.getSource() == findToolBarButton)
+		else if (event.getSource() == findMenuItem || event.getSource() == findToolBarButton)
 		{
 			Rectangle framebounds = getBounds();
 			Rectangle dialogbounds = findDialog.getBounds();
@@ -1162,27 +1207,17 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			findDialog.setSearched(documentManager.getCurrentDocument().getSelected());
 			findDialog.setVisible(true);						
 		}
-		else if(event.getSource() == darkThemeMenuItem)
-		{
-			TextEditorState.setDefaultTheme(TextEditorState.ThemeType.DARK_THEME);
-			documentManager.updateSettings();
-		}
-		else if(event.getSource() == lightThemeMenuItem)
-		{
-			TextEditorState.setDefaultTheme(TextEditorState.ThemeType.LIGHT_THEME);
-			documentManager.updateSettings();
-		}
-		else if(event.getSource() == textAntialiasingMenuItem)
+		else if (event.getSource() == textAntialiasingMenuItem)
 		{
 			TextEditorState.setAntialiasing(textAntialiasingMenuItem.isSelected());
 			documentManager.updateSettings();
 		}
-		else if(event.getSource() == fractionalFontMetricsMenuItem)
+		else if (event.getSource() == fractionalFontMetricsMenuItem)
 		{
 			TextEditorState.setFractionalFontMetrics(fractionalFontMetricsMenuItem.isSelected());
 			documentManager.updateSettings();
 		}		
-		else if(event.getSource() == goToLineMenuItem)
+		else if (event.getSource() == goToLineMenuItem)
 		{
 			Rectangle framebounds = getBounds();
 			Rectangle dialogbounds = goToLineDialog.getBounds();
@@ -1195,14 +1230,14 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			
 			goToLineDialog.setVisible(true);
 		}
-		else if(event.getSource() == refreshMenuItem || event.getSource() == refreshToolBarButton)
+		else if (event.getSource() == refreshMenuItem || event.getSource() == refreshToolBarButton)
 		{
 			try
 			{
 				Serializer.init();
 				zoneClassList.load();
 				
-				if(documentManager.getCurrentDocument() != null)
+				if (documentManager.getCurrentDocument() != null)
 					zonePaletteDataModel.populate(documentManager.getCurrentDocument().getDocumentType());
 				
 				//TODO Refresh currently loaded stuff.
@@ -1213,7 +1248,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				DebugConsole.logger.log(Level.SEVERE, null, ex);
 			}
 		}
-		else if(event.getSource() == aboutMenuItem)
+		else if (event.getSource() == aboutMenuItem)
 		{
 			Rectangle framebounds = getBounds();
 			Rectangle dialogbounds = aboutDialog.getBounds();
@@ -1225,11 +1260,11 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			aboutDialog.setBounds(newbounds);
 			aboutDialog.setVisible(true);
 		}
-		else if(event.getSource() == helpMenuItem)
+		else if (event.getSource() == helpMenuItem)
 		{
 			openHelpWindow();
 		}
-		else if(event.getSource() == blogMenuItem)
+		else if (event.getSource() == blogMenuItem)
 		{
 			try
 			{
@@ -1240,28 +1275,56 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				DebugConsole.logger.log(Level.SEVERE, null, ex);
 			}
 		}
-		else if(event.getSource() == debugConsoleMenuItem)
+		else if (event.getSource() == debugConsoleMenuItem)
 		{
 			EditorApplication.getDebugConsole().setVisible(debugConsoleMenuItem.isSelected());
 		}
-		else if(event.getSource() == textViewMenuItem)
+		else if (event.getSource() == largeUIMenuItem)
+		{
+			Settings.setLargeUI(largeUIMenuItem.getState());
+			EditorApplication.updateLookAndFeel();
+			
+			SwingUtilities.updateComponentTreeUI(this);						
+			SwingUtilities.updateComponentTreeUI(EditorApplication.getDebugConsole());
+			SwingUtilities.updateComponentTreeUI(aboutDialog);
+			SwingUtilities.updateComponentTreeUI(goToLineDialog);
+			SwingUtilities.updateComponentTreeUI(findDialog);
+			SwingUtilities.updateComponentTreeUI(helpFrame);
+			SwingUtilities.updateComponentTreeUI(textureAtlasDialog);
+	
+			if (EditorApplication.getDebugConsole().isVisible())
+				EditorApplication.getDebugConsole().pack();
+			
+			if (aboutDialog.isVisible())
+				aboutDialog.pack();
+			
+			if (goToLineDialog.isVisible())
+				goToLineDialog.pack();
+			
+			if (findDialog.isVisible())
+				findDialog.pack();
+			
+			if (helpFrame.isVisible())
+				helpFrame.pack();
+			
+			if (textureAtlasDialog.isVisible())
+				textureAtlasDialog.pack();
+			
+			pack();
+		}
+		else if (event.getSource() == textViewMenuItem)
 		{
 			switchEditType(ZoneDocument.EditType.TEXT_EDIT);
 		}
-		else if(event.getSource() == graphViewMenuItem)
+		else if (event.getSource() == graphViewMenuItem)
 		{
 			switchEditType(ZoneDocument.EditType.GRAPH_EDIT);
 		}	
-		else if(event.getSource() == mapViewMenuItem)
-		{
-			switchEditType(ZoneDocument.EditType.MAP_EDIT);
-		}
-	
-		else if(event.getSource() == paletteSearchButton || event.getSource() == paletteSearchTextField)
+		else if (event.getSource() == paletteSearchButton || event.getSource() == paletteSearchTextField)
 		{
 			zonePaletteDataModel.setFilter(paletteSearchTextField.getText());
 		}
-		else if(event.getSource() == libraryValidationMenuItem || event.getSource() == validateLibraryToolBarButton)
+		else if (event.getSource() == libraryValidationMenuItem || event.getSource() == validateLibraryToolBarButton)
 		{
 			boolean validated_ok = true;
 			ZariaObjectDefinitionLibrary library = null;
@@ -1281,14 +1344,26 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				validated_ok = false;
 			}			
 						
-			if(validated_ok)
+			if (validated_ok)
 			{
 				assert library != null;
 				
 				JOptionPane.showMessageDialog(this, "Validation of library " + library.getID() + " completed successfully.", "Library validated", JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
-		else if(event.getSource() == packageScriptsMenuItem || event.getSource() == packageScriptsToolBarButton)
+		else if (event.getSource() == textureAtlasBuilderMenuItem)
+		{
+			Rectangle framebounds = getBounds();
+			Rectangle dialogbounds = textureAtlasDialog.getBounds();
+			
+			Rectangle newbounds = new Rectangle(framebounds.x + framebounds.width/2 - dialogbounds.width/2, 
+												framebounds.y + framebounds.height/2 - dialogbounds.height/2, 
+												dialogbounds.width, dialogbounds.height);
+			
+			textureAtlasDialog.setBounds(newbounds);
+			textureAtlasDialog.setVisible(true);
+		}
+		else if (event.getSource() == packageScriptsMenuItem || event.getSource() == packageScriptsToolBarButton)
 		{
 			documentManager.saveDocument();
 			
@@ -1308,20 +1383,74 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				DebugConsole.logger.log(Level.SEVERE, null, ex);
 			}
 			
-			if(created_ok)
+			if (created_ok)
 				JOptionPane.showMessageDialog(this, "Scripts packaged successfully.", "Scripts jar file created", JOptionPane.INFORMATION_MESSAGE);
 		}
-		else if(event.getSource() == editToolBarButton)
+		else if (event.getSource() == editToolBarButton)
 		{
 			documentManager.editSelected();
 		}
-		else if(event.getSource() == resetZoomViewMenuItem)
+		else if (event.getSource() == resetZoomViewMenuItem)
 		{
 			((GraphEditorState) documentManager.getCurrentDocument().getEditorState(ZoneDocument.EditType.GRAPH_EDIT)).resetZoom();
 		}
-		else if(event.getSource() == rebuildDataBaseMenuItem)
+		else if (event.getSource() == rebuildDataBaseMenuItem)
 		{
 			DataBase.rebuildDataBase();
+		}
+		else if (event.getSource() == textSizeButton_8)
+		{
+			Settings.setEditorFontSize(8);
+			TextEditorState.setFontSize(8);
+			documentManager.updateSettings();
+		}
+		else if (event.getSource() == textSizeButton_10)
+		{
+			Settings.setEditorFontSize(10);
+			TextEditorState.setFontSize(10);
+			documentManager.updateSettings();
+		}
+		else if (event.getSource() == textSizeButton_12)
+		{
+			Settings.setEditorFontSize(12);
+			TextEditorState.setFontSize(12);
+			documentManager.updateSettings();
+		}
+		else if (event.getSource() == textSizeButton_14)
+		{
+			Settings.setEditorFontSize(14);
+			TextEditorState.setFontSize(14);
+			documentManager.updateSettings();
+		}
+		else if (event.getSource() == textSizeButton_16)
+		{
+			Settings.setEditorFontSize(16);
+			TextEditorState.setFontSize(16);
+			documentManager.updateSettings();
+		}
+		else if (event.getSource() == textSizeButton_18)
+		{
+			Settings.setEditorFontSize(18);
+			TextEditorState.setFontSize(18);
+			documentManager.updateSettings();
+		}
+		else if (event.getSource() == textSizeButton_20)
+		{
+			Settings.setEditorFontSize(20);
+			TextEditorState.setFontSize(20);
+			documentManager.updateSettings();
+		}	
+		else if (event.getSource() == textSizeButton_22)
+		{
+			Settings.setEditorFontSize(22);
+			TextEditorState.setFontSize(22);
+			documentManager.updateSettings();
+		}
+		else if (event.getSource() == textSizeButton_24)
+		{
+			Settings.setEditorFontSize(24);
+			TextEditorState.setFontSize(24);
+			documentManager.updateSettings();
 		}
 	}
 	
@@ -1356,7 +1485,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	{
 		fileList.repaint();
 		
-		if(document.getPath() != null)
+		if (document.getPath() != null)
 			recentManager.addDocument(document);
 		
 		propertySheetPanel.setProperties(new Property[0]);
@@ -1397,8 +1526,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		switch(documentType)
 		{
 			case ZONE:
-				
-				mapViewMenuItem.setEnabled(false);
+							
 				textViewMenuItem.setEnabled(true);
 				graphViewMenuItem.setEnabled(true);
 					
@@ -1413,7 +1541,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				
 			case ZONE_LIBRARY:
 
-				mapViewMenuItem.setEnabled(false);
 				textViewMenuItem.setEnabled(true);
 				graphViewMenuItem.setEnabled(false);
 	
@@ -1428,7 +1555,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 
 			case ZONE_SCRIPT:
 				
-				mapViewMenuItem.setEnabled(false);
 				textViewMenuItem.setEnabled(true);
 				graphViewMenuItem.setEnabled(false);
 					
@@ -1451,24 +1577,22 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				findToolBarButton.setVisible(true);
 				refreshSeparator.setVisible(true);
 				refreshToolBarButton.setVisible(true);
-				themeMenu.setVisible(true);				
-				themeSeparator.setVisible(true);
 				bottomInfoLabel.setVisible(true);
 				
-				mapViewMenuItem.setSelected(false);
 				textViewMenuItem.setSelected(true);
 				graphViewMenuItem.setSelected(false);
 				
 				textAntialiasingMenuItem.setVisible(true);
 				fractionalFontMetricsMenuItem.setVisible(true);
 				textRenderingSeparator.setVisible(true);
+				textSizeMenu.setVisible(true);
 
 				resetZoomViewMenuSeparator.setVisible(false);
 				resetZoomViewMenuItem.setVisible(false);
 				
 				fileList.setDragEnabled(true);
 				
-				if(documentType == ZoneDocument.DocumentType.ZONE_SCRIPT)
+				if (documentType == ZoneDocument.DocumentType.ZONE_SCRIPT)
 					fileList.setTransferHandler(new ScriptImportTransferHandler());
 				else
 					fileList.setTransferHandler(new FileTransferHandler(documentType.getLocationType() == ZoneDocument.DocumentLocationType.ASSETS ? EditorApplication.getAssetsLocation() : ""));
@@ -1482,17 +1606,15 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				findToolBarButton.setVisible(false);
 				refreshSeparator.setVisible(true);
 				refreshToolBarButton.setVisible(true);
-				themeMenu.setVisible(false);
-				themeSeparator.setVisible(false);
 				bottomInfoLabel.setVisible(false);
 				
-				mapViewMenuItem.setSelected(false);
 				textViewMenuItem.setSelected(false);
 				graphViewMenuItem.setSelected(true);
 				
 				textAntialiasingMenuItem.setVisible(false);
 				fractionalFontMetricsMenuItem.setVisible(false);
 				textRenderingSeparator.setVisible(false);
+				textSizeMenu.setVisible(false);
 		
 				resetZoomViewMenuSeparator.setVisible(true);
 				resetZoomViewMenuItem.setVisible(true);
@@ -1507,17 +1629,16 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 
 		propertySheetPanel.setProperties(new Property[0]);
 						
-		if(documentType == ZoneDocument.DocumentType.ZONE_LIBRARY)
+		if (documentType == ZoneDocument.DocumentType.ZONE_LIBRARY)
 			hideRightPane();		
-		else if(splitPaneRight.getRightComponent() != null)
+		else if (splitPaneRight.getRightComponent() != null)
 			showRightPane(documentType, editType);
 		
-		if(splitPaneMain.getLeftComponent() != null)
+		if (splitPaneMain.getLeftComponent() != null)
 			showLeftPane(documentType, editType);
 		
-		if(documentManager.getCurrentDocument() == null)
+		if (documentManager.getCurrentDocument() == null)
 		{
-			mapViewMenuItem.setEnabled(false);
 			textViewMenuItem.setEnabled(false);
 			graphViewMenuItem.setEnabled(false);
 		}
@@ -1537,10 +1658,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				
 			case GRAPH_EDIT:
 				splitPaneMain.setLeftComponent(fileSplitPaneLeft);
-				break;
-				
-			case MAP_EDIT:
-				splitPaneMain.setLeftComponent(objectsSplitPaneLeft);
 				break;
 		}
 		
@@ -1630,7 +1747,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	
 	private void openHelpWindow()
 	{
-		if(helpFrame == null)
+		if (helpFrame == null)
 			helpFrame = new HelpFrame(zoneClassList);
 		
 		helpFrame.setVisible(true);
@@ -1640,7 +1757,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 
 	public synchronized void goToEditMode(final ZoneDocument.EditType type)
 	{
-		if(!SwingUtilities.isEventDispatchThread())
+		if (!SwingUtilities.isEventDispatchThread())
 		{
 			SwingUtilities.invokeLater(new Runnable()
 			{
@@ -1661,7 +1778,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 
 	public void setEditingObjectEnabled(boolean enabled)
 	{
-		if(enabled)
+		if (enabled)
 		{
 			editToolBarButton.setVisible(true);
 		}

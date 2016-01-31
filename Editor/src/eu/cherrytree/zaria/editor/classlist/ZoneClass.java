@@ -11,12 +11,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import eu.cherrytree.zaria.editor.EditorApplication;
 import eu.cherrytree.zaria.editor.datamodels.palette.IconMaker;
-import eu.cherrytree.zaria.editor.serialization.Serializer;
 
 import eu.cherrytree.zaria.serialization.ColorName;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
-import eu.cherrytree.zaria.serialization.annotations.DefinitionAffilation;
-import eu.cherrytree.zaria.serialization.annotations.DefinitionAffilationType;
+
 
 import eu.cherrytree.zaria.serialization.annotations.DefinitionCategory;
 import eu.cherrytree.zaria.serialization.annotations.DefinitionColor;
@@ -121,34 +119,6 @@ public class ZoneClass
 			return description.value();
 		else
 			return null;
-	}
-
-	//--------------------------------------------------------------------------
-	
-	public static boolean getIsUsableInEditor(Class c)
-	{
-		DefinitionAffilation affilation = ((DefinitionAffilation) c.getAnnotation(DefinitionAffilation.class));
-		
-		if(affilation != null)
-			return affilation.value() == DefinitionAffilationType.WORK_FILES || affilation.value() == DefinitionAffilationType.ASSETS_AND_WORK_FILES;
-		else if(c.getSuperclass() != null)
-			return getIsUsableInEditor(c.getSuperclass());
-		else
-			throw new RuntimeException("Class has not DefinitionAffilation annotation anywhere in it's hierarchy.");
-	}
-	
-	//--------------------------------------------------------------------------
-	
-	public static boolean getIsUsableInLibrary(Class c)
-	{
-		DefinitionAffilation affilation = ((DefinitionAffilation) c.getAnnotation(DefinitionAffilation.class));
-
-		if(affilation != null)
-			return affilation.value() == DefinitionAffilationType.ASSETS || affilation.value() == DefinitionAffilationType.ASSETS_AND_WORK_FILES;
-		else if(c.getSuperclass() != null)
-			return getIsUsableInLibrary(c.getSuperclass());
-		else
-			throw new RuntimeException("Class has not DefinitionAffilation annotation anywhere in it's hierarchy.");
 	}
 	
 	//--------------------------------------------------------------------------
