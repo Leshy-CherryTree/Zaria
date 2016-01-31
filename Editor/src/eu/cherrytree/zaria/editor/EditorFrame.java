@@ -1289,7 +1289,10 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			SwingUtilities.updateComponentTreeUI(aboutDialog);
 			SwingUtilities.updateComponentTreeUI(goToLineDialog);
 			SwingUtilities.updateComponentTreeUI(findDialog);
-			SwingUtilities.updateComponentTreeUI(helpFrame);
+			
+			if(helpFrame != null)
+				SwingUtilities.updateComponentTreeUI(helpFrame);
+			
 			SwingUtilities.updateComponentTreeUI(textureAtlasDialog);
 	
 			if (EditorApplication.getDebugConsole().isVisible())
@@ -1304,7 +1307,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			if (findDialog.isVisible())
 				findDialog.pack();
 			
-			if (helpFrame.isVisible())
+			if (helpFrame != null && helpFrame.isVisible())
 				helpFrame.pack();
 			
 			if (textureAtlasDialog.isVisible())

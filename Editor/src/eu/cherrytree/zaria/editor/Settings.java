@@ -266,4 +266,25 @@ public class Settings
 	}
 	
 	//--------------------------------------------------------------------------
+
+	public static int getNodeFontSize()
+	{
+		return getLargeUI() ? 13 : 11;
+	}
+
+	//--------------------------------------------------------------------------
+
+	public static int getNodePortFontSize()
+	{
+		return getLargeUI() ? 12 : 10;
+	}
+
+	//--------------------------------------------------------------------------
+	
+	public static int getNodeOutsideFontSize()
+	{
+		return getLargeUI() ? 10 : 8;
+	}
+	
+	//--------------------------------------------------------------------------
 }
