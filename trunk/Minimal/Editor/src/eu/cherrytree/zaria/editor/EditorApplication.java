@@ -7,6 +7,7 @@
 
 package eu.cherrytree.zaria.editor;
 
+import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 import eu.cherrytree.zaria.editor.components.ButtonTabComponent;
 import eu.cherrytree.zaria.editor.database.DataBase;
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
@@ -110,52 +111,32 @@ public class EditorApplication
 
 			showVersionOnSplash();
 
-			if(args.length < 1)
+			if (args.length < 1)
 				throw new ApplicationStartupException("Incorrect input parameters. Must input config file path.");
 
 			loadConifg(args[0]);
 
-			if(assetsLocation == null)
+			if (assetsLocation == null)
 				throw new ApplicationStartupException("No assets location!");
 
-			if(dataBaseLocation == null)
+			if (dataBaseLocation == null)
 				throw new ApplicationStartupException("No data base location!");
 			
-			if(scriptsLocation == null)
+			if (scriptsLocation == null)
 				throw new ApplicationStartupException("No script files location!");
 			
-			if(scriptJarLocation == null)
+			if (scriptJarLocation == null)
 				throw new ApplicationStartupException("No script jar location!");
+					
+			Settings.init(projectName);
+			
+			updateLookAndFeel();
 
-			try
-			{		
-				boolean found = false;
-
-				for(UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels())
-				{
-					if(info.getName().equals("Nimbus"))
-					{
-						UIManager.setLookAndFeel(info.getClassName());		
-						found = true;					
-						break;
-					}
-				}					
-
-				if(!found)
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			}
-			catch(UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException ex)
-			{
-				 DebugConsole.logger.log(java.util.logging.Level.SEVERE, null, ex);
-			}
-
-			if(jarPaths.isEmpty())
+			if (jarPaths.isEmpty())
 				JOptionPane.showMessageDialog(null, "No jar files specified!\n", "No jar files!", JOptionPane.ERROR_MESSAGE);
 
 			String [] jarPathArray = new String[jarPaths.size()];		
-			jarPaths.toArray(jarPathArray);
-
-			Settings.init(projectName);
+			jarPaths.toArray(jarPathArray);		
 
 			try
 			{
@@ -168,7 +149,7 @@ public class EditorApplication
 				JOptionPane.showMessageDialog(frame, "Couldn't load palette. " + ex, "Palette error!", JOptionPane.ERROR_MESSAGE);
 			}		
 						
-			if(!DataBase.init(dataBaseLocation))
+			if (!DataBase.init(dataBaseLocation))
 				throw new ApplicationStartupException("Data base init failed!");
 
 			frame = new EditorFrame(projectName);	
@@ -229,17 +210,17 @@ public class EditorApplication
 		// Making sure that the locations exist.
 		File assets = new File(path);
 
-		if(!assets.isAbsolute())
+		if (!assets.isAbsolute())
 			assets = new File(srcLocation + path);
 
-		if(!assets.exists())
+		if (!assets.exists())
 			assets.mkdirs();
 
 		// Making sure that we're using absolute paths.
 		path = Paths.get(assets.getAbsolutePath()).toRealPath().toString();
 		
 		// Making sure that the path string ends with a separator.
-		if(!path.endsWith(File.separator))
+		if (!path.endsWith(File.separator))
 			path += File.separator;
 		
 		return path;
@@ -252,14 +233,14 @@ public class EditorApplication
 		// Making sure that the locations exist.
 		File file = new File(path);
 		
-		if(!file.isAbsolute())
+		if (!file.isAbsolute())
 			file = new File(srcLocation + path);
 
 		// Making sure that we're using absolute paths.
 		path = file.getAbsolutePath();
 		
 		// Making sure that the path string ends with the proper extension.
-		if(!path.endsWith(".jar"))
+		if (!path.endsWith(".jar"))
 			path += ".jar";
 		
 		return path;
@@ -293,12 +274,12 @@ public class EditorApplication
 					scriptsLocation = element.getElementsByTagName("scripts").item(0).getTextContent();					
 					scriptJarLocation = element.getElementsByTagName("scriptjar").item(0).getTextContent();
 					
-					if(element.getElementsByTagName("project").getLength() > 0)
+					if (element.getElementsByTagName("project").getLength() > 0)
 						projectName = element.getElementsByTagName("project").item(0).getTextContent();
 					
 					int len = element.getElementsByTagName("jar").getLength();
 					
-					for(int i = 0 ; i < len ; i++)
+					for (int i = 0 ; i < len ; i++)
 						jarPaths.add(verifyJar(root_path, element.getElementsByTagName("jar").item(i).getTextContent()));
 				}
 			}
@@ -313,6 +294,43 @@ public class EditorApplication
 		{
 			DebugConsole.logger.log(Level.SEVERE, null, ex);
 		}	
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static void updateLookAndFeel()
+	{
+		Properties props = new Properties();
+
+		props.put("controlTextFont", "Dialog " + Settings.getUiFontSize());
+		props.put("systemTextFont", "Dialog " + Settings.getUiFontSize());
+		props.put("userTextFont", "Dialog " + Settings.getUiFontSize());
+		props.put("menuTextFont", "Dialog " + Settings.getUiFontSize());
+		props.put("windowTitleFont", "Dialog bold " + Settings.getUiFontSize());
+		props.put("subTextFont", "Dialog " + Settings.getSmallUiFontSize());
+
+		props.put("logoString", "Zone Editor"); 
+
+		props.put("backgroundColorLight", "32 32 32");
+		props.put("backgroundColor", "32 32 32");
+		props.put("backgroundColorDark", "32 32 32");
+
+		props.put("foregroundColor", "192 192 192");
+		props.put("inputForegroundColor", "192 192 192");
+		props.put("buttonForegroundColor", "192 192 192");
+		props.put("controlForegroundColor", "192 192 192");
+		props.put("menuForegroundColor", "192 192 192");
+		props.put("windowTitleForegroundColor", "192 192 192");
+
+		try
+		{		
+			HiFiLookAndFeel.setTheme(props);
+			UIManager.setLookAndFeel("com.jtattoo.plaf.hifi.HiFiLookAndFeel");
+		}
+		catch(UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException ex)
+		{
+			 DebugConsole.logger.log(java.util.logging.Level.SEVERE, null, ex);
+		}
 	}
 			
 	//--------------------------------------------------------------------------

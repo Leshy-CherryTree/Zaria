@@ -38,10 +38,11 @@ public class FindOptions
 	private boolean wholeWord;
 	private boolean wrap;
 	private boolean mark;
+	private boolean inSelection;
 	
 	//--------------------------------------------------------------------------
 	
-	public FindOptions(Direction direction, Scope scope, boolean caseSensitive, boolean wholeWord, boolean wrap, boolean mark)
+	public FindOptions(Direction direction, Scope scope, boolean caseSensitive, boolean wholeWord, boolean wrap, boolean mark, boolean inSelection)
 	{
 		this.direction = direction;
 		this.scope = scope;
@@ -49,6 +50,7 @@ public class FindOptions
 		this.wholeWord = wholeWord;
 		this.wrap = wrap;
 		this.mark = mark;
+		this.inSelection = inSelection;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -91,6 +93,13 @@ public class FindOptions
 	public boolean isMark()
 	{
 		return mark;
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public boolean isInSelection()
+	{
+		return inSelection;
 	}
 	
 	//--------------------------------------------------------------------------

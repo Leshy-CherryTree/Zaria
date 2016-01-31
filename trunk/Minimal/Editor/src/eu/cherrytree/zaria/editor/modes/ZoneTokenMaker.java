@@ -446,7 +446,7 @@ public class ZoneTokenMaker extends AbstractJFlexCTokenMaker {
 			return yylex();
 		} catch (IOException ex) {
 			DebugConsole.logger.log(Level.SEVERE, null, ex);
-			return new Token();
+			return null;
 		}
 
 	}

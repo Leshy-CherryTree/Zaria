@@ -444,24 +444,6 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	//--------------------------------------------------------------------------
 	
-	private void deleteRecursively(File file)
-	{	
-		assert file != null;
-		
-		if(file.exists())
-		{
-			if(file.isDirectory())
-			{
-				for(File f : file.listFiles())
-					deleteRecursively(f);
-			}
-				
-			file.delete();
-		}
-	}
-	
-	//--------------------------------------------------------------------------
-	
 	public void undo()
 	{
 		if(currentDocument != null)

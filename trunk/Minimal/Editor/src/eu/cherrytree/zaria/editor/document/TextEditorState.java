@@ -14,6 +14,8 @@ import eu.cherrytree.zaria.editor.document.parsers.ScriptParser;
 import eu.cherrytree.zaria.editor.modes.ZoneTokenMaker;
 import eu.cherrytree.zaria.editor.serialization.Serializer;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 
 import java.io.IOException;
@@ -23,6 +25,9 @@ import java.util.logging.Level;
 
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JViewport;
+import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -31,12 +36,15 @@ import javax.swing.text.TextAction;
 
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.Style;
+import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.modes.JavaScriptTokenMaker;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
+import org.fife.ui.rtextarea.SearchResult;
 
 /**
  *
@@ -44,14 +52,6 @@ import org.fife.ui.rtextarea.SearchEngine;
  */
 public class TextEditorState implements EditorState, DocumentListener
 {
-	//--------------------------------------------------------------------------
-	
-	public enum ThemeType
-	{
-		DARK_THEME,
-		LIGHT_THEME
-	}
-	
 	//--------------------------------------------------------------------------
 	
 	private class GenerateUUIDAction extends TextAction
@@ -74,9 +74,9 @@ public class TextEditorState implements EditorState, DocumentListener
 	
 	private static boolean antialiasing;
 	private static boolean fractionalFontMetrics;
+	private static int fontSize = 12;
 	
-	private static Theme [] themes = new Theme[3];
-	private static ThemeType currentTheme = ThemeType.DARK_THEME;
+	private static Theme theme;
 	
 	private static final AbstractTokenMakerFactory factory = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
 	
@@ -84,8 +84,7 @@ public class TextEditorState implements EditorState, DocumentListener
 	{
 		try
 		{									
-			themes[ThemeType.DARK_THEME.ordinal()] = Theme.load(ZoneDocument.class.getResourceAsStream("/eu/cherrytree/zaria/editor/res/themes/dark.xml"));
-			themes[ThemeType.LIGHT_THEME.ordinal()] = Theme.load(ZoneDocument.class.getResourceAsStream("/eu/cherrytree/zaria/editor/res/themes/eclipse.xml"));
+			theme = Theme.load(ZoneDocument.class.getResourceAsStream("/eu/cherrytree/zaria/editor/res/themes/dark.xml"));
 			
 			// For all Zone files.
 			factory.putMapping("zone_syntax", ZoneTokenMaker.class.getCanonicalName());
@@ -114,9 +113,9 @@ public class TextEditorState implements EditorState, DocumentListener
 	{		
 		this.document = document;
 
-		textArea = new RSyntaxTextArea();		
+		textArea = new RSyntaxTextArea();	
 		
-		if(document.getDocumentType() == ZoneDocument.DocumentType.ZONE_SCRIPT)
+		if (document.getDocumentType() == ZoneDocument.DocumentType.ZONE_SCRIPT)
 			textArea.setSyntaxEditingStyle("script_syntax");
 		else
 			textArea.setSyntaxEditingStyle("zone_syntax");
@@ -141,14 +140,52 @@ public class TextEditorState implements EditorState, DocumentListener
 				break;
 					
 		}
-
-		updateSettings();
+		
+		updateSettings();				
 				
 		pane = new RTextScrollPane();
 		pane.setViewportView(textArea);	
 		pane.setLineNumbersEnabled(true);
 	}
 	
+	//--------------------------------------------------------------------------
+		
+	private void applyFontSize(float size)
+	{
+		SyntaxScheme scheme = (SyntaxScheme) textArea.getSyntaxScheme().clone();
+
+		int count = scheme.getStyleCount();
+		
+		for (int i = 0; i < count; i++)
+		{
+			Style ss = scheme.getStyle(i);
+			if (ss != null)
+			{
+				Font font = ss.font;
+							
+				if (font != null)
+					ss.font = font.deriveFont(size);				
+			}
+		}
+
+		Font font = textArea.getFont();
+		textArea.setFont(font.deriveFont(size));
+		
+		textArea.setSyntaxScheme(scheme);
+		
+		Component parent = textArea.getParent();
+		
+		if (parent instanceof JViewport)
+		{
+			parent = parent.getParent();
+			
+			if (parent instanceof JScrollPane)
+				parent.repaint();
+		}
+		
+		textArea.setSyntaxScheme(scheme);
+	}
+
 	//--------------------------------------------------------------------------
 	
 	@Override
@@ -163,13 +200,6 @@ public class TextEditorState implements EditorState, DocumentListener
 	public void detach(JComponent parent)
 	{
 		parent.remove(pane);
-	}
-	
-	//--------------------------------------------------------------------------
-	
-	public static ThemeType getCurrentTheme()
-	{
-		return currentTheme;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -201,10 +231,10 @@ public class TextEditorState implements EditorState, DocumentListener
 	}
 	
 	//--------------------------------------------------------------------------
-	
-	public static void setDefaultTheme(ThemeType theme)
+
+	public static void setFontSize(int fontSize)
 	{
-		currentTheme = theme;
+		TextEditorState.fontSize = fontSize;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -213,16 +243,16 @@ public class TextEditorState implements EditorState, DocumentListener
 	{
 		antialiasing = Settings.getAntialiasing();
 		fractionalFontMetrics = Settings.getFractionalFontMetrics();
-		currentTheme = Settings.getEditorTheme();
+		fontSize = Settings.getEditorFontSize();
 	}
 	
 	//--------------------------------------------------------------------------
 	
 	public static void saveSettings()
 	{
-		Settings.setEditorTheme(currentTheme);
 		Settings.setAntialiasing(antialiasing);
 		Settings.setFractionalFontMetrics(fractionalFontMetrics);
+		Settings.setEditorFontSize(fontSize);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -233,7 +263,9 @@ public class TextEditorState implements EditorState, DocumentListener
 		textArea.setAntiAliasingEnabled(antialiasing);
 		textArea.setFractionalFontMetricsEnabled(fractionalFontMetrics);
 		
-		themes[currentTheme.ordinal()].apply(textArea);		
+		theme.apply(textArea);		
+		
+		applyFontSize(fontSize);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -342,7 +374,8 @@ public class TextEditorState implements EditorState, DocumentListener
 		context.setRegularExpression(false);
 		context.setSearchForward(options.getDirection().equals(FindOptions.Direction.FORWARD));
 		context.setWholeWord(options.isWholeWord());
-		context.setSearchSelectionOnly(true);
+		context.setSearchSelectionOnly(options.isInSelection());
+		context.setMarkAll(options.isMark());
 		
 		return context;
 	}
@@ -352,26 +385,23 @@ public class TextEditorState implements EditorState, DocumentListener
 	@Override
 	public boolean find(String text, FindOptions options)
 	{	
-		if(options.isMark())
-			textArea.markAll(text, options.isCaseSensitive(), options.isWholeWord(), false);
-		else
-			textArea.clearMarkAllHighlights();
+//		textArea.setMarkOccurrences(options.isMark());
 		
 		SearchContext context = getSearchContext(options);
 		
 		context.setSearchFor(text);	
 		
-		if(options.isWrap())
+		if (options.isWrap())
 		{
-			boolean found = SearchEngine.find(textArea, context);
+			SearchResult found = SearchEngine.find(textArea, context);
 			
-			if(!found)
+			if (!found.wasFound())
 				textArea.setCaretPosition(context.getSearchForward() ? 0 : textArea.getText().length());
 			else
 				return true;
 		}
 		
-		return SearchEngine.find(textArea, context);
+		return SearchEngine.find(textArea, context).wasFound();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -379,53 +409,50 @@ public class TextEditorState implements EditorState, DocumentListener
 	@Override
 	public boolean replace(String text, String replace, FindOptions options)
 	{
-		if(options.isMark())
-			textArea.markAll(text, options.isCaseSensitive(), options.isWholeWord(), false);
-		else
-			textArea.clearMarkAllHighlights();
+//		textArea.setMarkOccurrences(options.isMark());
 		
 		SearchContext context = getSearchContext(options);
 		
 		context.setSearchFor(text);
 		context.setReplaceWith(replace);	
 		
-		if(options.isWrap())
+		if (options.isWrap())
 		{
-			boolean found = SearchEngine.replace(textArea, context);
+			SearchResult found = SearchEngine.replace(textArea, context);
 
-			if(!found)
+			if (!found.wasFound())
 				textArea.setCaretPosition(context.getSearchForward() ? 0 : textArea.getText().length());
 			else
 				return true;
 		}
 		
-		return SearchEngine.replace(textArea, context);
+		return SearchEngine.replace(textArea, context).wasFound();
 	}
 	
 	//--------------------------------------------------------------------------
 	
 	private boolean replaceFind(SearchContext context, boolean wrap)
 	{				
-		boolean replace = SearchEngine.replace(textArea, context);
+		SearchResult replace = SearchEngine.replace(textArea, context);
 	
-		if(!replace && wrap)
+		if (!replace.wasFound() && wrap)
 		{
 			textArea.setCaretPosition(context.getSearchForward() ? 0 : textArea.getText().length());
 			replace = SearchEngine.replace(textArea, context);
 		}
 				
-		if(replace)
+		if (replace.wasFound())
 		{
-			boolean find = SearchEngine.find(textArea, context);
+			SearchResult find = SearchEngine.find(textArea, context);
 
-			if(!find && wrap)
+			if (!find.wasFound() && wrap)
 			{
 				textArea.setCaretPosition(context.getSearchForward() ? 0 : textArea.getText().length());
 				SearchEngine.find(textArea, context);
 			}
 		}
 		
-		return replace;
+		return replace.wasFound();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -433,10 +460,7 @@ public class TextEditorState implements EditorState, DocumentListener
 	@Override
 	public boolean replaceFind(String text, String replace, FindOptions options)
 	{
-		if(options.isMark())
-			textArea.markAll(text, options.isCaseSensitive(), options.isWholeWord(), false);
-		else
-			textArea.clearMarkAllHighlights();
+//		textArea.setMarkOccurrences(options.isMark());
 		
 		SearchContext context = getSearchContext(options);
 		
@@ -456,7 +480,7 @@ public class TextEditorState implements EditorState, DocumentListener
 		context.setSearchFor(text);
 		context.setReplaceWith(replace);		
 		
-		return SearchEngine.replaceAll(textArea, context);
+		return SearchEngine.replaceAll(textArea, context).getCount();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -472,7 +496,7 @@ public class TextEditorState implements EditorState, DocumentListener
 	@Override
 	public void unmark()
 	{
-		textArea.clearMarkAllHighlights();
+		textArea.setMarkOccurrences(false);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -482,7 +506,7 @@ public class TextEditorState implements EditorState, DocumentListener
 	{
 		line--;
 		
-		if( line >= 0 && line < textArea.getLineCount() )
+		if ( line >= 0 && line < textArea.getLineCount() )
 		{
 			textArea.scrollRectToVisible( textArea.modelToView( textArea.getLineStartOffset( line ) ) );
 			textArea.setCaretPosition( textArea.getLineStartOffset( line ) );
@@ -530,6 +554,8 @@ public class TextEditorState implements EditorState, DocumentListener
 		
 		textArea.setCaretPosition(0);
 		textArea.discardAllEdits();	
+		
+		updateSettings();
 	}
 
 

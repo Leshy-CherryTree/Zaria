@@ -63,8 +63,7 @@ public class ZoneDocument
 	public enum EditType
 	{
 		TEXT_EDIT,
-		GRAPH_EDIT,
-		MAP_EDIT
+		GRAPH_EDIT
 	}	
 	
 	//--------------------------------------------------------------------------
@@ -139,7 +138,7 @@ public class ZoneDocument
 		
 		for(DocumentType type : DocumentType.values())
 		{
-			if(path.endsWith(type.getSuffix().toLowerCase()))
+			if (path.endsWith(type.getSuffix().toLowerCase()))
 				return type != DocumentType.ZONE_SCRIPT;
 		}
 		
@@ -179,7 +178,7 @@ public class ZoneDocument
 		
 		String text = "";
 		
-		if(file == null)
+		if (file == null)
 		{
 			text = getNewText(documentType);
 			
@@ -209,21 +208,19 @@ public class ZoneDocument
 		switch(documentType)
 		{
 			case ZONE:
-//				currentState = EditType.GRAPH_EDIT;
-				
+				currentState = EditType.GRAPH_EDIT;
+			
 				states[EditType.TEXT_EDIT.ordinal()] = new TextEditorState(text, this);
 				states[EditType.GRAPH_EDIT.ordinal()] = new GraphEditorState(text, this, propertySheetPanel, popupMenu, zoneClassList);
-				states[EditType.MAP_EDIT.ordinal()] = null;
 				
 				break;
 				
 			case ZONE_LIBRARY:
 			case ZONE_SCRIPT:
-//				currentState = EditType.TEXT_EDIT;
+				currentState = EditType.TEXT_EDIT;
 				
 				states[EditType.TEXT_EDIT.ordinal()] = new TextEditorState(text, this);
 				states[EditType.GRAPH_EDIT.ordinal()] = null;
-				states[EditType.MAP_EDIT.ordinal()] = null;
 				
 				break;
 		}		
@@ -233,7 +230,7 @@ public class ZoneDocument
 		panel.setName("Editor");
 		tabPane.add(panel);
 
-		if(file != null)
+		if (file != null)
 			tabPane.setToolTipTextAt(tabPane.indexOfComponent(panel), file.getAbsolutePath());	
 		
 		states[currentState.ordinal()].attach(panel);
@@ -313,7 +310,7 @@ public class ZoneDocument
 	{
 		Date ret = null;
 		
-		if(text.contains(dateCreatedComment))
+		if (text.contains(dateCreatedComment))
 		{
 			int index_beg = text.indexOf(dateCreatedComment) + dateCreatedComment.length();
 			int index_end = text.substring(index_beg).indexOf("\n") + index_beg;
@@ -375,10 +372,10 @@ public class ZoneDocument
 	
 	public void save() throws IOException
 	{		
-		if(file == null)
+		if (file == null)
 			file = DocumentManager.showSaveDialog(documentType);
 			
-		if(file != null)
+		if (file != null)
 		{
 			try (BufferedWriter writer = new BufferedWriter(new FileWriter(file)))
 			{
@@ -386,7 +383,7 @@ public class ZoneDocument
 				saved = true;
 			}
 			
-			if(documentType != DocumentType.ZONE_LIBRARY)
+			if (documentType != DocumentType.ZONE_LIBRARY)
 			{
 				ArrayList<UUID> removed = DataBase.save(states[currentState.ordinal()].getDefinitions(), file.getAbsolutePath());			
 				ArrayList<UUID> dangling_links = new ArrayList<>();
@@ -394,7 +391,7 @@ public class ZoneDocument
 				for(UUID uuid : removed)
 					DataBase.checkLinks(uuid, dangling_links);
 
-				if(!dangling_links.isEmpty())
+				if (!dangling_links.isEmpty())
 				{
 					String info = "Saving of " + file.getName() + " resulted in the following definitons having invalid links:\n\n";
 
@@ -527,7 +524,7 @@ public class ZoneDocument
 	
 	public String getTitle()
 	{
-		if(file != null)
+		if (file != null)
 			return file.getName();
 		else
 			return "untitled" + documentType.getSuffix();
@@ -543,7 +540,7 @@ public class ZoneDocument
 		
 		String ret = "// " + title + "\n";
 		
-		if(getCreatedDate() != null)
+		if (getCreatedDate() != null)
 			ret += dateCreatedComment + dateFormat.format(getCreatedDate()) + "\n";
 		
 		ret += dateModifiedCreatedComment + dateFormat.format(cal.getTime()) + "\n";
@@ -564,7 +561,7 @@ public class ZoneDocument
 	
 	public String getPath()
 	{
-		if(file != null)
+		if (file != null)
 			return file.getAbsolutePath();
 		else
 			return null;
@@ -574,7 +571,7 @@ public class ZoneDocument
 	
 	public void setState(EditType state)
 	{
-		if(state != currentState)
+		if (state != currentState)
 		{						
 			String text = states[currentState.ordinal()].getText();
 			
@@ -606,7 +603,7 @@ public class ZoneDocument
 				
 		for(EditorState state : states)
 		{
-			if(state != null)
+			if (state != null)
 				state.onFocusGained(panel);
 		}
 	}
@@ -617,7 +614,7 @@ public class ZoneDocument
 	{
 		for(EditorState state : states)
 		{
-			if(state != null)
+			if (state != null)
 				state.onFocusLost(panel);
 		}
 	}
@@ -678,7 +675,7 @@ public class ZoneDocument
 
 		DefinitionValidation val = library.validate();
 		
-		if(val.hasErrors())
+		if (val.hasErrors())
 		{
 			ArrayList<DefinitionValidation> ret = new ArrayList<>();
 			ret.add(val);
@@ -705,7 +702,7 @@ public class ZoneDocument
 		
 		for(Field f : fields_array)
 		{
-			if(f.getName().equals(name))
+			if (f.getName().equals(name))
 				return f;
 		}
 		
@@ -734,7 +731,7 @@ public class ZoneDocument
 			DebugConsole.logger.log(Level.SEVERE, null, ex);
 		}
 			
-		if(str != null && !str.isEmpty())
+		if (str != null && !str.isEmpty())
 		{
 			try
 			{
@@ -748,7 +745,7 @@ public class ZoneDocument
 			}
 		}
 		
-		if(metadata == null)
+		if (metadata == null)
 			metadata = new ZoneMetadata();
 		
 		return metadata;
