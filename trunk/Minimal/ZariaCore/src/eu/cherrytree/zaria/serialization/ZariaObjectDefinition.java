@@ -11,8 +11,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import eu.cherrytree.zaria.base.ApplicationRuntimeError;
-import eu.cherrytree.zaria.serialization.annotations.DefinitionAffilation;
-import eu.cherrytree.zaria.serialization.annotations.DefinitionAffilationType;
 import eu.cherrytree.zaria.serialization.annotations.DefinitionCategory;
 import eu.cherrytree.zaria.serialization.annotations.DefinitionColor;
 import eu.cherrytree.zaria.serialization.annotations.FieldDescription;
@@ -44,7 +42,6 @@ import java.util.UUID;
  */
 @DefinitionCategory("Other")
 @DefinitionColor(ColorName.Silver)
-@DefinitionAffilation(DefinitionAffilationType.ASSETS)
 public abstract class ZariaObjectDefinition
 {
 	//--------------------------------------------------------------------------
