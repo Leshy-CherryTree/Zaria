@@ -130,7 +130,8 @@ public abstract class ZariaApplicationState
 				
 				Console.printOut("Started loading " + stateParams.getSaveFilePath());
 				
-				freeLibrary();
+				if (objectlibrary != null)
+					freeLibrary();
 				
 				if (stateParams.getLibraryPath() != null)
 					objectlibrary = ZoneDeserializer.loadLibrary(stateParams.getLibraryPath());

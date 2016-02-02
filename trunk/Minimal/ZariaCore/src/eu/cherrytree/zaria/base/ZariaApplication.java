@@ -455,7 +455,7 @@ public abstract class ZariaApplication<States extends Enum>
 	
 	public void pause()
 	{
-		if (!paused)
+		if (!paused && currentState != null)
 			currentState.onPause();
 		
 		paused = true;
@@ -465,7 +465,7 @@ public abstract class ZariaApplication<States extends Enum>
 	
 	public void resume()
 	{
-		if (paused)
+		if (paused && currentState != null)
 			currentState.onResume();
 		
 		paused = false;
