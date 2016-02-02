@@ -3,7 +3,7 @@
 <config>
 	<project>Test Project</project>
 	<assets>../TestApps/MapView/assets</assets>
-	<workfiles>../TestApps/MapView/work_files</workfiles>
+	<workFiles>../TestApps/MapView/work_files</workFiles>
 	<database>../TestApps/MapView/database</database>
 	<scripts>../TestApps/MapView/scripts</scripts>
 	<scriptjar>../TestApps/MapView/dist/lib/scripts.jar</scriptjar>
