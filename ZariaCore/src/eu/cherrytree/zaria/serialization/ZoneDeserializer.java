@@ -30,6 +30,9 @@ public class ZoneDeserializer
 	
 	public static ZariaObjectDefinition[] loadDefinitions(String path) throws IOException, ValidationException
 	{
+		if (!path.startsWith("/"))
+			path = "/" + path;
+		
 		return loadDefinitions(ZoneDeserializer.class.getResourceAsStream(path));
 	}
 	
@@ -37,6 +40,9 @@ public class ZoneDeserializer
 	
 	public static ZariaObjectDefinitionLibrary loadLibrary(String path) throws IOException, ValidationException
 	{
+		if (!path.startsWith("/"))
+			path = "/" + path;
+			
 		return loadLibrary(ZoneDeserializer.class.getResourceAsStream(path));
 	}
 	
@@ -44,6 +50,8 @@ public class ZoneDeserializer
 
     public static ZariaObjectDefinition[] loadDefinitions(InputStream inputStream) throws IOException, ValidationException
     {
+		assert inputStream != null;
+		
 		ObjectMapper mapper = new ObjectMapper();
 		
 		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
@@ -85,6 +93,8 @@ public class ZoneDeserializer
 
 	public static ZariaObjectDefinitionLibrary loadLibrary(InputStream inputStream) throws IOException, ValidationException
 	{
+		assert inputStream != null;
+		
 		ObjectMapper mapper = new ObjectMapper();
 				
 		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
