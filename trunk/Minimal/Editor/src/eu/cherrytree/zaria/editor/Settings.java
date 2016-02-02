@@ -7,9 +7,6 @@
 
 package eu.cherrytree.zaria.editor;
 
-import eu.cherrytree.zaria.editor.debug.DebugConsole;
-import eu.cherrytree.zaria.editor.document.TextEditorState;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**

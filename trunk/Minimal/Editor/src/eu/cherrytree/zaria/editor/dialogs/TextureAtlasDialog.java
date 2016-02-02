@@ -11,6 +11,7 @@ import eu.cherrytree.zaria.editor.EditorApplication;
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
 import eu.cherrytree.zaria.editor.dialogs.textureatlas.AtlasGenerator;
 import eu.cherrytree.zaria.editor.document.AssetFileFilter;
+import eu.cherrytree.zaria.editor.document.DocumentManager;
 import static eu.cherrytree.zaria.editor.document.DocumentManager.showSaveDialog;
 import java.awt.Graphics;
 
@@ -201,6 +202,7 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 	{
 		fileView.clearSelection();
 		fileListModel.clear();
+		directoryTreeModel.clear();
 			
 		super.setVisible(bln);
 	}
@@ -240,7 +242,7 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 			
 			if (path != null)
 			{
-				String error = generator.run(path, fileListModel.getFiles());
+				String error = runGenerator(path);
 				
 				if (!error.isEmpty())
 				{
@@ -252,6 +254,30 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 				}
 			}
 		}
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public String runGenerator(final String path)
+	{
+		return DocumentManager.showWaitDialog("Please wait...", new WaitDialog.ResultRunnable<String>() {
+
+			private String error;
+			
+			@Override
+			public String get()
+			{
+				return error;
+			}
+
+			@Override
+			public void run()
+			{
+				error = generator.run(path, fileListModel.getFiles());
+				
+				finish();
+			}
+		});
 	}
 	
 	//--------------------------------------------------------------------------
@@ -271,14 +297,14 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 			
 			if (!file.getAbsolutePath().startsWith(EditorApplication.getAssetsLocation()))
 			{
-				if (JOptionPane.showConfirmDialog(this, "File " + file.getName() + " is not in the assets directory. Pick another location?", "Wrong path!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) != JOptionPane.NO_OPTION)	
+				if (JOptionPane.showConfirmDialog(this, "File " + file.getName() + " is not in the assets directory. Pick another location?", "Wrong path!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION)	
 					return getAtlasPath();
 			}
 			else			
 			{
-				if (file.exists())
+				if (new File(fileChooser.getSelectedFile().getPath() + ".png").exists())
 				{
-					if (JOptionPane.showConfirmDialog(this, "File " + file.getName() + " already exits. Overwrite file?", "File exists!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) != JOptionPane.NO_OPTION)	
+					if (JOptionPane.showConfirmDialog(this, "File " + file.getName() + " already exits. Overwrite file?", "File exists!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.NO_OPTION)	
 						return getAtlasPath();
 				}
 					
@@ -537,7 +563,14 @@ class DirectoryTreeModel implements TreeModel
 {	
 	//--------------------------------------------------------------------------
 	
-	private FileWrapper root = new FileWrapper(new File(EditorApplication.getAssetsLocation()), new ImageFilter());	
+	private FileWrapper root;
+	
+	//--------------------------------------------------------------------------
+
+	public DirectoryTreeModel()
+	{
+		clear();
+	}	
 
 	//--------------------------------------------------------------------------
 
@@ -613,6 +646,13 @@ class DirectoryTreeModel implements TreeModel
 	public void removeTreeModelListener(TreeModelListener l)
 	{
 		// Intentionally empty.
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public final void clear()
+	{
+		root = new FileWrapper(new File(EditorApplication.getWorkFilesLocation()), new ImageFilter());
 	}
 	
 	//--------------------------------------------------------------------------
