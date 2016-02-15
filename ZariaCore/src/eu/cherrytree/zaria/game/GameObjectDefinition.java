@@ -22,6 +22,13 @@ public abstract class GameObjectDefinition<Type extends GameObject> extends Zari
 {
 	//--------------------------------------------------------------------------
 	
+	public final Type create()
+	{
+		return create(null);
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	public abstract Type create(String name);
 	
 	//--------------------------------------------------------------------------
