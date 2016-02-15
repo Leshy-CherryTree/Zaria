@@ -273,7 +273,7 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 			@Override
 			public void run()
 			{
-				error = generator.run(path, fileListModel.getFiles());
+				error = generator.run(path, "png", fileListModel.getFiles());
 				
 				finish();
 			}

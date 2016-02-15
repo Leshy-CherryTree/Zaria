@@ -8,6 +8,7 @@
 package eu.cherrytree.zaria.editor.properties.editors;
 
 import eu.cherrytree.zaria.editor.EditorApplication;
+import eu.cherrytree.zaria.editor.properties.ResourcePropertyInfo;
 import eu.cherrytree.zaria.serialization.ResourceType;
 
 
@@ -20,15 +21,15 @@ public class ResourcePropertyEditor extends FilePropertyEditor
 {
 	//--------------------------------------------------------------------------
 	
-	private ResourceType resourceType;
+	private ResourcePropertyInfo resourceInfo;
 	
 	//--------------------------------------------------------------------------
 
-	public ResourcePropertyEditor(ResourceType resourceType)
+	public ResourcePropertyEditor(ResourcePropertyInfo resourceType)
 	{
 		super(EditorApplication.getAssetsLocation());
 		
-		this.resourceType = resourceType;
+		this.resourceInfo = resourceType;
 	}
 
 	//--------------------------------------------------------------------------
@@ -36,7 +37,7 @@ public class ResourcePropertyEditor extends FilePropertyEditor
 	@Override
 	public String getFileTypeString()
 	{
-		return resourceType.getSimpleName();
+		return resourceInfo.getName();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -44,7 +45,7 @@ public class ResourcePropertyEditor extends FilePropertyEditor
 	@Override
 	public String[] getFileTypeExtensions()
 	{
-		return resourceType.getExtensions();
+		return resourceInfo.getExtensions();
 	}
 	
 	//--------------------------------------------------------------------------
