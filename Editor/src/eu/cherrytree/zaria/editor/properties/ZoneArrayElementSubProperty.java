@@ -30,7 +30,7 @@ public class ZoneArrayElementSubProperty extends ZoneProperty
 
 	public ZoneArrayElementSubProperty(String name, int index, Class type, ZoneProperty parent, boolean editable)
 	{
-		super(name + "[" + index + "]", name + "[" + index + "]", type, parent.description, parent.ownerClass, parent.documentType, parent.linkClass, parent.resourceType, parent.scriptLink, editable, parent.minMax);
+		super(name + "[" + index + "]", name + "[" + index + "]", type, parent.description, parent.ownerClass, parent.documentType, parent.linkClass, parent.resourceInfo, parent.scriptLink, editable, parent.minMax);
 		
 		this.index = index;
 		this.parent = parent;

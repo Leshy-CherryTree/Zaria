@@ -33,8 +33,8 @@ public class ZonePropertyEditorFactory extends PropertyEditorFactory
 		{
 			if(z_prop.isLink())
 				return new ArrayPropertyEditor("[Link] " + z_prop.getLinkClassName(), z_prop.getDisplayName(), true);
-			else if(z_prop.getResourceType() != null)
-				return new ArrayPropertyEditor("[Resource] " + z_prop.getResourceType().getSimpleName(), z_prop.getDisplayName(), false);
+			else if(z_prop.getResourceInfo() != null)
+				return new ArrayPropertyEditor("[Resource] " + z_prop.getResourceInfo().getName(), z_prop.getDisplayName(), false);
 			else 
 				return new ArrayPropertyEditor(property.getType().getComponentType().getSimpleName(), z_prop.getDisplayName(), false);
 		}
@@ -45,9 +45,9 @@ public class ZonePropertyEditorFactory extends PropertyEditorFactory
 			else
 				return null;
 		}
-		else if(z_prop.getResourceType() != null)
+		else if(z_prop.getResourceInfo() != null)
 		{
-			return new ResourcePropertyEditor(z_prop.getResourceType());
+			return new ResourcePropertyEditor(z_prop.getResourceInfo());
 		}
 		else if(z_prop.isScriptLink())
 		{

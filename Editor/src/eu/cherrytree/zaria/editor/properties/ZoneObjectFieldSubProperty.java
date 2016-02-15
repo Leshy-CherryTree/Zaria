@@ -30,9 +30,9 @@ public class ZoneObjectFieldSubProperty extends ZoneProperty
 	//--------------------------------------------------------------------------
 
 
-	public ZoneObjectFieldSubProperty(String name, Class type, String description, ResourceType resourceType, boolean scriptLink, ZoneProperty parent, boolean editable, MinMaxInfo minMaxInfo)
+	public ZoneObjectFieldSubProperty(String name, Class type, String description, ResourcePropertyInfo resourceInfo, boolean scriptLink, ZoneProperty parent, boolean editable, MinMaxInfo minMaxInfo)
 	{
-		super(name, name, type, description, parent.ownerClass, parent.documentType, null, resourceType, scriptLink, editable, minMaxInfo);
+		super(name, name, type, description, parent.ownerClass, parent.documentType, null, resourceInfo, scriptLink, editable, minMaxInfo);
 		this.parent = parent;
 	}
 	

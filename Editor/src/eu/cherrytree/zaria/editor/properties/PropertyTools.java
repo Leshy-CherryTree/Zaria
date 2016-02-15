@@ -17,6 +17,7 @@ import eu.cherrytree.zaria.serialization.Link;
 import eu.cherrytree.zaria.serialization.LinkArray;
 import eu.cherrytree.zaria.serialization.ResourceType;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
+import eu.cherrytree.zaria.serialization.annotations.CustomResource;
 import eu.cherrytree.zaria.serialization.annotations.FieldDescription;
 import eu.cherrytree.zaria.serialization.annotations.GreaterThan;
 import eu.cherrytree.zaria.serialization.annotations.LessThan;
@@ -49,36 +50,36 @@ public class PropertyTools
 	
 	private static void getAllLinkFieldsRecursive(Class<? extends ZariaObjectDefinition> zoneClass, ZariaObjectDefinition definition, ArrayList<UUID> uuids) throws IllegalArgumentException, IllegalAccessException
 	{
-		for(Field field : zoneClass.getDeclaredFields())
+		for (Field field : zoneClass.getDeclaredFields())
 		{
 			field.setAccessible(true);
 			
-			if(field.getType().isAssignableFrom(Link.class))
+			if (field.getType().isAssignableFrom(Link.class))
 			{
 				UUID uuid = ((Link)field.get(definition)).getUUID();
 				
-				if(uuid != null)
+				if (uuid != null)
 					uuids.add(uuid);
 			}
-			else if(field.getType().isAssignableFrom(LinkArray.class))
+			else if (field.getType().isAssignableFrom(LinkArray.class))
 			{
 				LinkArray link_array = (LinkArray) field.get(definition);
 				
-				for(UUID uuid : link_array.getUUIDs())
+				for (UUID uuid : link_array.getUUIDs())
 				{
-					if(uuid != null)
+					if (uuid != null)
 						uuids.add(uuid);				
 				}
 			}
-			else if(field.getType().isAssignableFrom(UUID.class))
+			else if (field.getType().isAssignableFrom(UUID.class))
 			{
 				WeakLink weaklink = field.getAnnotation(WeakLink.class);
 				
-				if(weaklink != null)
+				if (weaklink != null)
 				{
 					UUID uuid = (UUID) field.get(definition);
 					
-					if(uuid != null)
+					if (uuid != null)
 						uuids.add(uuid);
 				}
 			}
@@ -86,7 +87,7 @@ public class PropertyTools
 		
 		Class superClass = zoneClass.getSuperclass();
 		
-		if(superClass != null && ZariaObjectDefinition.class.isAssignableFrom(superClass))
+		if (superClass != null && ZariaObjectDefinition.class.isAssignableFrom(superClass))
 			getAllLinkFieldsRecursive(superClass, definition, uuids);
 	}
 	
@@ -114,27 +115,27 @@ public class PropertyTools
 	{
 		int index = 0;
 		
-		for(Field field : zoneClass.getDeclaredFields())
+		for (Field field : zoneClass.getDeclaredFields())
 		{									
-			if(!Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(field.getModifiers()))
+			if (!Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(field.getModifiers()))
 			{																
 				FieldDescription description = field.getAnnotation(FieldDescription.class);
 			
-				if(description != null && !description.visible())
+				if (description != null && !description.visible())
 					continue;
 				
 				String name = field.getName();
 				String displayName = name;
 				String descstr = name;
 				
-				if(description != null)
+				if (description != null)
 					descstr = description.value();																
 				
 				Class link_class = null;
 				
 				WeakLink weakLink = field.getAnnotation(WeakLink.class);
 				
-				if(weakLink != null)
+				if (weakLink != null)
 				{	
 					link_class = weakLink.value();
 					
@@ -142,23 +143,30 @@ public class PropertyTools
 						displayName = weakLink.name();
 				}
 				
-				if(Link.class.isAssignableFrom(field.getType()) || LinkArray.class.isAssignableFrom(field.getType()))
+				if (Link.class.isAssignableFrom(field.getType()) || LinkArray.class.isAssignableFrom(field.getType()))
 					link_class = getSpecializationClass(field); 								
+								
+				ResourcePropertyInfo res_info = null;
 				
 				Resource resource = field.getAnnotation(Resource.class);
-				ResourceType restype = resource != null ? resource.value() : null;
+				if (resource != null)
+					res_info = new ResourcePropertyInfo(resource.value());
+				
+				CustomResource custom_resource = field.getAnnotation(CustomResource.class);
+				if (custom_resource != null)
+					res_info =  new ResourcePropertyInfo(custom_resource.name(), custom_resource.extensions());
 								 
 				boolean editable = field.getAnnotation(Uneditable.class) == null;
 				boolean script_link = field.getAnnotation(ScriptLink.class) != null;
 				
-				properties.add(index, new ZoneProperty(name, displayName, field.getType(), descstr, zoneClass, document.getDocumentType(), link_class, restype, script_link, editable, getMinMax(field)));
+				properties.add(index, new ZoneProperty(name, displayName, field.getType(), descstr, zoneClass, document.getDocumentType(), link_class, res_info, script_link, editable, getMinMax(field)));
 				index++;
 			}
 		}
 				
 		Class superClass = zoneClass.getSuperclass();
 		
-		if(superClass != null && ZariaObjectDefinition.class.isAssignableFrom(superClass))
+		if (superClass != null && ZariaObjectDefinition.class.isAssignableFrom(superClass))
 			getPropertiesRecursive(superClass, properties, document);
 	}
 	
@@ -169,7 +177,7 @@ public class PropertyTools
 		MinInt min = field.getAnnotation(MinInt.class);
 		MaxInt max = field.getAnnotation(MaxInt.class);
 		
-		if(min != null && max != null)
+		if (min != null && max != null)
 			return new MinMaxInfo(Integer.class, min.value(), max.value(), false, false);
 		
 		MaxFloat max_val=  field.getAnnotation(MaxFloat.class);
@@ -177,7 +185,7 @@ public class PropertyTools
 		GreaterThan greater_val = field.getAnnotation(GreaterThan.class);
 		LessThan less_val = field.getAnnotation(LessThan.class);
 		
-		if((max_val != null || less_val != null) && (min_val != null || greater_val != null))
+		if ((max_val != null || less_val != null) && (min_val != null || greater_val != null))
 		{
 			float f_min = greater_val != null ? greater_val.value() : min_val.value();
 			float f_max = less_val != null ? less_val.value() : max_val.value();
@@ -251,18 +259,18 @@ public class PropertyTools
 	{
 		int index = 0;
 		
-		for(Field field : ZoneMetadata.class.getDeclaredFields())
+		for (Field field : ZoneMetadata.class.getDeclaredFields())
 		{	
 			VisibleForClass visible = field.getAnnotation(VisibleForClass.class);
 			
-			if(visible != null && visible.value() != null && visible.value().isAssignableFrom(zoneClass))
+			if (visible != null && visible.value() != null && visible.value().isAssignableFrom(zoneClass))
 			{
 				String name = field.getName();
 				String descstr = name;
 
 				FieldDescription description = field.getAnnotation(FieldDescription.class);
 
-				if(description != null)
+				if (description != null)
 					descstr = description.value();
 				
 				boolean editable = field.getAnnotation(Uneditable.class) == null;

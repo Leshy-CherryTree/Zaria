@@ -14,6 +14,7 @@ import eu.cherrytree.zaria.serialization.LinkArray;
 
 import eu.cherrytree.zaria.serialization.ResourceType;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
+import eu.cherrytree.zaria.serialization.annotations.CustomResource;
 import eu.cherrytree.zaria.serialization.annotations.FieldDescription;
 import eu.cherrytree.zaria.serialization.annotations.Resource;
 import eu.cherrytree.zaria.serialization.annotations.ScriptLink;
@@ -51,7 +52,7 @@ public class ZoneProperty extends Property
 	
 	// TODO This should be changed into an enum;
 	protected Class linkClass;
-	protected ResourceType resourceType;
+	protected ResourcePropertyInfo resourceInfo;
 	protected boolean scriptLink;
 	
 	protected boolean editable;
@@ -62,7 +63,7 @@ public class ZoneProperty extends Property
 	
 	//--------------------------------------------------------------------------
 
-	public ZoneProperty(String name, String displayName, Class type, String description, Class ownerClass, ZoneDocument.DocumentType documentType, Class linkClass, ResourceType resourceType, boolean scriptLink, boolean editable, MinMaxInfo minMax)
+	public ZoneProperty(String name, String displayName, Class type, String description, Class ownerClass, ZoneDocument.DocumentType documentType, Class linkClass, ResourcePropertyInfo resourceInfo, boolean scriptLink, boolean editable, MinMaxInfo minMax)
 	{
 		this.name = name;
 		this.displayName = displayName;
@@ -71,7 +72,7 @@ public class ZoneProperty extends Property
 		this.ownerClass = ownerClass;
 		this.subProperties = null;
 		this.linkClass = linkClass;
-		this.resourceType = resourceType;
+		this.resourceInfo = resourceInfo;
 		this.editable = editable;
 		this.minMax = minMax;
 		this.documentType = documentType;
@@ -156,9 +157,9 @@ public class ZoneProperty extends Property
 	
 	//--------------------------------------------------------------------------
 
-	public ResourceType getResourceType()
+	public ResourcePropertyInfo getResourceInfo()
 	{
-		return resourceType;
+		return resourceInfo;
 	}
 			
 	//--------------------------------------------------------------------------
@@ -349,12 +350,19 @@ public class ZoneProperty extends Property
 			if(descr_anno != null)
 				descstr = descr_anno.value();
 			
+			ResourcePropertyInfo res_info = null;
+
 			Resource resource = field.getAnnotation(Resource.class);
-			ResourceType restype = resource != null ? resource.value() : null;
+			if (resource != null)
+				res_info = new ResourcePropertyInfo(resource.value());
+
+			CustomResource custom_resource = field.getAnnotation(CustomResource.class);
+			if (custom_resource != null)
+				res_info =  new ResourcePropertyInfo(custom_resource.name(), custom_resource.extensions());
 			
 			boolean script_link = field.getAnnotation(ScriptLink.class) != null;
 			
-			subProperties[i] = new ZoneObjectFieldSubProperty(field.getName(), field.getType(), descstr, restype, script_link, this, editable, PropertyTools.getMinMax(field));			
+			subProperties[i] = new ZoneObjectFieldSubProperty(field.getName(), field.getType(), descstr, res_info, script_link, this, editable, PropertyTools.getMinMax(field));			
 			subProperties[i].initializeValue(field.get(value));
 		}
 	}

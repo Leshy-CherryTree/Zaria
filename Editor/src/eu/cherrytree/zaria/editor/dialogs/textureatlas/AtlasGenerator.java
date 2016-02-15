@@ -187,7 +187,7 @@ public class AtlasGenerator
 	
 	//--------------------------------------------------------------------------	
 
-	public String run(String name, ArrayList<File> imageFiles)
+	public String run(String name, String imageFormat, ArrayList<File> imageFiles)
 	{
 		if (imageFiles.isEmpty())
 			return "No files selected!";
@@ -217,7 +217,7 @@ public class AtlasGenerator
 				return "Not all images fit in a single atlas of the given dimensions!";
 		}
 
-		atlas.write(name);
+		atlas.write(name, imageFormat);
 		
 		return "";
 	}

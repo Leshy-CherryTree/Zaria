@@ -33,8 +33,8 @@ public class ZonePropertyRendererFactory extends PropertyRendererFactory
 		{						
 			if(zone_prop.isLink())
 				return getArrayPropertyRenderer("[Link] " + zone_prop.getLinkClassName());
-			else if(zone_prop.getResourceType() != null)
-				return getArrayPropertyRenderer("[Resource] " + zone_prop.getResourceType().getSimpleName());
+			else if(zone_prop.getResourceInfo() != null)
+				return getArrayPropertyRenderer("[Resource] " + zone_prop.getResourceInfo().getName());
 			else 
 				return getArrayPropertyRenderer(property.getType().getComponentType().getSimpleName());
 		}

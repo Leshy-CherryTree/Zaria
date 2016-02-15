@@ -9,7 +9,6 @@ package eu.cherrytree.zaria.editor.dialogs.textureatlas;
 
 import eu.cherrytree.zaria.editor.EditorApplication;
 import eu.cherrytree.zaria.editor.ReflectionTools;
-import eu.cherrytree.zaria.editor.debug.DebugConsole;
 import eu.cherrytree.zaria.editor.document.ZoneDocument;
 import eu.cherrytree.zaria.editor.document.ZoneMetadata;
 import eu.cherrytree.zaria.editor.serialization.Serializer;
@@ -23,7 +22,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -39,11 +37,6 @@ import javax.imageio.ImageIO;
  */
 public class Atlas
 {
-	//--------------------------------------------------------------------------	
-	
-	private static final String separator = System.getProperty("line.separator");
-	private static final String assetDirectory = "Game_Assets";
-	
 	//--------------------------------------------------------------------------	
 	
 	private BufferedImage image;
@@ -154,7 +147,7 @@ public class Atlas
 	
 	//--------------------------------------------------------------------------	
 
-	private void writeRects(String path) throws IOException, SecurityException, IllegalArgumentException, NoSuchFieldException
+	private void writeRects(String path, String imageFormat) throws IOException, SecurityException, IllegalArgumentException, NoSuchFieldException
 	{
 		ZariaObjectDefinition[] areas = new ZariaObjectDefinition[rectangleMap.size()];
 		int index = 0;
@@ -174,7 +167,7 @@ public class Atlas
 			ReflectionTools.setDefinitionFieldValue(area, "y", r.y);
 			ReflectionTools.setDefinitionFieldValue(area, "w", r.width);
 			ReflectionTools.setDefinitionFieldValue(area, "h", r.height);
-			ReflectionTools.setDefinitionFieldValue(area, "texture", path);
+			ReflectionTools.setDefinitionFieldValue(area, "texture", path + "." + imageFormat);
 			
 			ZoneMetadata metadata = new ZoneMetadata();
 			metadata.setLocX(50);
@@ -194,12 +187,12 @@ public class Atlas
 	
 	//--------------------------------------------------------------------------	
 
-	public void write(String path)
+	public void write(String path, String imageFormat)
 	{
 		try
 		{
-			ImageIO.write(image, "png", new File(EditorApplication.getAssetsLocation() + path + ".png"));
-			writeRects(path);
+			ImageIO.write(image, imageFormat, new File(EditorApplication.getAssetsLocation() + path + "." + imageFormat));
+			writeRects(path, imageFormat);
 		}
 		catch (IOException | SecurityException | IllegalArgumentException | NoSuchFieldException ex)
 		{
