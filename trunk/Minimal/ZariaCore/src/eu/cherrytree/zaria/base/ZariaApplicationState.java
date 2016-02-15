@@ -12,6 +12,7 @@ import eu.cherrytree.zaria.debug.DebugManager;
 import eu.cherrytree.zaria.serialization.Capsule;
 import eu.cherrytree.zaria.serialization.LoadCapsule;
 import eu.cherrytree.zaria.serialization.SaveCapsule;
+import eu.cherrytree.zaria.serialization.ValueAlreadySetException;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinitionLibrary;
 import eu.cherrytree.zaria.serialization.ZoneDeserializer;
 import java.io.IOException;
@@ -128,7 +129,8 @@ public abstract class ZariaApplicationState
 				
 				assert loadSaveFuture == null;
 				
-				Console.printOut("Started loading " + stateParams.getSaveFilePath());
+				if (stateParams.getSaveFilePath() != null)
+					Console.printOut("Started loading " + stateParams.getSaveFilePath());
 				
 				if (objectlibrary != null)
 					freeLibrary();
@@ -198,10 +200,21 @@ public abstract class ZariaApplicationState
 				onSavingStarted();
 
 				SaveCapsule capsule = new Capsule();
-				save(capsule);
-
-				loadSaveFuture = ApplicationInstance.getThreadPoolExecutor().submit(new SavingCallable(stateParams.getSaveFilePath(), capsule));	
-				innerState = InnerState.SAVING;
+				
+				try
+				{
+					save(capsule);
+					
+					loadSaveFuture = ApplicationInstance.getThreadPoolExecutor().submit(new SavingCallable(stateParams.getSaveFilePath(), capsule));	
+					innerState = InnerState.SAVING;
+				}
+				catch (ValueAlreadySetException ex)
+				{
+					// The user should also be notifed that saving has failed.
+					DebugManager.alert("Saving failed", DebugManager.getThrowableText("", ex));	
+					
+					innerState = InnerState.RUNNING;
+				}									
 				
 				update(deltaTime);
 			}
@@ -311,6 +324,14 @@ public abstract class ZariaApplicationState
 
 	//--------------------------------------------------------------------------
 
+	public ZariaObjectDefinitionLibrary getObjectlibrary()
+	{
+		return objectlibrary;
+	}
+	
+	//--------------------------------------------------------------------------
+	
+
 	public void onSavingStarted()
 	{
 		// Default empty.
@@ -370,7 +391,7 @@ public abstract class ZariaApplicationState
 	public abstract void render(float deltaTime);		
 	
 	public abstract void load(LoadCapsule capsule);
-	public abstract void save(SaveCapsule capsule);
+	public abstract void save(SaveCapsule capsule) throws ValueAlreadySetException;
 	
 	public abstract void destroy();
 		
