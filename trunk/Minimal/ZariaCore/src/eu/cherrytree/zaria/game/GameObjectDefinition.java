@@ -1,7 +1,7 @@
 /****************************************/
-/* GameObjectDefinition.java			*/
+/* GameObjectDefinition.java				*/
 /* Created on: 04-Apr-2013				*/
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -22,7 +22,7 @@ public abstract class GameObjectDefinition<Type extends GameObject> extends Zari
 {
 	//--------------------------------------------------------------------------
 	
-	public final Type create()
+	public Type create()
 	{
 		return create(null);
 	}

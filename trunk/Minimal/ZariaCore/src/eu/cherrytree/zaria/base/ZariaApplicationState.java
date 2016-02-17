@@ -7,7 +7,9 @@
 
 package eu.cherrytree.zaria.base;
 
+import eu.cherrytree.zaria.console.CantAssignConsoleCommand;
 import eu.cherrytree.zaria.console.Console;
+import eu.cherrytree.zaria.console.ConsoleCommand;
 import eu.cherrytree.zaria.debug.DebugManager;
 import eu.cherrytree.zaria.serialization.Capsule;
 import eu.cherrytree.zaria.serialization.LoadCapsule;
@@ -16,6 +18,7 @@ import eu.cherrytree.zaria.serialization.ValueAlreadySetException;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinitionLibrary;
 import eu.cherrytree.zaria.serialization.ZoneDeserializer;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -46,15 +49,29 @@ public abstract class ZariaApplicationState
 	private ZariaApplication application;
 	private ApplicationStateParams stateParams;
 	private ZariaObjectDefinitionLibrary objectlibrary;
+	private Console console;
 
+	private ArrayList<ConsoleCommand> commands = new ArrayList<>();
+	
 	//--------------------------------------------------------------------------
 	
-	final void init(ZariaApplication application, ApplicationStateParams stateParams)
+	final void init(ZariaApplication application, Console console, ApplicationStateParams stateParams)
 	{
 		this.stateParams = stateParams;
 		this.application = application;
+		this.console = console;
+		
+		onInit();
 	}
 			
+	//--------------------------------------------------------------------------
+	
+	protected final void addConsoleCommand(ConsoleCommand command) throws CantAssignConsoleCommand
+	{
+		console.addConsoleCommand(command);
+		commands.add(command);
+	}
+	
 	//--------------------------------------------------------------------------
 	
 	private class LoadingCallable implements Callable<Boolean>
@@ -380,10 +397,19 @@ public abstract class ZariaApplicationState
 	}
 	
 	//--------------------------------------------------------------------------	
+	
+	public void destroy()
+	{
+		for (ConsoleCommand command : commands)
+			console.removeConsoleCommand(command);
+	}
+	
+	//--------------------------------------------------------------------------	
 		
 	public abstract boolean updateLoading(float deltaTime);
 	public abstract void renderLoading(float deltaTime);
 	
+	public abstract void onInit();
 	public abstract void onLoadingFinished();
 	public abstract void onLoadingStarted();
 	
@@ -391,9 +417,7 @@ public abstract class ZariaApplicationState
 	public abstract void render(float deltaTime);		
 	
 	public abstract void load(LoadCapsule capsule);
-	public abstract void save(SaveCapsule capsule) throws ValueAlreadySetException;
-	
-	public abstract void destroy();
+	public abstract void save(SaveCapsule capsule) throws ValueAlreadySetException;		
 		
 	
 	//--------------------------------------------------------------------------	

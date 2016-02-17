@@ -51,7 +51,7 @@ public abstract class Console
 	{
 		if (command instanceof ConsoleProcedure)
 		{
-			if(consoleProcedures.containsKey(command.getName()))
+			if (consoleProcedures.containsKey(command.getName()))
 				throw new CantAssignConsoleCommand(command, "Procedure already added to ApplicationState.");
 		
 			consoleProcedures.put(command.getName(), (ConsoleProcedure) command);
@@ -71,12 +71,12 @@ public abstract class Console
 	
 	public final void removeConsoleCommand(ConsoleCommand command)
 	{
-		if(command instanceof ConsoleProcedure)
+		if (command instanceof ConsoleProcedure)
 		{
 			if (consoleProcedures.containsKey(command.getName()))		
 				consoleProcedures.remove(command.getName());
 		}
-		else if(command instanceof ConsoleFunction)
+		else if (command instanceof ConsoleFunction)
 		{
 			if (consoleFunctions.containsKey(command.getName()))
 				consoleFunctions.remove(command.getName());
