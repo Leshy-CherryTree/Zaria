@@ -172,7 +172,7 @@ public class EditorApplication
 				}
 			});
 		}
-		catch(ApplicationStartupException ex)
+		catch(Throwable ex)
 		{
 			DebugConsole.logger.log(Level.SEVERE, null, ex);						
 			JOptionPane.showMessageDialog(frame, "Couldn't start application:\n" + ex.getMessage(), "Fatal error!", JOptionPane.ERROR_MESSAGE);
