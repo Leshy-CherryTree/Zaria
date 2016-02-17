@@ -376,7 +376,7 @@ public abstract class ZariaApplication<States extends Enum>
 		
 		ZariaApplicationState state = createState(stateMachine.getState());
 		
-		state.init(this, stateMachine.getStartParams());
+		state.init(this, console, stateMachine.getStartParams());
 		
 		currentState = state;
 
