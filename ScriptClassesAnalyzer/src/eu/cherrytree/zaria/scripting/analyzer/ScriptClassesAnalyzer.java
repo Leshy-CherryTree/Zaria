@@ -22,6 +22,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.jar.JarEntry;
@@ -95,34 +96,33 @@ public class ScriptClassesAnalyzer
 	
 	private String[] getPaths(String pathString)
 	{
-		if(System.getProperty("os.name").startsWith("Windows"))
+		if (System.getProperty("os.name").startsWith("Windows"))
 		{
 			String[] paths = pathString.split(":");
 			ArrayList<String> pathList = new ArrayList<>();
 			ArrayList<String> finalPathList = new ArrayList<>();
 			
-			for(String path : paths)
+			for (String path : paths)
 			{
 				String[] split_again = path.split(";");
 				
-				for(String str : split_again)
-					pathList.add(str);
+				pathList.addAll(Arrays.asList(split_again));
 			}
 			
 			String disk = "";
 			
-			for(String path : pathList)
+			for (String path : pathList)
 			{
-				if(path.length() == 1)
+				if (path.length() == 1)
 				{
-					if(!disk.isEmpty())
+					if (!disk.isEmpty())
 						throw new RuntimeException("Can't parse paths!");
 										
 					disk = path;
 				}
-				else if(path.startsWith("/") || path.startsWith("\\"))
+				else if (path.startsWith("/") || path.startsWith("\\"))
 				{
-					if(disk.isEmpty())
+					if (disk.isEmpty())
 						throw new RuntimeException("Can't parse paths!");
 					
 					finalPathList.add(disk + ":" + path);
@@ -143,7 +143,7 @@ public class ScriptClassesAnalyzer
 	
 	//--------------------------------------------------------------------------
 
-	private void getClassesFromDirectory(File file, ArrayList<String> names, String packageName)
+	private void getClassesFromDirectory(File file, ArrayList<URL> urls, ArrayList<String> names, String packageName) throws MalformedURLException
 	{
 		File[] files = file.listFiles();
 
@@ -154,11 +154,12 @@ public class ScriptClassesAnalyzer
 		{
 			if (f.isDirectory())
 			{
-				getClassesFromDirectory(f, names, packageName + f.getName() + ".");
+				getClassesFromDirectory(f, urls, names, packageName + f.getName() + ".");
 			}
 			else if (f.getName().endsWith(".class") && !f.getName().contains("$"))
-			{
+			{				
 				names.add(packageName + f.getName().substring(0, f.getName().length() - 6));
+				urls.add(f.toURI().toURL());
 			}
 		}
 	}
@@ -174,7 +175,7 @@ public class ScriptClassesAnalyzer
 		{
 			JarEntry je = (JarEntry) e.nextElement();
 			 
-			if(je.isDirectory() || !je.getName().endsWith(".class") || je.getName().contains("$"))
+			if (je.isDirectory() || !je.getName().endsWith(".class") || je.getName().contains("$"))
 				continue;
 			
 			String className = je.getName().substring(0, je.getName().length() - 6);
@@ -186,11 +187,11 @@ public class ScriptClassesAnalyzer
 	
 	private void verifyObject(Class cls, String className, ArrayList<String> classes, HashMap<String, Class> objects)
 	{
-		for(Annotation annotation : cls.getDeclaredAnnotations())
+		for (Annotation annotation : cls.getDeclaredAnnotations())
 		{
 			if (annotation.annotationType().getCanonicalName().equals("eu.cherrytree.zaria.scripting.annotations.ScriptObject"))
 			{
-				if(cls.getSimpleName().equals(className))
+				if (cls.getSimpleName().equals(className))
 					System.out.println("Found ScriptObject: " + className);
 				else
 					System.out.println("Found ScriptObject: " + className + " derived from " + cls.getSimpleName());
@@ -202,7 +203,7 @@ public class ScriptClassesAnalyzer
 			}
 		}
 		
-		if(cls.getSuperclass() != null)
+		if (cls.getSuperclass() != null)
 			verifyObject(cls.getSuperclass(), className, classes, objects);
 	}
 	
@@ -210,9 +211,9 @@ public class ScriptClassesAnalyzer
 	
 	private void verifyFunctionsAndMethods(Class cls, String className, ArrayList<String> membersArray, ArrayList<String> functionArray)
 	{
-		for(Method method : cls.getDeclaredMethods())
+		for (Method method : cls.getDeclaredMethods())
 		{	
-			for(Annotation annotation : method.getDeclaredAnnotations())
+			for (Annotation annotation : method.getDeclaredAnnotations())
 			{
 				if (Modifier.isStatic(method.getModifiers()) && annotation.annotationType().getCanonicalName().equals("eu.cherrytree.zaria.scripting.annotations.ScriptFunction"))
 				{
@@ -223,7 +224,7 @@ public class ScriptClassesAnalyzer
 				}
 				else if (annotation.annotationType().getCanonicalName().equals("eu.cherrytree.zaria.scripting.annotations.ScriptMethod"))
 				{
-					if(cls.getSimpleName().equals(className))
+					if (cls.getSimpleName().equals(className))
 						System.out.println("Found ScriptMethod: " + method.getName() + "() in class " + className);
 					else
 						System.out.println("Found ScriptMethod: " + method.getName() + "() in class " + className + " derived from " + cls.getSimpleName());
@@ -233,7 +234,7 @@ public class ScriptClassesAnalyzer
 			}
 		}
 		
-		if(cls.getSuperclass() != null)
+		if (cls.getSuperclass() != null)
 			verifyFunctionsAndMethods(cls.getSuperclass(), className, membersArray, functionArray);
 	}
 	
@@ -241,13 +242,13 @@ public class ScriptClassesAnalyzer
 	
 	private void verifyFields(Class cls, String className, ArrayList<String> membersArray)
 	{
-		for(Field field : cls.getDeclaredFields())
+		for (Field field : cls.getDeclaredFields())
 		{
-			for(Annotation annotation : field.getDeclaredAnnotations())
+			for (Annotation annotation : field.getDeclaredAnnotations())
 			{
 				if (annotation.annotationType().getCanonicalName().equals("eu.cherrytree.zaria.scripting.annotations.ScriptField"))
 				{
-					if(cls.getSimpleName().equals(className))
+					if (cls.getSimpleName().equals(className))
 						System.out.println("Found ScriptField: " + field.getName() + " in class " + className);
 					else
 						System.out.println("Found ScriptField: " + field.getName() + " in class " + className + " derived from " + cls.getSimpleName());
@@ -257,7 +258,7 @@ public class ScriptClassesAnalyzer
 			}
 		}
 		
-		if(cls.getSuperclass() != null)
+		if (cls.getSuperclass() != null)
 			verifyFields(cls.getSuperclass(), className, membersArray);
 	}
 	
@@ -265,7 +266,7 @@ public class ScriptClassesAnalyzer
 	
 	private void verifyClass(Class cls, ArrayList<String> classes, HashMap<String, Class> objects, HashMap<Class, ArrayList<String>> members, HashMap<Class, String[]> functions)
 	{					
-		if(cls.isInterface() || Modifier.isAbstract(cls.getModifiers()))
+		if (cls.isInterface() || Modifier.isAbstract(cls.getModifiers()))
 			return;
 		
 		ArrayList<String> members_array = new ArrayList<>();
@@ -275,25 +276,25 @@ public class ScriptClassesAnalyzer
 		verifyFunctionsAndMethods(cls, cls.getSimpleName(), members_array, function_array);
 		verifyFields(cls, cls.getSimpleName(), members_array);
 		
-		if(!function_array.isEmpty())
+		if (!function_array.isEmpty())
 		{
 			String[] funcs = new String[function_array.size()];
 			function_array.toArray(funcs);
 			functions.put(cls, funcs);
 			
-			if(!classes.contains(cls.getName()))
+			if (!classes.contains(cls.getName()))
 				classes.add(cls.getName());
 		}
 		
-		if(!members_array.isEmpty())
+		if (!members_array.isEmpty())
 		{
 			members.put(cls, members_array);
 			
-			if(!classes.contains(cls.getName()))
+			if (!classes.contains(cls.getName()))
 				classes.add(cls.getName());
 		}
 		
-		for(Class c : cls.getDeclaredClasses())
+		for (Class c : cls.getDeclaredClasses())
 			verifyClass(c, classes, objects, members, functions);
 	}
 	
@@ -329,6 +330,7 @@ public class ScriptClassesAnalyzer
 		System.out.println("Analyzing java files for script annotations.\n");
 		
 		ArrayList<String> classNameList = new ArrayList<>();
+		ArrayList<URL> file_urls= new ArrayList<>();
 		
 		ArrayList<String> classes = new ArrayList<>();
 		HashMap<String, Class> objects = new HashMap<>();
@@ -337,14 +339,25 @@ public class ScriptClassesAnalyzer
 				
 		File file = new File(srcDir);
 		
-		if(!file.isAbsolute())
+		if (!file.isAbsolute())
 			file = file.getAbsoluteFile();
-
-		getClassesFromDirectory(file, classNameList, "");
+	
+		try
+		{
+			getClassesFromDirectory(file, file_urls, classNameList, "");
+		}
+		catch (MalformedURLException ex)
+		{
+			ex.printStackTrace();
+			
+			System.err.println("-----------------ANALYSIS FAILED-----------------");
+			
+			return;
+		}
 		
 		try
 		{
-			for(String jarPath : jars)
+			for (String jarPath : jars)
 				getClassesFromJar(getPath(jarPath), classNameList);
 		}
 		catch (IOException ex)
@@ -362,23 +375,26 @@ public class ScriptClassesAnalyzer
 		{
 			ArrayList<URL> jar_urls = new ArrayList<>();
 
-			for(String jarPath : jars)
+			for (String jarPath : jars)
 				jar_urls.add(getURL(jarPath));
 
-			for(String jarPath : classpath)
+			for (String jarPath : classpath)
 			{
 				URL url = getURL(jarPath);
 
-				if(!jar_urls.contains(url))
+				if (!jar_urls.contains(url))
 					jar_urls.add(url);
 			}
 
-			urls = new URL[jar_urls.size() + 1];
+			urls = new URL[file_urls.size() + jar_urls.size() + 1];
 				
-			urls[0] = file.toURI().toURL();
+			for (int i = 0 ; i < file_urls.size() ; i++)
+				urls[i] = file_urls.get(i);
 			
-			for(int i = 0 ; i < jar_urls.size() ; i++)
-				urls[i+1] = new URL("jar", "", jar_urls.get(i) + "!/");				
+			urls[file_urls.size()] = file.toURI().toURL();
+			
+			for (int i = 0 ; i < jar_urls.size() ; i++)
+				urls[file_urls.size() + i + 1] = new URL("jar", "", jar_urls.get(i) + "!/");
 		}
 		catch (MalformedURLException ex)
 		{
