@@ -41,7 +41,7 @@ public class Script
 						
 		try
 		{			
-			if(compile_context == null)
+			if (compile_context == null)
 			{
 				compile_context = Context.enter();
 				local_compile_context = true;
@@ -62,7 +62,7 @@ public class Script
 		}
 		finally
 		{
-			if(local_compile_context)
+			if (local_compile_context)
 				Context.exit();
 		}		
 	}
@@ -87,12 +87,12 @@ public class Script
 		}
 		catch(ClassCastException ex)
 		{			
-			if(DebugManager.isActive())
+			if (DebugManager.isActive())
 				DebugManager.alert("Script error!", "Running of script failed.\nReturn value type does not match.\n" +  ex.getMessage());
 		}
 		catch (RhinoException ex)
 		{
-			if(DebugManager.isActive())
+			if (DebugManager.isActive())
 			{	
 				DebugManager.trace(ex);
 				
