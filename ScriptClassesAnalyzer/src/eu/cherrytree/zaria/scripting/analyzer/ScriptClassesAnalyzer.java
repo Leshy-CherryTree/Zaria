@@ -464,8 +464,7 @@ public class ScriptClassesAnalyzer
 			return;
 		}
 
-		System.out.println("\nDone.");
-		System.out.println("-------------------------------------------------");
+		System.out.println("----------------ANALYSIS FINISHED----------------");
 	}
 	
 	//--------------------------------------------------------------------------
