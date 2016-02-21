@@ -383,7 +383,7 @@ public class ZoneDocument
 				saved = true;
 			}
 			
-			if (documentType != DocumentType.ZONE_LIBRARY)
+			if (documentType == DocumentType.ZONE)
 			{
 				ArrayList<UUID> removed = DataBase.save(states[currentState.ordinal()].getDefinitions(), file.getAbsolutePath());			
 				ArrayList<UUID> dangling_links = new ArrayList<>();
