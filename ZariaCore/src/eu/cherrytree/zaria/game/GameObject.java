@@ -71,7 +71,7 @@ public abstract class GameObject<Definition extends GameObjectDefinition> implem
 
 			objectCounters.put(definition.getID(), count);
 
-			this.name = definition.getID() + "_" + count;	
+			this.name = definition.getID() + "_" + String.format("%02d", count);	
 		}
 		else
 		{

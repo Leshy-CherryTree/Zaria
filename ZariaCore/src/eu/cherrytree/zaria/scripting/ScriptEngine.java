@@ -8,12 +8,16 @@
 package eu.cherrytree.zaria.scripting;
 
 import eu.cherrytree.zaria.base.ApplicationRuntimeError;
+import eu.cherrytree.zaria.debug.DebugManager;
 import eu.cherrytree.zaria.scripting.annotations.ScriptField;
 import eu.cherrytree.zaria.scripting.annotations.ScriptFunction;
 import eu.cherrytree.zaria.scripting.annotations.ScriptMethod;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.Reader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -109,7 +113,7 @@ public class ScriptEngine
 		@Override
 		public boolean has(String name, Scriptable start)
 		{
-			if(protectedMembers.contains(name))
+			if (protectedMembers.contains(name))
 				return super.has(name, start);
 			else
 				return false;
@@ -118,7 +122,7 @@ public class ScriptEngine
 		@Override
 		public Object get(String name, Scriptable start)
 		{
-			if(protectedMembers.contains(name))
+			if (protectedMembers.contains(name))
 				return super.get(name, start);
 			else
 				return NOT_FOUND;
@@ -182,24 +186,24 @@ public class ScriptEngine
 		ArrayList<String> memeber_array = new ArrayList<>();
 		ArrayList<String> function_array = new ArrayList<>();
 		
-		for(Method method : cls.getDeclaredMethods())
+		for (Method method : cls.getDeclaredMethods())
 		{
-			if(Modifier.isStatic(method.getModifiers()) && method.getAnnotation(ScriptFunction.class) != null)
+			if (Modifier.isStatic(method.getModifiers()) && method.getAnnotation(ScriptFunction.class) != null)
 			{
 				memeber_array.add(method.getName());
 				function_array.add(method.getName());
 				break;
 			}
-			else if(method.getAnnotation(ScriptMethod.class) != null)
+			else if (method.getAnnotation(ScriptMethod.class) != null)
 			{
 				memeber_array.add(method.getName());
 				break;
 			}
 		}
 
-		for(Field field : cls.getDeclaredFields())
+		for (Field field : cls.getDeclaredFields())
 		{
-			if(field.getAnnotation(ScriptField.class) != null)
+			if (field.getAnnotation(ScriptField.class) != null)
 			{
 				memeber_array.add(field.getName());
 				break;
@@ -211,7 +215,7 @@ public class ScriptEngine
 		classes.add(cls.getName());
 		members.put(cls, memeber_array);
 		
-		if(!function_array.isEmpty())
+		if (!function_array.isEmpty())
 		{
 			String[] funcs = new String[function_array.size()];
 			function_array.toArray(funcs);
@@ -274,6 +278,47 @@ public class ScriptEngine
 			scope.defineFunctionProperties(entry.getValue(), entry.getKey(), ScriptableObject.DONTENUM);
 		
 		return new Script(context, scope, source, name);
+	}
+	
+	//--------------------------------------------------------------------------	
+	
+	public static Script loadScript(String path, String name)
+	{
+		try
+		{
+			if (!path.startsWith("/"))
+				path = "/" + path;
+			
+			InputStream inpuStream = ScriptEngine.class.getResourceAsStream(path);
+
+			if (inpuStream == null)
+			{
+				DebugManager.trace("Couldn't load script " + path, DebugManager.TraceLevel.ERROR);
+				return null;
+			}
+						
+			char[] buf = new char[2048];
+
+			Reader r = new InputStreamReader(inpuStream, "UTF-8");
+			StringBuilder s = new StringBuilder();
+
+			while (true)
+			{
+				int n = r.read(buf);
+
+				if (n < 0)
+					break;
+				s.append(buf, 0, n);
+			}
+
+			return createScript(s.toString(), name);
+		}
+		catch(IOException ex)
+		{
+			DebugManager.trace("Couldn't load script " + path, ex);
+		}
+		
+		return null;
 	}
 	
 	//--------------------------------------------------------------------------

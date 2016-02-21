@@ -13,7 +13,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used for classes that can be loaded in script using the load() function.
+ * Used for classes that can be loaded in script using the create() function.
  * 
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */

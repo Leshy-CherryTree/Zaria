@@ -15,7 +15,7 @@ public interface ConsoleFunction extends ConsoleCommand
 {
 	//--------------------------------------------------------------------------
 	
-	public void run(String [] parameters);
+	public void run(String ... parameters);
 	
 	//--------------------------------------------------------------------------
 }
