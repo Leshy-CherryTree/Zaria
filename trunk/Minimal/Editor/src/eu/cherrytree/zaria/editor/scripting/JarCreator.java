@@ -8,6 +8,7 @@
 package eu.cherrytree.zaria.editor.scripting;
 
 import eu.cherrytree.zaria.editor.EditorApplication;
+import eu.cherrytree.zaria.scripting.preprocessor.ScriptPreprocessor;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -87,7 +88,7 @@ public class JarCreator
 	
 	private static String getPath(String path, String baseDir)
 	{
-		return path.replace(baseDir, "scripts" + File.separator).replace("\\", "/");
+		return path.replace(baseDir, File.separator).replace("\\", "/");
 	}
 	
 	//--------------------------------------------------------------------------
