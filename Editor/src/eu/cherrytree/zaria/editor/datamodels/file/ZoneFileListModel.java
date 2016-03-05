@@ -8,9 +8,12 @@
 package eu.cherrytree.zaria.editor.datamodels.file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
+import eu.cherrytree.zaria.editor.document.ZoneDocument.DocumentType;
 import eu.cherrytree.zaria.editor.serialization.Serializer;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -60,14 +63,17 @@ public class ZoneFileListModel extends FileListModel
 			{
 				try
 				{
-					ZariaObjectDefinition[] defs = mapper.readValue(f, ZariaObjectDefinition[].class);
-					
-					for(ZariaObjectDefinition def : defs)
+					if (f.getAbsolutePath().endsWith(DocumentType.ZONE.getSuffix()))
 					{
-						if(zoneClass.isAssignableFrom(def.getClass()))
+						ZariaObjectDefinition[] defs = mapper.readValue(f, ZariaObjectDefinition[].class);
+
+						for(ZariaObjectDefinition def : defs)
 						{
-							filesStore.add(f);
-							break;
+							if(zoneClass.isAssignableFrom(def.getClass()))
+							{
+								filesStore.add(f);
+								break;
+							}
 						}
 					}
 				}

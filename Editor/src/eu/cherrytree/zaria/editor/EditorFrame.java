@@ -1744,6 +1744,8 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		setEditMode(document.getDocumentType(), document.getEditType());
 		
 		propertySheetPanel.setProperties(new Property[0]);
+		
+		findDialog.setVisible(false);
 	}
 	
 	//--------------------------------------------------------------------------
