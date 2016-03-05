@@ -87,7 +87,7 @@ public class ScriptEngine
 	//--------------------------------------------------------------------------
 
 	private static class ProtectedWrapFactory extends WrapFactory
-	{
+	{				
 		@Override
 		public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object javaObject, Class<?> staticType)
 		{
@@ -126,7 +126,12 @@ public class ScriptEngine
 				return super.get(name, start);
 			else
 				return NOT_FOUND;
-		}
+		}		
+
+		public Object getJavaObject()
+		{
+			return javaObject;
+		}				
 	}
 	
 	//--------------------------------------------------------------------------
@@ -170,7 +175,7 @@ public class ScriptEngine
 		
 		ContextFactory.initGlobal(new ProtectedContextFactory());	
 		
-		context = Context.enter();
+		context = Context.enter();		
 		context.setClassShutter(new CustomClassShutter());		
 	}
 	
@@ -270,10 +275,32 @@ public class ScriptEngine
 	
 	//--------------------------------------------------------------------------
 	
+	public static <T> T getObject(Object object)
+	{
+		T ret = null;
+		
+		if (object instanceof ScriptEngine.ProtectedNativeJavaObject)
+		{
+			try
+			{
+				ret = (T) ((ScriptEngine.ProtectedNativeJavaObject) object).getJavaObject();
+			}
+			catch(ClassCastException ex)
+			{
+				DebugManager.alert("Script alert", "Invalid object type!\n" + ex.getMessage());
+				return null;
+			}
+		}
+		
+		return ret;
+	}
+		
+	//--------------------------------------------------------------------------
+	
 	public static Script createScript(String source, String name)
 	{
-		ScriptableObject scope = context.initStandardObjects();	
-				
+		ScriptableObject scope = context.initStandardObjects();				
+		
 		for (Map.Entry<Class, String[]> entry : functions.entrySet())
 			scope.defineFunctionProperties(entry.getValue(), entry.getKey(), ScriptableObject.DONTENUM);
 		
