@@ -32,6 +32,7 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractListModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -70,6 +71,9 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 	private JButton okButton = new JButton();
 	private JButton removeButton = new JButton();
 	
+	private JCheckBox xOptimize = new JCheckBox();
+	private JCheckBox yOptimize = new JCheckBox();
+	
 	private AtlasGenerator generator = new AtlasGenerator();
 	private FileListModel fileListModel = new FileListModel();
 	private DirectoryTreeModel directoryTreeModel = new DirectoryTreeModel();
@@ -91,6 +95,9 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 		addButton.setText("Add");
 
 		cancelButton.setText("Cancel");
+		
+		xOptimize.setText("X axis optimization");
+		yOptimize.setText("Y axis optimization");
 
 		GroupLayout fileViewPanelLayout = new GroupLayout(fileViewPanel);
 		fileViewPanel.setLayout(fileViewPanelLayout);
@@ -103,6 +110,10 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 					.addGroup(fileViewPanelLayout.createSequentialGroup()
 						.addComponent(cancelButton)
 						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 354, Short.MAX_VALUE)
+						.addComponent(xOptimize)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 5, Short.MAX_VALUE)
+						.addComponent(yOptimize)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 5, Short.MAX_VALUE)						
 						.addComponent(addButton))))
 		);
 		fileViewPanelLayout.setVerticalGroup(
@@ -114,6 +125,8 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 				.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
 				.addGroup(fileViewPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 					.addComponent(addButton)
+					.addComponent(yOptimize)
+					.addComponent(xOptimize)
 					.addComponent(cancelButton))
 				.addContainerGap())
 		);
@@ -242,6 +255,9 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 			
 			if (path != null)
 			{
+				if (path.endsWith(".png"))
+					path = path.substring(0, path.length() - 4);
+				
 				String error = runGenerator(path);
 				
 				if (!error.isEmpty())
@@ -273,7 +289,7 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 			@Override
 			public void run()
 			{
-				error = generator.run(path, "png", fileListModel.getFiles());
+				error = generator.run(path, "png", fileListModel.getFiles(), xOptimize.isSelected(), yOptimize.isSelected());
 				
 				finish();
 			}

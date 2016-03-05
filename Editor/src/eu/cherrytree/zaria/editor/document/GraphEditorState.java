@@ -51,6 +51,8 @@ import eu.cherrytree.zaria.serialization.LinkArray;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -198,6 +200,8 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		}	
 	}
 	
+	//--------------------------------------------------------------------------
+	
 	private class CopyNodesMenuItem extends JMenuItem
 	{
 		public CopyNodesMenuItem(final ZoneGraphNode[] nodes)
@@ -215,6 +219,8 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 			
 		}		
 	}
+	
+	//--------------------------------------------------------------------------
 	
 	private class CutNodesMenuItem extends JMenuItem
 	{
@@ -234,6 +240,40 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 			
 		}		
 	}
+	
+	//--------------------------------------------------------------------------
+	
+	private class CopyUUIDsMenuItem extends JMenuItem
+	{
+		public CopyUUIDsMenuItem(final ZoneGraphNode[] nodes)
+		{
+			super("CopyUUIDs");
+			
+			addActionListener(new ActionListener()
+			{				
+				@Override
+				public void actionPerformed(ActionEvent ae)
+				{
+					String uuids = "";
+					
+					for (int i = 0 ; i < nodes.length ; i++)
+					{
+						uuids += "\"" + nodes[i].getDefinition().getUUID() + "\"";
+						
+						if (i < nodes.length-1)
+							uuids += ",";
+						
+						uuids += "\n";
+					}
+					
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(uuids), null);
+				}
+			});
+			
+		}		
+	}
+	
+	//--------------------------------------------------------------------------
 	
 	private class PasteNodesMenuItem extends JMenuItem
 	{
@@ -264,6 +304,8 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 			
 		}		
 	}
+	
+	//--------------------------------------------------------------------------
 	
 	private class DeleteNodesMenuItem extends JMenuItem
 	{				
@@ -968,7 +1010,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	//--------------------------------------------------------------------------
 	
 	private void onCellsConnect(mxEventObject evt)
-	{		
+	{				
 		mxCell cell = (mxCell) evt.getProperty("cell");
 		
 		ZoneGraphPort srcport = (ZoneGraphPort) cell.getSource();		
@@ -1477,6 +1519,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		
 		popupMenu.add(new CutNodesMenuItem(nodes));
 		popupMenu.add(new CopyNodesMenuItem(nodes));
+		popupMenu.add(new CopyUUIDsMenuItem(nodes));
 		popupMenu.add(new JPopupMenu.Separator());		
 		popupMenu.add(new DeleteNodesMenuItem(nodes));				
 				

@@ -1,6 +1,6 @@
 /****************************************/
 /* HelpFileList.java                    */
-/* Generated on 21-Feb-2016             */
+/* Generated on 05-Mar-2016             */
 /* Copyright Cherry Tree Studio 2014    */
 /* Released under EUPL v1.1             */
 /****************************************/
