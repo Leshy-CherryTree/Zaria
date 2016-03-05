@@ -43,8 +43,6 @@ public class Atlas
 	private Graphics2D graphics;
 	private AtlasNode root;
 	private Map<String, Rectangle> rectangleMap;
-	private int textureWidth;
-	private int textureHeight;
 	
 	//--------------------------------------------------------------------------	
 
@@ -55,9 +53,6 @@ public class Atlas
 
 		root = new AtlasNode(0, 0, width, height);
 		rectangleMap = new TreeMap<>();
-
-		textureWidth = width;
-		textureHeight = height;
 	}
 	
 	//--------------------------------------------------------------------------	
@@ -72,73 +67,6 @@ public class Atlas
 		}
 
 		rectangleMap.put(name, node.rect);
-
-		int w = textureWidth;
-		int h = textureHeight;
-
-		// left strip (1 pixel wide)
-		if (node.rect.x > 0)
-		{
-			graphics.drawImage(image,
-				node.rect.x - 1, node.rect.y, node.rect.x, node.rect.y + node.rect.height,
-				0, 0, 1, node.rect.height, null);
-		}
-
-		// right strip (1 pixel wide)
-		if (node.rect.x < w - 1)
-		{
-			graphics.drawImage(image,
-				node.rect.x + node.rect.width, node.rect.y, node.rect.x + node.rect.width + 1, node.rect.y + node.rect.height,
-				node.rect.width - 1, 0, node.rect.width, node.rect.height, null);
-		}
-
-		// top strip (1 pixel high)
-		if (node.rect.y > 0)
-		{
-			graphics.drawImage(image,
-				node.rect.x, node.rect.y - 1, node.rect.x + node.rect.width, node.rect.y,
-				0, 0, node.rect.width, 1, null);
-		}
-
-		// bottom strip (1 pixel high)
-		if (node.rect.y < h - 1)
-		{
-			graphics.drawImage(image,
-				node.rect.x, node.rect.y + node.rect.height, node.rect.x + node.rect.width, node.rect.y + node.rect.height + 1,
-				0, node.rect.height - 1, node.rect.width, node.rect.height, null);
-		}
-
-		// topleft
-		if (node.rect.x > 0 && node.rect.y > 0)
-		{
-			graphics.drawImage(image,
-				node.rect.x - 1, node.rect.y - 1, node.rect.x, node.rect.y,
-				0, 0, 1, 1, null);
-		}
-
-		// topright
-		if (node.rect.x < w - 1 && node.rect.y > 0)
-		{
-			graphics.drawImage(image,
-				node.rect.x + node.rect.width, node.rect.y - 1, node.rect.x + node.rect.width + 1, node.rect.y,
-				node.rect.width - 1, 0, node.rect.width, 1, null);
-		}
-
-		// bottomright
-		if (node.rect.x < w - 1 && node.rect.y < h - 1)
-		{
-			graphics.drawImage(image,
-				node.rect.x + node.rect.width, node.rect.y + node.rect.height, node.rect.x + node.rect.width + 1, node.rect.y + node.rect.height + 1,
-				node.rect.width - 1, node.rect.height - 1, node.rect.width, node.rect.height, null);
-		}
-
-		// bottomleft
-		if (node.rect.x > 0 && node.rect.y < h - 1)
-		{
-			graphics.drawImage(image,
-				node.rect.x - 1, node.rect.y + node.rect.height, node.rect.x, node.rect.y + node.rect.height + 1,
-				0, node.rect.height - 1, 1, node.rect.height, null);
-		}
 
 		graphics.drawImage(image, node.rect.x, node.rect.y, null);
 

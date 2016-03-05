@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -685,9 +686,22 @@ public class DocumentManager implements ChangeListener, CaretListener
 	public static <T> T showWaitDialog(String message, WaitDialog.ResultRunnable<T> runnable)
 	{
 		WaitDialog<T> dialog = new WaitDialog<>(editorFrame, runnable, message);
-		dialog.run();
+		dialog.run();		
+		T result = dialog.getResult();
 		
-		return dialog.getResult();
+		// These operations usuall allocate a lot of memory. Once they're done it's a good idea to force gc.
+		try
+		{
+			Thread.sleep(25);
+			System.gc();
+			Thread.sleep(25);
+		}
+		catch (InterruptedException ex)
+		{
+			Logger.getLogger(DocumentManager.class.getName()).log(Level.SEVERE, null, ex);
+		}		
+		
+		return result;
 	}
 	
 	//--------------------------------------------------------------------------

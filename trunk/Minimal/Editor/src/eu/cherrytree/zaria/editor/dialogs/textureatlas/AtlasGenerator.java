@@ -103,7 +103,7 @@ public class AtlasGenerator
 			}
 		}
 
-		private void optimizeY()
+		private void cutTop()
 		{
 			assert image != null;
 			
@@ -112,7 +112,7 @@ public class AtlasGenerator
 			
 			int lines_to_clear = 0;
 			
-			for (int y = 0 ; y < height/2 ; y++)
+			for (int y = 0 ; y < height ; y++)
 			{
 				boolean can_be_cleared = true;
 				
@@ -124,15 +124,7 @@ public class AtlasGenerator
 					{
 						can_be_cleared = false;
 						break;
-					}
-					
-					int pixel_r = image.getRGB(x, height - y - 1);
-					
-					if (pixel_r > 0)
-					{
-						can_be_cleared = false;
-						break;
-					}
+					}					
 				}
 				
 				if (!can_be_cleared)
@@ -143,7 +135,7 @@ public class AtlasGenerator
 			
 			if (lines_to_clear > 0)
 			{
-				BufferedImage img = new BufferedImage(width, (height/2 - lines_to_clear) * 2, BufferedImage.TYPE_INT_ARGB);
+				BufferedImage img = new BufferedImage(width, height - lines_to_clear, BufferedImage.TYPE_INT_ARGB);
 				Graphics2D g = (Graphics2D) img.getGraphics();
 				
 				g.drawImage(image, 0, -lines_to_clear, null);		
@@ -184,15 +176,10 @@ public class AtlasGenerator
 			super("There was an error in determining the size of the texture atlas. " + reason);
 		}
 	}
-	
-	//--------------------------------------------------------------------------
-	
-	private static final int padding = 2;
-	
-	
+		
 	//--------------------------------------------------------------------------	
 
-	private int[] getAtlasSize(Set<ImageName> imageNameSet) throws IOException, SizeSearchException
+	private int[] getAtlasSize(Set<ImageName> imageNameSet, int padding) throws IOException, SizeSearchException
 	{
 		int min_x = 0;
 		int min_y = 0;
@@ -225,23 +212,29 @@ public class AtlasGenerator
 			throw new SizeSearchException("No textures with valid sizes.");
 		}
 
-		// Making sure that minimal values are a multiple of 4
-		int size_x = makeMultipleOf4(min_x);
-		int size_y = makeMultipleOf4(min_y);
+		int mulitply = padding > 0 ? padding * 2 : 1;
+		int size_x = min_x;
+		int size_y = min_y;
+				
+		if (mulitply > 1)
+		{
+			size_x = makeMultipleOf(min_x, mulitply);
+			size_y = makeMultipleOf(min_y, mulitply);
+		}
 
 		while (size_x * size_y < min_area)
 		{
 			if (size_x < size_y)
-				size_x += 4;
+				size_x += mulitply;
 			else if (size_x > size_y)
-				size_y += 4;
+				size_y += mulitply;
 			else if (widecount > longcount)
-				size_x += 4;
+				size_x += mulitply;
 			else if (widecount < longcount)
-				size_y += 4;
+				size_y += mulitply;
 			// If the sizes are equal by default we widden the texture.
 			else
-				size_x += 4;
+				size_x += mulitply;
 		}
 
 		boolean checked = false;
@@ -260,16 +253,16 @@ public class AtlasGenerator
 				if (node == null)
 				{
 					if (size_x < size_y)
-						size_x += 4;
+						size_x += mulitply;
 					else if (size_x > size_y)
-						size_y += 4;
+						size_y += mulitply;
 					else if (widecount > longcount)
-						size_x += 4;
+						size_x += mulitply;
 					else if (widecount < longcount)
-						size_y += 4;
+						size_y += mulitply;
 					// If the sizes are equal by default we widden the texture.
 					else
-						size_x += 4;
+						size_x += mulitply;
 
 					checked = false;
 
@@ -296,12 +289,12 @@ public class AtlasGenerator
 	
 	//--------------------------------------------------------------------------	
 
-	public String run(String name, String imageFormat, ArrayList<File> imageFiles, boolean xOptimize, boolean yOptimize)
+	public String run(String name, String imageFormat, ArrayList<File> imageFiles, boolean xOptimize, boolean topCut, int padding)
 	{
 		if (imageFiles.isEmpty())
 			return "No files selected!";
 		
-		Set<ImageName> imageNameSet = new TreeSet<ImageName>(new ImageNameComparator());					
+		Set<ImageName> imageNameSet = new TreeSet<>(new ImageNameComparator());					
 		
 		int width, height;
 		
@@ -309,19 +302,19 @@ public class AtlasGenerator
 		{
 			loadImages(imageFiles, imageNameSet);
 			
-			if (xOptimize || yOptimize)
+			if (xOptimize || topCut)
 			{
 				for (ImageName img_nam : imageNameSet)
 				{
 					if (xOptimize)
 						img_nam.optimizeX();
 
-					if (yOptimize)
-						img_nam.optimizeY();
+					if (topCut)
+						img_nam.cutTop();
 				}
 			}
 			
-			int[] size = getAtlasSize(imageNameSet);
+			int[] size = getAtlasSize(imageNameSet, padding);
 
 			width = size[0];
 			height = size[1];
@@ -347,16 +340,18 @@ public class AtlasGenerator
 	
 	//--------------------------------------------------------------------------	
 
-	private int makeMultipleOf4(int inValue)
+	private int makeMultipleOf(int value, int of)
 	{
-		int remainder = inValue % 4;
+		assert of > 1;
+		
+		int remainder = value % of;
 
 		if (remainder != 0)
 		{
-			inValue += (4 - remainder);
+			value += (of - remainder);
 		}
 
-		return inValue;
+		return value;
 	}
 	
 	//--------------------------------------------------------------------------	
