@@ -437,6 +437,15 @@ public abstract class ZariaApplication<States extends Enum>
 
 	protected final void exitApp(int status)
 	{
+		destroy();
+		
+		System.exit(status);
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	protected final void destroy()
+	{
 		console.destroy();
 
 		threadPoolExecutor.shutdownNow();
@@ -447,8 +456,6 @@ public abstract class ZariaApplication<States extends Enum>
 			DebugManager.deinit();
 		
 		ScriptEngine.destroy();
-		
-		System.exit(status);
 	}
 
 	//--------------------------------------------------------------------------
