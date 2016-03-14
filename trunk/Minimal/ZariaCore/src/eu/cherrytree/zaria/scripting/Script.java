@@ -83,7 +83,12 @@ public class Script
 	{
 		try
 		{
-			return (T) script.exec(context, scope);
+			Object ret = script.exec(context, scope);
+									
+			if (ScriptEngine.ProtectedNativeJavaObject.class.isAssignableFrom(ret.getClass()))			
+				return (T) ((ScriptEngine.ProtectedNativeJavaObject) ret).getJavaObject();
+			else
+				return (T) ret;
 		}
 		catch(ClassCastException ex)
 		{			

@@ -27,7 +27,7 @@ import java.util.concurrent.Future;
  *
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
-public abstract class ZariaApplicationState
+public abstract class ZariaApplicationState<Params extends ApplicationStateParams>
 {
 	//--------------------------------------------------------------------------
 	
@@ -47,7 +47,7 @@ public abstract class ZariaApplicationState
 	private Future<Boolean> loadSaveFuture;
 	
 	private ZariaApplication application;
-	private ApplicationStateParams stateParams;
+	private Params stateParams;
 	private ZariaObjectDefinitionLibrary objectlibrary;
 	private Console console;
 
@@ -55,13 +55,13 @@ public abstract class ZariaApplicationState
 	
 	//--------------------------------------------------------------------------
 	
-	final void init(ZariaApplication application, Console console, ApplicationStateParams stateParams)
+	final void init(ZariaApplication application, Console console, Params initParams)
 	{
-		this.stateParams = stateParams;
+		this.stateParams = initParams;
 		this.application = application;
 		this.console = console;
 		
-		onInit();
+		onInit(initParams);
 	}
 			
 	//--------------------------------------------------------------------------
@@ -165,45 +165,35 @@ public abstract class ZariaApplicationState
 				
 			case LOADING:
 			
-				if (loadSaveFuture != null)
+				assert loadSaveFuture != null;
+				
+				if (loadSaveFuture.isDone())
 				{
-					if (loadSaveFuture.isDone())
+					try
 					{
-						try
+						if (loadSaveFuture.get())
 						{
-							if (loadSaveFuture.get())
-							{
-								onDataLoaded();
+							Console.printOut("Game loaded.");
 
-								loadSaveFuture = null;
-							}
-							else
-							{
-								throw new ApplicationRuntimeError("Loading failed.");
-							}
+							innerState = InnerState.RUNNING;
+
+							onLoadingFinished();
+
+							loadSaveFuture = null;
 						}
-						catch (InterruptedException | ExecutionException ex)
+						else
 						{
-							throw new ApplicationRuntimeError("Loading failed.", ex);
-						}	
+							throw new ApplicationRuntimeError("Loading failed.");
+						}
 					}
-					else
+					catch (InterruptedException | ExecutionException ex)
 					{
-						updateLoading(deltaTime);
-					}
+						throw new ApplicationRuntimeError("Loading failed.", ex);
+					}	
 				}
 				else
 				{
-					boolean loading_done = updateLoading(deltaTime);
-					
-					if (loading_done)
-					{
-						Console.printOut("Game loaded.");
-
-						innerState = InnerState.RUNNING;
-
-						onLoadingFinished();
-					}
+					updateLoading(deltaTime);
 				}
 			
 				break;
@@ -338,6 +328,13 @@ public abstract class ZariaApplicationState
 			objectlibrary = null;
 		}
 	}
+	
+	//--------------------------------------------------------------------------
+
+	protected Params getStateParams()
+	{
+		return stateParams;
+	}		
 
 	//--------------------------------------------------------------------------
 
@@ -357,13 +354,6 @@ public abstract class ZariaApplicationState
 	//--------------------------------------------------------------------------
 	
 	public void onSavingFinished()
-	{
-		// Default empty.
-	}
-	
-	//--------------------------------------------------------------------------
-	
-	public void onDataLoaded()
 	{
 		// Default empty.
 	}
@@ -406,10 +396,10 @@ public abstract class ZariaApplicationState
 	
 	//--------------------------------------------------------------------------	
 		
-	public abstract boolean updateLoading(float deltaTime);
+	public abstract void updateLoading(float deltaTime);
 	public abstract void renderLoading(float deltaTime);
 	
-	public abstract void onInit();
+	public abstract void onInit(Params initParams);
 	public abstract void onLoadingFinished();
 	public abstract void onLoadingStarted();
 	

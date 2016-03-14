@@ -1,7 +1,7 @@
 /****************************************/
-/* Date.java							*/
+/* Date.java								*/
 /* Created on: Feb 3, 2012              */
-/* Copyright Cherry Tree Studio 2012	*/
+/* Copyright Cherry Tree Studio 2012		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 package eu.cherrytree.zaria.utilities;
