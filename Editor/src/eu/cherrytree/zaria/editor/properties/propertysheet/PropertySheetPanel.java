@@ -21,7 +21,6 @@ import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -63,17 +62,17 @@ public final class PropertySheetPanel extends JPanel implements PropertyChangeLi
 			int row = table.getSelectedRow();
 			Property prop = null;
 			
-			if(row >= 0 && table.getRowCount() > row)
+			if (row >= 0 && table.getRowCount() > row)
 				prop = model.getPropertySheetElement(row).getProperty();
 			
-			if(prop != null)
+			if (prop != null)
 			{
 				descriptionPanel.setText("<html>"
-						+ "<b>"
-						+ (prop.getDisplayName() == null ? "" : prop.getDisplayName())
-						+ "</b><br>"
-						+ (prop.getShortDescription() == null ? "" : prop
-						.getShortDescription()));
+						+ "[" + (prop.getDisplayName() == null ? "" : prop.getDisplayName()) + "]"
+						+ "<br>"
+						+ (prop.getShortDescription() == null ? "" : prop.getShortDescription())
+					+ "</font>"
+				);
 			}
 			else
 			{
@@ -364,6 +363,7 @@ public final class PropertySheetPanel extends JPanel implements PropertyChangeLi
 		descriptionPanel.setBorder(BorderFactory.createEmptyBorder());
 		descriptionPanel.setEditable(false);
 		descriptionPanel.setBackground(UIManager.getColor("Panel.background"));
+		descriptionPanel.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
 		UIUtils.htmlize(descriptionPanel);
 
 		selectionListener = new SelectionListener();
