@@ -64,7 +64,10 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		ZariaObjectDefinition objdef = objectDefinitions.get(uuid);
 		
 		if(objdef == null)
+		{
 			DebugManager.alert("Object definition not found", "Couldn't find object definition " + uuid + " in library " + getUUID());
+			DebugManager.traceStack(DebugManager.TraceLevel.ERROR);
+		}
 		
 		return objdef;
 	}

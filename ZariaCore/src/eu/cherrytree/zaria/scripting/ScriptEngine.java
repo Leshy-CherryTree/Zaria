@@ -97,7 +97,7 @@ public class ScriptEngine
 	
 	//--------------------------------------------------------------------------
 
-	private static class ProtectedNativeJavaObject extends NativeJavaObject
+	static class ProtectedNativeJavaObject extends NativeJavaObject
 	{
 		private ArrayList<String> protectedMembers;
 

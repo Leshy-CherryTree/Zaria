@@ -290,7 +290,17 @@ public class DebugManager extends SecurityManager
 		else
 			logger.log(Level.SEVERE, throwntext);
     }
+	
+	//--------------------------------------------------------------------------
 
+	public synchronized static void traceStack(TraceLevel level)
+	{
+		Class[] stack = instance.getClassContext();
+		
+		for (int i = 1 ; i < stack.length ; i++)
+			instance.debugUI.addText("[" + instance.dateFormat.format(new Date()) + " ; " + getThread() + " ; STACK " + String.format("%02d", i) + "]: " + stack[i].getSimpleName() + "\n", level);
+	}
+	
     //--------------------------------------------------------------------------
 
     public synchronized static void alert(String message)

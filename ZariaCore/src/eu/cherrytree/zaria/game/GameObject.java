@@ -7,13 +7,13 @@
 
 package eu.cherrytree.zaria.game;
 
-import eu.cherrytree.zaria.game.messages.Message;
 import eu.cherrytree.zaria.game.messages.MessageHandler;
-import eu.cherrytree.zaria.game.messages.annotations.HandleMessage;
+
 import eu.cherrytree.zaria.scripting.annotations.ScriptMethod;
 import eu.cherrytree.zaria.serialization.LoadCapsule;
 import eu.cherrytree.zaria.serialization.SaveCapsule;
 import eu.cherrytree.zaria.serialization.ValueAlreadySetException;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -84,19 +84,6 @@ public abstract class GameObject<Definition extends GameObjectDefinition> implem
 	public Definition getDefinition()
 	{
 		return definition;
-	}
-	
-	//--------------------------------------------------------------------------
-			
-	@Override
-	public final Class<? extends Message> [] getHandledMessageTypes()
-	{
-		HandleMessage msg_annotation = this.getClass().getAnnotation(HandleMessage.class);
-		
-		if(msg_annotation != null)
-			return msg_annotation.value();
-		else
-			return null;
 	}
 	
 	//--------------------------------------------------------------------------

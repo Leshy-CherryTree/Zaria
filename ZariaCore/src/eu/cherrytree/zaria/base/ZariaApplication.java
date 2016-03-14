@@ -250,8 +250,7 @@ public abstract class ZariaApplication<States extends Enum>
 			console.setEnabled(ApplicationProperties.isConsoleDefaultEnabled() || arguments.enableConsole);
 						
 			// Initializing threading system.
-			int max_threads = (int) Math.floor(SystemProperties.getMaxProcessors() * 2);			
-			threadPoolExecutor = new ScheduledThreadPoolExecutor( max_threads );
+			threadPoolExecutor = new ScheduledThreadPoolExecutor( SystemProperties.getMaxProcessors() );
 			
 			// Init callback.
 			onInit();
