@@ -165,19 +165,19 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 	
 	//--------------------------------------------------------------------------
 	
-	public ZoneGraphPort getInputPort(int index)
+	public ZoneGraphInputPort getInputPort(int index)
 	{
 		if(index >= ports.length - 1)
 			throw new ArrayIndexOutOfBoundsException(index);
 		
-		return ports[index];
+		return (ZoneGraphInputPort) ports[index];
 	}
 	
 	//--------------------------------------------------------------------------
 	
-	public ZoneGraphPort getOutputPort()
+	public ZoneGraphOutputPort getOutputPort()
 	{
-		return ports[ports.length - 1];
+		return (ZoneGraphOutputPort) ports[ports.length - 1];
 	}
 	
 	//--------------------------------------------------------------------------

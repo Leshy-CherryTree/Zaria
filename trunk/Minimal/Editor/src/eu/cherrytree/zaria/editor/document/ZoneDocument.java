@@ -202,9 +202,6 @@ public class ZoneDocument
 		
 		createdDate = getCreationDate(text);
 		
-// TODO When switching immediately to the map mode some race condition pops up. See what's going on.
-//		This also happenes when closing the app with a map open.
-		
 		switch(documentType)
 		{
 			case ZONE:
@@ -379,6 +376,7 @@ public class ZoneDocument
 		{
 			try (BufferedWriter writer = new BufferedWriter(new FileWriter(file)))
 			{
+				states[currentState.ordinal()].updateText();
 				writer.write(states[currentState.ordinal()].getText());
 				saved = true;
 			}

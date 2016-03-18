@@ -28,7 +28,7 @@ import java.util.logging.Level;
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
 public class GraphClipboard implements ClipboardOwner
-{
+{		
 	//--------------------------------------------------------------------------
 	
 	public void setNodes(ZoneGraphNode[] nodes)

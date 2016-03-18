@@ -333,7 +333,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	
 	// Main areas
 	private JSplitPane fileSplitPaneLeft = new JSplitPane();
-	private JSplitPane objectsSplitPaneLeft = new JSplitPane();
 	private JSplitPane splitPaneMain = new JSplitPane();
 	private JSplitPane splitPaneRight = new JSplitPane();
 	private JSplitPane splitPaneFarRight = new JSplitPane();
@@ -700,6 +699,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				
 		fileSplitPaneLeft.setBottomComponent(fileListScrollPane);
 		fileSplitPaneLeft.setTopComponent(directoryTreePane);
+		fileSplitPaneLeft.setDividerLocation(300);
 		splitPaneMain.setLeftComponent(fileSplitPaneLeft);
 						
 		((BasicSplitPaneUI)splitPaneMain.getUI()).getDivider().addMouseListener(new HideLeftPaneMouseAdapter());

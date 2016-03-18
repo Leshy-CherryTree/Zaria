@@ -15,6 +15,7 @@ import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource;
+import eu.cherrytree.zaria.editor.EditorApplication;
 
 import eu.cherrytree.zaria.editor.classlist.ZoneClass;
 import eu.cherrytree.zaria.editor.classlist.ZoneClassList;
@@ -387,14 +388,6 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	//--------------------------------------------------------------------------
 
 	@Override
-	public void onSave()
-	{
-		graphComponent.setName(document.getFile().getName());
-	}
-
-	//--------------------------------------------------------------------------
-
-	@Override
 	public void undo()
 	{
 		undoStack.undo();
@@ -646,6 +639,14 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	}
 	
 	//--------------------------------------------------------------------------
+	
+	@Override
+	public void updateText()
+	{
+		// Intentionally empty.
+	}
+	
+	//--------------------------------------------------------------------------
 
 	@Override
 	public String getText()
@@ -710,10 +711,10 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 			graphComponent.setName("untitled.zone");
 			
 		
-		graph.addListener(null, this);
-		graph.getSelectionModel().addListener(null, this);
+		graph.addListener(null, this);		
 		graph.getModel().addListener(null, this);
 		graph.getView().addListener(null, this);
+		graph.getSelectionModel().addListener(null, this);
 		
 		nodes.clear();
 		selectedNodes.clear();
@@ -930,30 +931,44 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	@Override
 	public void invoke(Object sender, mxEventObject evt)
 	{
-		switch(evt.getName())
+		try
 		{
-			case mxEvent.CHANGE:
-				onSelectionChange(evt);
-				break;
-				
-			case mxEvent.CONNECT:
-				onCellsConnect(evt);
-				break;
-				
-			case mxEvent.CELLS_REMOVED:
-				onCellsRemoved(evt);
-				break;
-				
-			case mxEvent.CELLS_MOVED:
-				onCellsMoved(evt);
-				break;
-				
-//			default:
-//				System.out.println("EVENT: " + evt.getName() + " from: " + sender);
-//				
-//				for(String key : evt.getProperties().keySet())
-//					System.out.println("key: " + key + " value: " + evt.getProperty(key));
-//				break;				
+//			EditorApplication.getDebugConsole().addLine("EVENT: " + evt.getName() + " from: " + sender.getClass().getSimpleName());
+//
+//			for(String key : evt.getProperties().keySet())
+//				EditorApplication.getDebugConsole().addLine("key: " + key + " value: " + evt.getProperty(key));		
+//
+//			EditorApplication.getDebugConsole().addLine("");
+
+			switch (evt.getName())
+			{
+				case mxEvent.CHANGE:
+					onSelectionChange(evt);
+					break;
+
+				case mxEvent.CELL_CONNECTED:
+					onCellsConnect(evt);
+					break;
+
+				case mxEvent.CELLS_REMOVED:
+					onCellsRemoved(evt);
+					break;
+
+				case mxEvent.CELLS_MOVED:
+					onCellsMoved(evt);
+					break;
+
+//				default:
+//					System.out.println("EVENT: " + evt.getName() + " from: " + sender);
+//
+//					for(String key : evt.getProperties().keySet())
+//						System.out.println("key: " + key + " value: " + evt.getProperty(key));
+//					break;				
+			}
+		}		
+		catch(Throwable t)
+		{
+			DebugConsole.logger.log(Level.SEVERE, null, t);
 		}
 	}
 	
@@ -996,47 +1011,91 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 				switch(key)
 				{
 					case "added":
-						setSelected(changed_nodes,false);
+						setSelected(changed_nodes, false);
 						break;
 						
 					case "removed":
-						setSelected(changed_nodes,true);
+						setSelected(changed_nodes, true);
 						break;
 				}
 			}
 		}
 	}
-	
+
 	//--------------------------------------------------------------------------
 	
 	private void onCellsConnect(mxEventObject evt)
 	{				
-		mxCell cell = (mxCell) evt.getProperty("cell");
+		mxCell cell = (mxCell) evt.getProperty("edge");
 		
 		ZoneGraphPort srcport = (ZoneGraphPort) cell.getSource();		
 		ZoneGraphNode src = (ZoneGraphNode) srcport.getParent();
 		
-		ZoneGraphPort tgtport = (ZoneGraphPort) cell.getTarget();
-		ZoneGraphNode tgt = (ZoneGraphNode) tgtport.getParent();
+		ZoneGraphPort tgtport = (ZoneGraphPort) evt.getProperty("terminal");
+		ZoneGraphNode tgt = (ZoneGraphNode) tgtport.getParent();		
 		
-		if(srcport.isInput())
+		if (srcport.isInput())
 		{
-			src.connectionAdded(srcport.getName(), tgt.getDefinition().getUUID());
-			
-			if(!undoStack.isLocked())
-				undoStack.addUndoAction(new ConnectUndoAction((ZoneGraphInputPort) srcport, (ZoneGraphOutputPort) tgtport), true);
-			
-			graph.getModel().setStyle(src, src.getNodeStyle());
+			if (selectedNodes.contains(tgt))
+			{
+				for (ZoneGraphNode node : selectedNodes)
+				{
+					if (srcport.getDefinitionClass().isAssignableFrom(node.getDefinitionClass()))
+					{
+						if (node != tgt)
+						{
+							graph.setEventsEnabled(false);						
+							graph.insertEdge(graph.getDefaultParent(), null, null, srcport, node.getOutputPort());
+							graph.setEventsEnabled(true);
+						}
+						
+						makeConnection((ZoneGraphInputPort) srcport, node);
+						graph.getModel().setStyle(node, node.getNodeStyle());						
+					}
+				}
+			}
+			else
+			{
+				makeConnection((ZoneGraphInputPort) srcport, tgt);
+				graph.getModel().setStyle(src, src.getNodeStyle());
+			}
 		}
-		else if(tgtport.isInput())
+		else if (tgtport.isInput())
 		{
-			tgt.connectionAdded(tgtport.getName(), src.getDefinition().getUUID());
-			
-			if(!undoStack.isLocked())
-				undoStack.addUndoAction(new ConnectUndoAction((ZoneGraphInputPort) tgtport, (ZoneGraphOutputPort) srcport), true);
-			
+			if (selectedNodes.contains(src))
+			{
+				for (ZoneGraphNode node : selectedNodes)
+				{
+					if (tgtport.getDefinitionClass().isAssignableFrom(node.getDefinitionClass()))
+					{
+						if (node != src)
+						{
+							graph.setEventsEnabled(false);						
+							graph.insertEdge(graph.getDefaultParent(), null, null, tgtport, node.getOutputPort());
+							graph.setEventsEnabled(true);
+						}
+						
+						makeConnection((ZoneGraphInputPort) tgtport, node);		
+					}
+				}
+			}
+			else
+			{
+				makeConnection((ZoneGraphInputPort) tgtport, src);
+			}
+						
 			graph.getModel().setStyle(tgt, tgt.getNodeStyle());
 		}
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	private void makeConnection(ZoneGraphInputPort port, ZoneGraphNode node)
+	{	
+		((ZoneGraphNode) port.getParent()).connectionAdded(port.getName(), node.getDefinition().getUUID());
+			
+		if (!undoStack.isLocked())
+			undoStack.addUndoAction(new ConnectUndoAction(port, node.getOutputPort()), true);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -1132,6 +1191,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		
 		document.setModified();
 	}
+	
 	//--------------------------------------------------------------------------
 
 	@Override
