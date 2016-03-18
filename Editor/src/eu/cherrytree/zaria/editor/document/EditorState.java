@@ -20,7 +20,7 @@ public interface EditorState
 {
 	//--------------------------------------------------------------------------
 	
-	public void onSave();
+	public void updateText();
 	
 	public void undo();
 	public void redo();

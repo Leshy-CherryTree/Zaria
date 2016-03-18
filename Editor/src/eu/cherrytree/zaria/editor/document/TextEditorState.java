@@ -27,7 +27,6 @@ import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
-import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -291,14 +290,6 @@ public class TextEditorState implements EditorState, DocumentListener
 	{
 		document.setModified();
 	}
-	
-	//--------------------------------------------------------------------------
-	
-	@Override
-	public void onSave()
-	{				
-		pane.setName(document.getFile().getName());	
-	}
 			
 	//--------------------------------------------------------------------------
 	
@@ -535,6 +526,24 @@ public class TextEditorState implements EditorState, DocumentListener
 		}
 		
 		return null;
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	@Override
+	public void updateText()
+	{
+		String text = textArea.getText();
+		
+		if (text.startsWith("//"))
+		{
+			int idx = text.indexOf("// Last modified on:") + "// Last modified on: xx-XXX-XXXX\n\n".length();
+			textArea.setText(document.getHeader() + text.substring(idx));
+		}
+		else
+		{
+			textArea.setText(document.getHeader() + text);			
+		}
 	}
 	
 	//--------------------------------------------------------------------------
