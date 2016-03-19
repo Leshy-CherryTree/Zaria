@@ -133,7 +133,7 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 		for (int i = 0 ; i < ports.length-1 ; i++)
 		{
 			ports[i] = new ZoneGraphInputPort(links.get(i), names.get(i), display_names.get(i), arrays.get(i), (shift + step * i) / height);
-			width = Math.max(width, portMetrics.stringWidth(display_names.get(i) + ports[i].getGeometry().getWidth()));
+			width = (float) Math.ceil(Math.max(width, portMetrics.stringWidth(display_names.get(i) + ports[i].getGeometry().getWidth())));
 		}
 				
 		ports[ports.length - 1] = new ZoneGraphOutputPort(definition.getClass(), width, size * 3.0f);
@@ -147,7 +147,7 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 
 		caption = new mxCell();
 
-		mxGeometry geo = new mxGeometry(0.0f, 0.0f, width, size);
+		mxGeometry geo = new mxGeometry(0.0f, 0.0f, width, Math.ceil(size));
 		geo.setOffset(new mxPoint(0.0f, height + size));
 		geo.setRelative(true);
 		

@@ -259,6 +259,23 @@ public class ZoneDocument
 	
 	//--------------------------------------------------------------------------
 	
+	public static String getNewHeader(String name)
+	{
+		String text = "// " + name + "\n";
+		
+		Calendar cal = Calendar.getInstance();
+		cal.clear();
+		cal.setTimeInMillis(System.currentTimeMillis());
+						
+		text += dateCreatedComment + dateFormat.format(cal.getTime()) + "\n";
+		text += dateModifiedCreatedComment + dateFormat.format(cal.getTime()) + "\n";
+		text += "\n";
+		
+		return text;
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	private String getNewText(DocumentType type)
 	{
 		String text = "// untitled" + type.suffix + "\n";

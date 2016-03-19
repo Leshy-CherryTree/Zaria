@@ -10,6 +10,7 @@ package eu.cherrytree.zaria.editor.document;
 import eu.cherrytree.zaria.editor.document.parsers.ZoneParser;
 import eu.cherrytree.zaria.editor.Settings;
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
+import eu.cherrytree.zaria.editor.document.parsers.ScriptDocument;
 import eu.cherrytree.zaria.editor.document.parsers.ScriptParser;
 import eu.cherrytree.zaria.editor.modes.ZoneTokenMaker;
 import eu.cherrytree.zaria.editor.serialization.Serializer;
@@ -49,7 +50,7 @@ import org.fife.ui.rtextarea.SearchResult;
  *
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
-public class TextEditorState implements EditorState, DocumentListener
+public class TextEditorState implements EditorState, DocumentListener, ScriptDocument
 {
 	//--------------------------------------------------------------------------
 	
@@ -78,6 +79,8 @@ public class TextEditorState implements EditorState, DocumentListener
 	private static Theme theme;
 	
 	private static final AbstractTokenMakerFactory factory = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
+	
+	//--------------------------------------------------------------------------
 	
 	static			
 	{
@@ -213,6 +216,20 @@ public class TextEditorState implements EditorState, DocumentListener
 	public static boolean isFractionalFontMetricsEnabled()
 	{
 		return fractionalFontMetrics;
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public static int getFontSize()
+	{
+		return fontSize;
+	}
+
+	//--------------------------------------------------------------------------
+	
+	public static Theme getTheme()
+	{
+		return theme;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -554,6 +571,13 @@ public class TextEditorState implements EditorState, DocumentListener
 		return textArea.getText();
 	}
 	
+	//--------------------------------------------------------------------------
+	@Override
+	public String getTitle()
+	{
+		return document.getTitle();
+	}
+		
 	//--------------------------------------------------------------------------
 			
 	@Override

@@ -89,7 +89,7 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 	{
 		super(parent, modal);
 
-		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setResizable(false);
 
 		fileViewScrollPane.setViewportView(fileView);

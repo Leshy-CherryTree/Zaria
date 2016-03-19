@@ -112,7 +112,7 @@ public class Atlas
 		
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file)))
 		{			
-			writer.write(Serializer.getText(areas));
+			writer.write(ZoneDocument.getNewHeader(file.getName()) + Serializer.getText(areas));
 			DataBase.save(areas, file.getAbsolutePath());
 		}
 	}

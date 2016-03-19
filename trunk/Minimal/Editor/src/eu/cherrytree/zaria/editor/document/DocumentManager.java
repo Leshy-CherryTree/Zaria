@@ -620,7 +620,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	//--------------------------------------------------------------------------
 	
-	private static FileFilter createFileFilter(ZoneDocument.DocumentType type, String directory)
+	private static FileFilter createFileFilter(ZoneDocument.DocumentType type)
 	{
 		return new AssetFileFilter(type.getName(), new String[]{type.getSuffix()});
 	}
@@ -629,13 +629,18 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public static File showSaveDialog(ZoneDocument.DocumentType type)
 	{
-		String path = type.getLocationType().getPath();
-		
+		return showSaveDialog(type, type.getLocationType().getPath(), true);
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static File showSaveDialog(ZoneDocument.DocumentType type, String path, boolean storePath)
+	{				
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(new File(lastPath == null ? path : lastPath.startsWith(path) ? lastPath : path));
 		fileChooser.removeChoosableFileFilter(fileChooser.getAcceptAllFileFilter());
 		
-		fileChooser.addChoosableFileFilter(createFileFilter(type, path));
+		fileChooser.addChoosableFileFilter(createFileFilter(type));
 		
 		if (fileChooser.showSaveDialog(editorFrame) == JFileChooser.APPROVE_OPTION)
 		{
@@ -652,7 +657,8 @@ public class DocumentManager implements ChangeListener, CaretListener
 					file = showSaveDialog(type);
 			}
 			
-			lastPath = file.getAbsolutePath();
+			if (storePath)
+				lastPath = file.getAbsolutePath();
 			
 			return file;
 		}		
@@ -669,7 +675,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 		fileChooser.removeChoosableFileFilter(fileChooser.getAcceptAllFileFilter());
 		
 		for(ZoneDocument.DocumentType type : ZoneDocument.DocumentType.values())
-			fileChooser.addChoosableFileFilter(createFileFilter(type, type.getLocationType().getPath()));
+			fileChooser.addChoosableFileFilter(createFileFilter(type));
 
 		if (fileChooser.showOpenDialog(editorFrame) == JFileChooser.APPROVE_OPTION)
 		{

@@ -35,6 +35,7 @@ import eu.cherrytree.zaria.editor.datamodels.palette.PaletteTransferHandler;
 import eu.cherrytree.zaria.editor.datamodels.palette.ScriptPaletteDataModel;
 import eu.cherrytree.zaria.editor.datamodels.palette.ZonePaletteDataModel;
 import eu.cherrytree.zaria.editor.dialogs.ExtendedInformationDialog;
+import eu.cherrytree.zaria.editor.dialogs.RunScriptDialog;
 import eu.cherrytree.zaria.editor.dialogs.TextureAtlasDialog;
 import eu.cherrytree.zaria.editor.dialogs.WaitDialog;
 import eu.cherrytree.zaria.editor.document.GraphEditorState;
@@ -400,6 +401,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	// Tools menu
 	private JMenu toolsMenu = new JMenu();
 	private JMenuItem textureAtlasBuilderMenuItem;
+	private JMenuItem runScriptMenuItem;
 	private JMenuItem libraryValidationMenuItem;	
 	private JPopupMenu.Separator packageScriptsMenuSeparator = new JPopupMenu.Separator();
 	private JMenuItem packageScriptsMenuItem;	
@@ -463,7 +465,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	private GoToLineDialog goToLineDialog;
 	private FindDialog findDialog;
 	private HelpFrame helpFrame;			
-	private TextureAtlasDialog textureAtlasDialog;
 	
 	// Managers
 	private DocumentManager documentManager;
@@ -617,7 +618,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		aboutDialog = new AboutDialog(this);
 		goToLineDialog = new GoToLineDialog(this, documentManager);
 		findDialog = new FindDialog(this, documentManager);
-		textureAtlasDialog = new TextureAtlasDialog(this, true);
 		
 		initEditorSettings();
 		
@@ -895,6 +895,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		
 		libraryValidationMenuItem = initMenuItem("Validate library", "validate.png", null, toolsMenu);
 		textureAtlasBuilderMenuItem = initMenuItem("Texture Atlas Builder", null, null, toolsMenu);
+		runScriptMenuItem = initMenuItem("Run script", null, null, toolsMenu);
 		
 		toolsMenu.add(packageScriptsMenuSeparator);
 		packageScriptsMenuItem = initMenuItem("Package scripts", "application-x-jar.png", null, toolsMenu);
@@ -1294,8 +1295,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			if(helpFrame != null)
 				SwingUtilities.updateComponentTreeUI(helpFrame);
 			
-			SwingUtilities.updateComponentTreeUI(textureAtlasDialog);
-	
 			if (EditorApplication.getDebugConsole().isVisible())
 				EditorApplication.getDebugConsole().pack();
 			
@@ -1310,10 +1309,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			
 			if (helpFrame != null && helpFrame.isVisible())
 				helpFrame.pack();
-			
-			if (textureAtlasDialog.isVisible())
-				textureAtlasDialog.pack();
-			
+				
 			pack();
 		}
 		else if (event.getSource() == textViewMenuItem)
@@ -1357,6 +1353,9 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		}
 		else if (event.getSource() == textureAtlasBuilderMenuItem)
 		{
+			
+			TextureAtlasDialog textureAtlasDialog = new TextureAtlasDialog(this, true);
+					
 			Rectangle framebounds = getBounds();
 			Rectangle dialogbounds = textureAtlasDialog.getBounds();
 			
@@ -1366,6 +1365,20 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			
 			textureAtlasDialog.setBounds(newbounds);
 			textureAtlasDialog.setVisible(true);
+		}
+		else if(event.getSource() == runScriptMenuItem)
+		{
+			RunScriptDialog runScriptDialog = new RunScriptDialog(this, true);
+			
+			Rectangle framebounds = getBounds();
+			Rectangle dialogbounds = runScriptDialog.getBounds();
+			
+			Rectangle newbounds = new Rectangle(framebounds.x + framebounds.width/2 - dialogbounds.width/2, 
+												framebounds.y + framebounds.height/2 - dialogbounds.height/2, 
+												dialogbounds.width, dialogbounds.height);
+			
+			runScriptDialog.setBounds(newbounds);
+			runScriptDialog.setVisible(true);
 		}
 		else if (event.getSource() == packageScriptsMenuItem || event.getSource() == packageScriptsToolBarButton)
 		{
@@ -1810,6 +1823,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			editToolBarButton.setVisible(false);
 		}
 	}
-	
+		
 	//--------------------------------------------------------------------------
 }
