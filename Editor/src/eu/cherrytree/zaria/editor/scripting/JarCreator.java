@@ -74,6 +74,8 @@ public class JarCreator
 		manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 		manifest.getMainAttributes().put(new Name("Created-By"), "Zone Editor v" + EditorApplication.getVersion());
 		
+		ScriptPreprocessor.setScriptLocation(EditorApplication.getScriptsLocation());
+		
 		try (JarOutputStream target = new JarOutputStream(new FileOutputStream(outJar), manifest))
 		{
 			add(new File(srcDir), target, srcDir);

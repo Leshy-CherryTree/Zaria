@@ -27,13 +27,13 @@ public class ScriptParser extends AbstractParser
 {
 	//--------------------------------------------------------------------------
 	
-	private TextEditorState editor;
+	private ScriptDocument document;
 	
 	//--------------------------------------------------------------------------
 	
-	public ScriptParser(TextEditorState editor)
+	public ScriptParser(ScriptDocument document)
 	{
-		this.editor = editor;	
+		this.document = document;	
 	}
 	//--------------------------------------------------------------------------
 
@@ -44,11 +44,11 @@ public class ScriptParser extends AbstractParser
 		
 		DefaultParseResult result = new DefaultParseResult(this);
 		
-		String source = editor.getText();
+		String source = document.getText();
 		
 		try
 		{
-			source = ScriptPreprocessor.prepareForParsing(source, editor.getDocument().getTitle());
+			source = ScriptPreprocessor.prepareForParsing(source, document.getTitle());
 		}
 		catch(ScriptPreprocessor.ScriptProcessorError ex)
 		{
@@ -63,7 +63,7 @@ public class ScriptParser extends AbstractParser
 		
 		try
 		{
-			context.compileString(source, editor.getDocument().getTitle(), 1, null);
+			context.compileString(source, document.getTitle(), 1, null);
 		}
 		catch (RhinoException ex)
 		{

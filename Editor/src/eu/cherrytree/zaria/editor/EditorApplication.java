@@ -85,6 +85,7 @@ public class EditorApplication
 	private static String assetsLocation = null;
 	private static String workFilesLocation = null;
 	private static String dataBaseLocation = null;
+	private static String editorScriptsLocation = null;
 	private static String scriptsLocation = null;
 	private static String scriptJarLocation = null;
 	private static String projectName = "unknown project";
@@ -125,6 +126,9 @@ public class EditorApplication
 
 			if (dataBaseLocation == null)
 				throw new ApplicationStartupException("No data base location!");
+			
+			if (editorScriptsLocation == null)
+				throw new ApplicationStartupException("No editor scripts location!");
 			
 			if (scriptsLocation == null)
 				throw new ApplicationStartupException("No script files location!");
@@ -169,6 +173,7 @@ public class EditorApplication
 					debugConsole.addLine("Assets directory: " + assetsLocation);
 					debugConsole.addLine("Work files directory: " + workFilesLocation);
 					debugConsole.addLine("Data base directory: " + dataBaseLocation);
+					debugConsole.addLine("Editor scrtips directory: " + editorScriptsLocation);
 				}
 			});
 		}
@@ -277,6 +282,7 @@ public class EditorApplication
 					assetsLocation = element.getElementsByTagName("assets").item(0).getTextContent();
 					workFilesLocation = element.getElementsByTagName("workFiles").item(0).getTextContent();
 					dataBaseLocation = element.getElementsByTagName("database").item(0).getTextContent();
+					editorScriptsLocation = element.getElementsByTagName("editorScripts").item(0).getTextContent();
 					scriptsLocation = element.getElementsByTagName("scripts").item(0).getTextContent();					
 					scriptJarLocation = element.getElementsByTagName("scriptjar").item(0).getTextContent();
 					
@@ -293,6 +299,7 @@ public class EditorApplication
 			assetsLocation = verifyPath(root_path, assetsLocation);
 			workFilesLocation = verifyPath(root_path, workFilesLocation);
 			dataBaseLocation = verifyPath(root_path, dataBaseLocation) + File.separator + "derby";
+			editorScriptsLocation = verifyPath(root_path, editorScriptsLocation);
 			scriptsLocation = verifyPath(root_path, scriptsLocation);
 			scriptJarLocation = verifyJar(root_path, scriptJarLocation);			
 			
@@ -380,6 +387,13 @@ public class EditorApplication
 	public static String getScriptJarLocation()
 	{
 		return scriptJarLocation;
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public static String getEditorScriptsLocation()
+	{
+		return editorScriptsLocation;
 	}
 	
 	//--------------------------------------------------------------------------
