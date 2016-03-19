@@ -26,7 +26,7 @@ public class ZoneGraphOutputPort extends ZoneGraphPort
 			
 	public ZoneGraphOutputPort(Class<? extends ZariaObjectDefinition> defintionClass, float width, float height)
 	{
-		super(defintionClass, defintionClass.getSimpleName());
+		super(defintionClass, defintionClass.getSimpleName(), defintionClass.getSimpleName());
 		
 		mxGeometry geo = new mxGeometry(0.0f, 0.0f, width, height);
 		geo.setOffset(new mxPoint(0.0f, 0.0f));

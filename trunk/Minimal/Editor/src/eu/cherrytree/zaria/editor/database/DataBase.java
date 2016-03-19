@@ -115,7 +115,7 @@ public class DataBase
 	
 	//--------------------------------------------------------------------------
 	
-	public static void rebuildDataBase()
+	public static boolean rebuildDataBase()
 	{
 		try
 		{
@@ -125,10 +125,13 @@ public class DataBase
 			rebuildData();
 
 			connection.commit();
+			
+			return true;
 		}
 		catch (SQLException ex)
 		{						
 			DebugConsole.logger.log(Level.SEVERE, null,  ex);
+			return false;
 		}
 	}
 	

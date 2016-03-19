@@ -58,13 +58,13 @@ public class ZoneGraphInputPort extends ZoneGraphPort
 	
 	//--------------------------------------------------------------------------
 			
-	public ZoneGraphInputPort(Class<? extends ZariaObjectDefinition> defintionClass, String name, boolean array, float offset)
+	public ZoneGraphInputPort(Class<? extends ZariaObjectDefinition> defintionClass, String name, String displayName, boolean array, float offset)
 	{
-		super(defintionClass, name);
+		super(defintionClass, name, displayName);
 		
 		this.array = array;
 		
-		setValue(name);
+		setValue(displayName);
 		
 		mxGeometry geo = new mxGeometry(1.0f, offset, radius*3, radius*1.5);
 		geo.setOffset(new mxPoint(-radius*1.5, -radius));
