@@ -79,39 +79,43 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 		ArrayList<Class> links = new ArrayList<>();
 		ArrayList<Boolean> arrays = new ArrayList<>();
 		ArrayList<String> names = new ArrayList<>();
+		ArrayList<String> display_names = new ArrayList<>();
 		
-		for(int i = 0 ; i < fields.size() ; i++)
+		for (int i = 0 ; i < fields.size() ; i++)
 		{
-			if(!Modifier.isTransient(fields.get(i).getModifiers()))
+			if (!Modifier.isTransient(fields.get(i).getModifiers()))
 			{
-				if(Link.class.isAssignableFrom(fields.get(i).getType()))
+				if (Link.class.isAssignableFrom(fields.get(i).getType()))
 				{
 					Field field = fields.get(i);
 					field.setAccessible(true);
 					
 					links.add(PropertyTools.getSpecializationClass(field));
 					names.add(fields.get(i).getName());
+					display_names.add(fields.get(i).getName());
 					arrays.add(false);					
 				}
-				else if(LinkArray.class.isAssignableFrom(fields.get(i).getType()))
+				else if (LinkArray.class.isAssignableFrom(fields.get(i).getType()))
 				{
 					Field field = fields.get(i);
 					field.setAccessible(true);
 					
 					links.add(PropertyTools.getSpecializationClass(field));
 					names.add(fields.get(i).getName());
+					display_names.add(fields.get(i).getName());
 					arrays.add(true);					
 				} 					
 				else
 				{
 					WeakLink link = fields.get(i).getAnnotation(WeakLink.class);
 
-					if(link != null)
+					if (link != null)
 					{
 						fields.get(i).setAccessible(true);
 
 						links.add(link.value());
-						names.add(link.name().isEmpty() ? fields.get(i).getName() : link.name());
+						names.add(fields.get(i).getName());
+						display_names.add(link.name().isEmpty() ? fields.get(i).getName() : link.name());
 						arrays.add(fields.get(i).getType().isArray());
 					}
 				}
@@ -126,10 +130,10 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 		float step = size * 4.0f;
 		float width = nodeMetrics.stringWidth(definition.getClass().getSimpleName()) + step + 2.0f;
 
-		for(int i = 0 ; i < ports.length-1 ; i++)
+		for (int i = 0 ; i < ports.length-1 ; i++)
 		{
-			ports[i] = new ZoneGraphInputPort(links.get(i), names.get(i), arrays.get(i), (shift + step * i) / height);
-			width = Math.max(width, portMetrics.stringWidth(names.get(i) + ports[i].getGeometry().getWidth()));
+			ports[i] = new ZoneGraphInputPort(links.get(i), names.get(i), display_names.get(i), arrays.get(i), (shift + step * i) / height);
+			width = Math.max(width, portMetrics.stringWidth(display_names.get(i) + ports[i].getGeometry().getWidth()));
 		}
 				
 		ports[ports.length - 1] = new ZoneGraphOutputPort(definition.getClass(), width, size * 3.0f);
@@ -167,7 +171,7 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 	
 	public ZoneGraphInputPort getInputPort(int index)
 	{
-		if(index >= ports.length - 1)
+		if (index >= ports.length - 1)
 			throw new ArrayIndexOutOfBoundsException(index);
 		
 		return (ZoneGraphInputPort) ports[index];
@@ -211,9 +215,9 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 	
 	public String getNodeStyle()
 	{
-		if(selected)
+		if (selected)
 			return getSelectedStyle();
-		else if(validated)
+		else if (validated)
 			return getValidStyle();
 		else
 			return getInvalidStyle();
@@ -292,7 +296,7 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 		ZoneProperty prop = (ZoneProperty)pce.getSource();		
         prop.writeToObject(definition);
 	
-		if(prop.isLink())
+		if (prop.isLink())
 		{
 			try
 			{
@@ -305,14 +309,14 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 			
 			graph.setLinks(this);
 		}
-		else if(prop.getName().equals("id"))
+		else if (prop.getName().equals("id"))
 		{
 			caption.setValue("[" + definition.getID() + "]");
 		}
 		
 		validate();
 		
-		if(graph != null)
+		if (graph != null)
 		{
 			graph.getModel().setStyle(this, getNodeStyle());
 			graph.getDocument().setModified();
@@ -328,11 +332,11 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 		boolean val_has_errors = validation.hasErrors();
 		
 		// Inverted conditions.
-		if(validated == val_has_errors || val_has_errors)
+		if (validated == val_has_errors || val_has_errors)
 		{
 			validated = !val_has_errors;
 		
-			if(val_has_errors)
+			if (val_has_errors)
 				validationInfo = "<html>" + validation.getInfo().replaceAll("\n", "<br>") + "</html>";		
 			else
 				validationInfo = "";
@@ -350,11 +354,11 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 
 		ArrayList<ArrayList<ZoneGraphPort.LinkInfo>> link_ids = new ArrayList<>();
 		
-		for(int i = 0 ; i < fields.size() ; i++)
+		for (int i = 0 ; i < fields.size() ; i++)
 		{
-			if(!Modifier.isTransient(fields.get(i).getModifiers()))
+			if (!Modifier.isTransient(fields.get(i).getModifiers()))
 			{
-				if(Link.class.isAssignableFrom(fields.get(i).getType()))
+				if (Link.class.isAssignableFrom(fields.get(i).getType()))
 				{
 					fields.get(i).setAccessible(true);
 
@@ -362,17 +366,17 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 
 					Object obj = fields.get(i).get(definition);
 
-					if(obj != null)
+					if (obj != null)
 					{
 						Link link = (Link) obj;		
 						
-						if(link.getUUID() != null)
+						if (link.getUUID() != null)
 							ids.add(new ZoneGraphPort.LinkInfo(link.getUUID(), graph.findNode(link.getUUID()) == null));
 					}
 
 					link_ids.add(ids);
 				}
-				else if(LinkArray.class.isAssignableFrom(fields.get(i).getType()))
+				else if (LinkArray.class.isAssignableFrom(fields.get(i).getType()))
 				{
 					fields.get(i).setAccessible(true);
 
@@ -380,14 +384,14 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 
 					Object obj = fields.get(i).get(definition);
 
-					if(obj != null)
+					if (obj != null)
 					{
 						LinkArray link_array = (LinkArray) obj;		
 						
-						for(int j = 0 ; j < link_array.size() ; j++)
+						for (int j = 0 ; j < link_array.size() ; j++)
 						{
 							// Check for links not yet filled out.
-							if(link_array.getUUID(j) != null)
+							if (link_array.getUUID(j) != null)
 								ids.add(new ZoneGraphPort.LinkInfo(link_array.getUUID(j), graph.findNode(link_array.getUUID(j)) == null));
 						}
 					}
@@ -398,7 +402,7 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 				{				
 					WeakLink link = fields.get(i).getAnnotation(WeakLink.class);
 
-					if(link != null)
+					if (link != null)
 					{
 						fields.get(i).setAccessible(true);
 
@@ -406,17 +410,17 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 
 						Object obj = fields.get(i).get(definition);
 
-						if(obj != null)
+						if (obj != null)
 						{
-							if(fields.get(i).getType().isArray())
+							if (fields.get(i).getType().isArray())
 							{
 								UUID[] uuids = (UUID[]) obj;
 
-								for(int j = 0 ; j < uuids.length ; j++)
+								for (UUID uuid : uuids)
 								{
 									// Check for links not yet filled out.
-									if(uuids[j] != null)
-										ids.add(new ZoneGraphPort.LinkInfo(uuids[j], graph.findNode(uuids[j]) == null));
+									if (uuid != null)
+										ids.add(new ZoneGraphPort.LinkInfo(uuid, graph.findNode(uuid) == null));
 								}
 							}
 							else
@@ -432,39 +436,10 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 			}
 		}
 				
-		for(int i = 0 ; i < ports.length-1 ; i++)
+		for (int i = 0 ; i < ports.length-1 ; i++)
 		{
 			ports[i].setLinks(link_ids.get(i));
 			ports[i].update(graph);
-		}
-	}
-	
-	//--------------------------------------------------------------------------
-	
-	private void updateOutputLinks(UUID oldUUID, UUID newUUID)
-	{
-		ZoneGraphPort port = getOutputPort();
-				
-		int nofedges = port.getEdgeCount();
-		
-		for(int i = 0 ; i < nofedges ; i++)
-		{
-			mxCell portedge = (mxCell) port.getEdgeAt(i);
-
-			ZoneGraphInputPort srcport;
-			
-			if(portedge.getSource() instanceof ZoneGraphInputPort)
-				srcport = (ZoneGraphInputPort) portedge.getSource();				
-			else
-				srcport = (ZoneGraphInputPort) portedge.getTarget();
-			
-			ZoneGraphNode src = (ZoneGraphNode) srcport.getParent();
-			
-			srcport.removeLink(oldUUID);
-			srcport.getLinks().add(new ZoneGraphPort.LinkInfo(newUUID, false));
-			srcport.update(graph);
-			
-			src.updateInputLinks(srcport);
 		}
 	}
 	
@@ -480,14 +455,16 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 			
 			UUID [] uuids = new UUID[port.getLinks().size()];
 			
-			for(int i = 0 ; i < port.getLinks().size() ; i++)
+			for (int i = 0 ; i < port.getLinks().size() ; i++)
 				uuids[i] = port.getLinks().get(i).getUUID();
 			
 			// Inputting an array.
-			if(uuids.length > 1)
+			if (uuids.length > 1)
 			{								
-				if(LinkArray.class.isAssignableFrom(field.getType()))						
+				if (LinkArray.class.isAssignableFrom(field.getType()))	
+				{					
 					field.set(definition, PropertyTools.createNewLinkArray(uuids));
+				}
 				else
 				{
 					assert field.getType().isArray();
@@ -496,13 +473,13 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 				}
 			}
 			// Inputting a single element.
-			else if(uuids.length > 0)
+			else if (uuids.length > 0)
 			{
-				if(field.getType().isArray())
+				if (field.getType().isArray())
 					field.set(definition, uuids);
-				else if(LinkArray.class.isAssignableFrom(field.getType()))						
+				else if (LinkArray.class.isAssignableFrom(field.getType()))						
 					field.set(definition, PropertyTools.createNewLinkArray(uuids));
-				else if(Link.class.isAssignableFrom(field.getType()))
+				else if (Link.class.isAssignableFrom(field.getType()))
 					field.set(definition, PropertyTools.createNewLink(uuids[0]));
 				else
 					field.set(definition, uuids[0]);
@@ -510,11 +487,11 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 			// Inputting empty.
 			else
 			{
-				if(field.getType().isArray())
+				if (field.getType().isArray())
 					field.set(definition, new String[0]);
-				else if(Link.class.isAssignableFrom(field.getType()))
+				else if (Link.class.isAssignableFrom(field.getType()))
 					field.set(definition, PropertyTools.createNewLink(null));
-				else if(LinkArray.class.isAssignableFrom(field.getType()))						
+				else if (LinkArray.class.isAssignableFrom(field.getType()))						
 					field.set(definition, PropertyTools.createNewLinkArray(new UUID[0]));
 				else
 					field.set(definition, "");
@@ -534,15 +511,15 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 	{
 //		graph.setEventsEnabled(false);
 		
-		for(ZoneGraphPort port : ports)
+		for (ZoneGraphPort port : ports)
 		{
-			if(port.getName().equals(field))
+			if (port.getName().equals(field))
 			{
 				boolean external = graph.findNode(uuid) == null;
 				
-				if(!port.isArray())
+				if (!port.isArray())
 				{
-					if((external && port.getEdgeCount() > 0) || port.getEdgeCount() > 1)
+					if ((external && port.getEdgeCount() > 0) || port.getEdgeCount() > 1)
 						graph.removeCells(new Object[]{port.getEdgeAt(0)});				
 					
 					port.getLinks().clear();
@@ -569,9 +546,9 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 	{
 //		graph.setEventsEnabled(false);
 		
-		for(ZoneGraphPort port : ports)
+		for (ZoneGraphPort port : ports)
 		{
-			if(port.getName().equals(field))
+			if (port.getName().equals(field))
 			{
 				port.removeLink(uuid);
 				port.update(graph);

@@ -36,6 +36,7 @@ import eu.cherrytree.zaria.editor.datamodels.palette.ScriptPaletteDataModel;
 import eu.cherrytree.zaria.editor.datamodels.palette.ZonePaletteDataModel;
 import eu.cherrytree.zaria.editor.dialogs.ExtendedInformationDialog;
 import eu.cherrytree.zaria.editor.dialogs.TextureAtlasDialog;
+import eu.cherrytree.zaria.editor.dialogs.WaitDialog;
 import eu.cherrytree.zaria.editor.document.GraphEditorState;
 import eu.cherrytree.zaria.editor.scripting.JarCreator;
 import eu.cherrytree.zaria.editor.properties.Property;
@@ -1398,8 +1399,25 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			((GraphEditorState) documentManager.getCurrentDocument().getEditorState(ZoneDocument.EditType.GRAPH_EDIT)).resetZoom();
 		}
 		else if (event.getSource() == rebuildDataBaseMenuItem)
-		{
-			DataBase.rebuildDataBase();
+		{			
+			DocumentManager.showWaitDialog("Rebuilding database. Please wait...", new WaitDialog.ResultRunnable<Boolean>()
+			{
+				boolean result;
+				
+				@Override
+				public Boolean get()
+				{
+					return result;
+				}
+
+				@Override
+				public void run()
+				{
+					result = DataBase.rebuildDataBase();
+
+					finish();
+				}
+			});				
 		}
 		else if (event.getSource() == textSizeButton_8)
 		{

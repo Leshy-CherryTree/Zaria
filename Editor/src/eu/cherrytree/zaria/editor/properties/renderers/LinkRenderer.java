@@ -1,7 +1,7 @@
 /****************************************/
-/* LinkRenderer.java					*/
+/* LinkRenderer.java						*/
 /* Created on: 13-Mar-2015				*/
-/* Copyright Cherry Tree Studio 2015	*/
+/* Copyright Cherry Tree Studio 2015		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 

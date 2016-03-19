@@ -1032,7 +1032,11 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		ZoneGraphNode src = (ZoneGraphNode) srcport.getParent();
 		
 		ZoneGraphPort tgtport = (ZoneGraphPort) evt.getProperty("terminal");
-		ZoneGraphNode tgt = (ZoneGraphNode) tgtport.getParent();		
+		ZoneGraphNode tgt = (ZoneGraphNode) tgtport.getParent();	
+		
+		// When we get callback about the second part of the connection, ignore it.
+		if (src == tgt)
+			return;
 		
 		if (srcport.isInput())
 		{

@@ -9,6 +9,7 @@ package eu.cherrytree.zaria.editor.dialogs.textureatlas;
 
 import eu.cherrytree.zaria.editor.EditorApplication;
 import eu.cherrytree.zaria.editor.ReflectionTools;
+import eu.cherrytree.zaria.editor.database.DataBase;
 import eu.cherrytree.zaria.editor.document.ZoneDocument;
 import eu.cherrytree.zaria.editor.document.ZoneMetadata;
 import eu.cherrytree.zaria.editor.serialization.Serializer;
@@ -107,9 +108,12 @@ public class Atlas
 			index++;
 		}
 		
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(EditorApplication.getAssetsLocation() + path + ".zone"))))
-		{
+		File file = new File(EditorApplication.getAssetsLocation() + path + ".zone");		
+		
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file)))
+		{			
 			writer.write(Serializer.getText(areas));
+			DataBase.save(areas, file.getAbsolutePath());
 		}
 	}
 	
