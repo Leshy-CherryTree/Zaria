@@ -10,6 +10,7 @@ package eu.cherrytree.zaria.editor;
 import eu.cherrytree.zaria.editor.database.DataBase;
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
 import eu.cherrytree.zaria.editor.document.ZoneDocument;
+import eu.cherrytree.zaria.editor.document.ZoneMetadata;
 import eu.cherrytree.zaria.editor.serialization.Serializer;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 
@@ -17,9 +18,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaObject;
@@ -132,6 +138,18 @@ public class ScriptInterface
 		ZariaObjectDefinition[] def_array = new ZariaObjectDefinition[defs.size()];
 		defs.toArray(def_array);
 		
+		int idx = 0;
+		for (ZariaObjectDefinition def : def_array)
+		{
+			ZoneMetadata metadata = new ZoneMetadata();
+			metadata.setLocX(50);
+			metadata.setLocY(25 + 100 * idx);
+			
+			idx++;
+			
+			ZoneDocument.saveMetadata(def, metadata);
+		}
+		
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file)))
 		{
 			writer.write(ZoneDocument.getNewHeader(file.getName()) + Serializer.getText(def_array));
@@ -181,6 +199,25 @@ public class ScriptInterface
 			
 			if (def != null)
 				ReflectionTools.setDefinitionFieldValue(def, "id", id);
+			else
+				EditorApplication.getDebugConsole().addLine("Script: input object is not a ZariaObjectDefinition.");
+		}
+		catch (SecurityException | IllegalArgumentException | NoSuchFieldException ex)
+		{
+			DebugConsole.logger.log(Level.SEVERE, null, ex);
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static void generateUUID(NativeObject object, String string)
+	{
+		try
+		{
+			ZariaObjectDefinition def = object.getDefinition();
+			
+			if (def != null)
+				ReflectionTools.setDefinitionFieldValue(def, "uuid", UUID.nameUUIDFromBytes(string.getBytes()));
 			else
 				EditorApplication.getDebugConsole().addLine("Script: input object is not a ZariaObjectDefinition.");
 		}
@@ -251,7 +288,7 @@ public class ScriptInterface
 			ZariaObjectDefinition def = object.getDefinition();
 			
 			if (def != null)
-				ReflectionTools.setDefinitionFieldValue(def, field, value);
+				ReflectionTools.setDefinitionFieldValue(def, field, (float) value);
 			else
 				EditorApplication.getDebugConsole().addLine("Script: input object is not a ZariaObjectDefinition.");
 		}
@@ -286,7 +323,7 @@ public class ScriptInterface
 	{
 		try
 		{
-			ZariaObjectDefinition valueDef = object.getDefinition();
+			ZariaObjectDefinition valueDef = value.getDefinition();
 			
 			if (valueDef != null)
 			{
@@ -341,6 +378,38 @@ public class ScriptInterface
 		catch (SecurityException | IllegalArgumentException | NoSuchFieldException ex)
 		{
 			DebugConsole.logger.log(Level.SEVERE, null, ex);
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static void setEnum(NativeObject object, String field, String value)
+	{				
+		ZariaObjectDefinition def = object.getDefinition();
+			
+		if (def != null)
+		{
+			try
+			{
+				Field f = ReflectionTools.getField(def.getClass(), field);
+				
+				Method values = f.getType().getDeclaredMethod("values");				
+				Object array = values.invoke(null);
+				
+				int len = Array.getLength(array);
+				
+				for(int i = 0 ; i < len ; i++)
+				{
+					Object val = Array.get(array, i);
+					
+					if (val.toString().equals(value))
+						ReflectionTools.setDefinitionFieldValue(def, field, val);
+				}
+			}
+			catch (NoSuchFieldException | SecurityException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex)
+			{
+				DebugConsole.logger.log(Level.SEVERE, null, ex);
+			}
 		}
 	}
 	
