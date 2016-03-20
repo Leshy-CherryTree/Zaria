@@ -232,7 +232,7 @@ public class RunScriptDialog extends JDialog implements ActionListener, ScriptDo
 			layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 			.addGroup(layout.createSequentialGroup()
 				.addContainerGap()
-				.addComponent(pane, GroupLayout.DEFAULT_SIZE, 996, Short.MAX_VALUE)
+				.addComponent(pane, GroupLayout.DEFAULT_SIZE, 680, Short.MAX_VALUE)
 				.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
 				.addComponent(buttonPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 				.addContainerGap())

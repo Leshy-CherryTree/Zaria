@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import javax.swing.ImageIcon;
@@ -97,7 +98,7 @@ public class EditorApplication
 	//--------------------------------------------------------------------------
 
 	public static void main(String args[])
-	{	
+	{			
 		try
 		{
 			System.setProperty("file.encoding", "UTF-8");
