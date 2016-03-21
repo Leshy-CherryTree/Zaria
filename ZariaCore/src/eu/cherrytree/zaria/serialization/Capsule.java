@@ -7,6 +7,7 @@
 
 package eu.cherrytree.zaria.serialization;
 
+import eu.cherrytree.zaria.base.ApplicationInstance;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -45,6 +46,8 @@ public final class Capsule implements SaveCapsule, LoadCapsule
 	
 	public static LoadCapsule loadCapsule(String path) throws FileNotFoundException, IOException, ClassNotFoundException
 	{		
+		path = ApplicationInstance.getSavePath() + path;
+		
 		try (FileInputStream filein = new FileInputStream(path) ; ObjectInputStream in = new ObjectInputStream(filein))
 		{
 			return (LoadCapsule) in.readObject();
@@ -55,6 +58,8 @@ public final class Capsule implements SaveCapsule, LoadCapsule
 	
 	public static void saveCapsule(String path, SaveCapsule capsule) throws FileNotFoundException, IOException
 	{
+		path = ApplicationInstance.getSavePath() + path;
+		
 		File saveFile = new File(path);
 		
 		if(!saveFile.exists())

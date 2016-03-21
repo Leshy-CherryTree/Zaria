@@ -375,7 +375,7 @@ public abstract class ZariaApplication<States extends Enum>
 		
 		ZariaApplicationState state = createState(stateMachine.getState());
 		
-		state.init(this, console, stateMachine.getStartParams());
+		state.init(this, console, stateMachine, stateMachine.getStartParams());
 		
 		currentState = state;
 
@@ -411,13 +411,6 @@ public abstract class ZariaApplication<States extends Enum>
 		currentState.renderState(deltatime);
 		
 		console.render(deltatime);
-	}
-	
-	//--------------------------------------------------------------------------
-
-	protected final void attachState(ZariaApplicationState state)
-	{
-		currentState = state;			
 	}
 
 	//--------------------------------------------------------------------------
