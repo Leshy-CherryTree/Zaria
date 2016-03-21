@@ -53,13 +53,30 @@ public abstract class ZariaApplicationState<Params extends ApplicationStateParam
 
 	private ArrayList<ConsoleCommand> commands = new ArrayList<>();
 	
+	private StateMachineInterface<Enum, ApplicationStateParams> stateMachine;
+	
 	//--------------------------------------------------------------------------
 	
-	final void init(ZariaApplication application, Console console, Params initParams)
+	protected void setState(Enum state, ApplicationStateParams params)
 	{
+		assert stateMachine != null;
+		
+		stateMachine.setState(state, params);
+	}
+			
+	//--------------------------------------------------------------------------
+	
+	final void init(ZariaApplication application, Console console, StateMachineInterface<Enum, ApplicationStateParams> stateMachine, Params initParams)
+	{
+		assert initParams != null;
+		assert application != null;
+		assert console != null;
+		assert stateMachine != null;
+		
 		this.stateParams = initParams;
 		this.application = application;
 		this.console = console;
+		this.stateMachine = stateMachine;
 		
 		onInit(initParams);
 	}

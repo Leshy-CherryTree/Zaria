@@ -1,9 +1,9 @@
 /****************************************/
-/* StateMachine.java					*/
+/* StateMachine.java						*/
 /* Created on: Feb 2, 2012				*/
-/* Copyright Cherry Tree Studio 2012	*/
+/* Copyright Cherry Tree Studio 2012		*/
 /* Released under EUPL v1.1				*/
-/* Ported from the jPAJ project.		*/
+/* Ported from the jPAJ project.			*/
 /****************************************/
 
 package eu.cherrytree.zaria.base;
