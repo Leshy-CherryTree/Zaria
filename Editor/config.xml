@@ -4,6 +4,7 @@
 	<project>Test Project</project>
 	<assets>../TestApps/MapView/assets</assets>
 	<workFiles>../TestApps/MapView/work_files</workFiles>
+	<editorScripts>../TestApps/MapView/editor_scripts</editorScripts>
 	<database>../TestApps/MapView/database</database>
 	<scripts>../TestApps/MapView/scripts</scripts>
 	<scriptjar>../TestApps/MapView/dist/lib/scripts.jar</scriptjar>
