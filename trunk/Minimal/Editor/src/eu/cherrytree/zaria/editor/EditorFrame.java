@@ -372,10 +372,8 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			
 	// File menu
 	private JMenu fileMenu = new JMenu();	
-	private JMenu newGameMenu = new JMenu();		
 	private JMenuItem newGameZoneMenuItem;	
 	private JMenuItem newGameLibraryMenuItem;	
-	private JMenu newEditorMenu = new JMenu();	
 	private JMenuItem newScriptMenuItem;
 	private JMenuItem openMenuItem;
 	private JMenu recentMenu = new JMenu();
@@ -816,19 +814,9 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		fileMenu.setText("File");
 		fileMenu.setMnemonic('f');
 
-		newGameMenu.setText("New Game File");
-		newGameMenu.setIcon(new ImageIcon(getClass().getResource("/eu/cherrytree/zaria/editor/res/icons/small/document-new.png")));
-		
-		newGameZoneMenuItem = initMenuItem("New Zone", "document-new-zone.png", null, newGameMenu);
-		newGameLibraryMenuItem = initMenuItem("New Zone Library", "document-new-library.png", null, newGameMenu);
-		
-		fileMenu.add(newGameMenu);
-		
-		newEditorMenu.setText("New Work File");
-		newEditorMenu.setIcon(new ImageIcon(getClass().getResource("/eu/cherrytree/zaria/editor/res/icons/small/document-new.png")));
-																		
-		fileMenu.add(newEditorMenu);
-		
+		newGameZoneMenuItem = initMenuItem("New Zone", "document-new-zone.png", null, fileMenu);
+		newGameLibraryMenuItem = initMenuItem("New Zone Library", "document-new-library.png", null, fileMenu);
+			
 		newScriptMenuItem = initMenuItem("New Zone Script", "document-new-script.png", null, fileMenu);
 		
 		fileMenu.add(new JPopupMenu.Separator());
