@@ -1,12 +1,13 @@
 /****************************************/
-/* ScriptParser.java						*/
+/* ScriptParser.java					*/
 /* Created on: 31-May-2014				*/
-/* Copyright Cherry Tree Studio 2014		*/
+/* Copyright Cherry Tree Studio 2014	*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
 package eu.cherrytree.zaria.editor.document.parsers;
 
+import eu.cherrytree.zaria.editor.EditorApplication;
 import eu.cherrytree.zaria.editor.document.TextEditorState;
 import eu.cherrytree.zaria.scripting.preprocessor.ScriptPreprocessor;
 
@@ -28,13 +29,16 @@ public class ScriptParser extends AbstractParser
 	//--------------------------------------------------------------------------
 	
 	private ScriptDocument document;
+	private String location;
 	
 	//--------------------------------------------------------------------------
 	
-	public ScriptParser(ScriptDocument document)
+	public ScriptParser(ScriptDocument document, String location)
 	{
-		this.document = document;	
+		this.document = document;
+		this.location = location;
 	}
+	
 	//--------------------------------------------------------------------------
 
 	@Override
@@ -48,6 +52,7 @@ public class ScriptParser extends AbstractParser
 		
 		try
 		{
+			ScriptPreprocessor.setScriptLocation(location);
 			source = ScriptPreprocessor.prepareForParsing(source, document.getTitle());
 		}
 		catch(ScriptPreprocessor.ScriptProcessorError ex)

@@ -7,6 +7,7 @@
 
 package eu.cherrytree.zaria.editor.document;
 
+import eu.cherrytree.zaria.editor.EditorApplication;
 import eu.cherrytree.zaria.editor.document.parsers.ZoneParser;
 import eu.cherrytree.zaria.editor.Settings;
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
@@ -138,7 +139,7 @@ public class TextEditorState implements EditorState, DocumentListener, ScriptDoc
 				break;
 				
 			case ZONE_SCRIPT:
-				textArea.addParser(new ScriptParser(this));
+				textArea.addParser(new ScriptParser(this, EditorApplication.getScriptsLocation()));
 				break;
 					
 		}

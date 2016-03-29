@@ -156,7 +156,7 @@ public class RunScriptDialog extends JDialog implements ActionListener, ScriptDo
 		textArea.setAutoIndentEnabled(true);		
 		textArea.setCloseCurlyBraces(true);
 		textArea.setCodeFoldingEnabled(true);		
-		textArea.addParser(new ScriptParser(this));
+		textArea.addParser(new ScriptParser(this, EditorApplication.getEditorScriptsLocation()));
 		
 		textArea.setAntiAliasingEnabled(TextEditorState.isAntialiasingEnabled());
 		textArea.setFractionalFontMetricsEnabled(TextEditorState.isFractionalFontMetricsEnabled());
