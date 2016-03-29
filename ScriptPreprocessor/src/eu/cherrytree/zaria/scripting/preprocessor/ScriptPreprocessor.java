@@ -1,7 +1,7 @@
 /****************************************/
 /* ScriptPreprocessor.java				*/
 /* Created on: 07-Jun-2014				*/
-/* Copyright Cherry Tree Studio 2014		*/
+/* Copyright Cherry Tree Studio 2014	*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -49,6 +49,7 @@ public class ScriptPreprocessor
 		System.out.println("Preprocessing all zone script files.");
 		System.out.println();
 		
+		scriptLocation = args[0];
 		int errors = processDir(new File(args[0]), new File(args[1]));
 
 		if (errors > 0)
