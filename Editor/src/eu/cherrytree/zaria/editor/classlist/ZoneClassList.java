@@ -13,6 +13,7 @@ import eu.cherrytree.zaria.editor.EditorApplication;
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
 import eu.cherrytree.zaria.editor.serialization.Serializer;
 import eu.cherrytree.zaria.scripting.annotations.ScriptFunction;
+import eu.cherrytree.zaria.scripting.annotations.ScriptMethod;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 
 import java.io.IOException;
@@ -28,6 +29,7 @@ import java.util.logging.Level;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
@@ -44,7 +46,8 @@ public class ZoneClassList
 	//--------------------------------------------------------------------------
 	
 	private ArrayList<ZoneClass> classes = new ArrayList<>();
-	private ArrayList<ZoneScriptFunction> scriptFunctions = new ArrayList<>();
+	private ArrayList<ZoneScriptStaticFunction> scriptFunctions = new ArrayList<>();
+	private ArrayList<ZoneScriptMethod> scriptMethods = new ArrayList<>();
 	
 	//--------------------------------------------------------------------------
 	
@@ -55,9 +58,16 @@ public class ZoneClassList
 	
 	//--------------------------------------------------------------------------
 	
-	public ArrayList<ZoneScriptFunction> getScriptFunctions()
+	public ArrayList<ZoneScriptStaticFunction> getScriptFunctions()
 	{
 		return scriptFunctions;
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public ArrayList<ZoneScriptMethod> getScriptMethods()
+	{
+		return scriptMethods;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -66,9 +76,9 @@ public class ZoneClassList
 	{
 		ArrayList<ZoneClass> ret = new ArrayList<>();
 					
-		for(ZoneClass zcls : classes)
+		for (ZoneClass zcls : classes)
 		{
-			if(cls.isAssignableFrom(zcls.getObjectClass()))
+			if (cls.isAssignableFrom(zcls.getObjectClass()))
 				ret.add(zcls);
 		}
 			
@@ -103,18 +113,31 @@ public class ZoneClassList
 			
 	private void loadBaseClasses()
 	{		
-		Reflections reflections = new Reflections("eu.cherrytree.zaria");
+		Reflections reflections = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forPackage("eu.cherrytree.zaria")).setScanners(new SubTypesScanner(false)));
 		Set<Class<? extends ZariaObjectDefinition>> subTypes = reflections.getSubTypesOf(ZariaObjectDefinition.class);
 		
-		for(Class<? extends ZariaObjectDefinition> c : subTypes)
+		for (Class<? extends ZariaObjectDefinition> c : subTypes)
 			addClass(c);
+				
+		Set<Class<? extends Object>> all = reflections.getSubTypesOf(Object.class);
+		
+		for (Class<? extends Object> cls : all)
+		{	
+			for (Method method : cls.getMethods())
+			{
+				ScriptMethod m_annotation = method.getAnnotation(ScriptMethod.class);
+				
+				if (m_annotation != null)
+					scriptMethods.add(new ZoneScriptMethod(method, cls, m_annotation));
+			}
+		}
 		
 		reflections = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forPackage("eu.cherrytree.zaria")).setScanners(new MethodAnnotationsScanner()));
 		
 		Set<Method> functions = reflections.getMethodsAnnotatedWith(ScriptFunction.class);
 						
-		for(Method method : functions)
-			scriptFunctions.add(new ZoneScriptFunction(method, method.getAnnotation(ScriptFunction.class)));
+		for (Method function : functions)
+			scriptFunctions.add(new ZoneScriptStaticFunction(function, function.getAnnotation(ScriptFunction.class)));				
 	}
 	
 	//--------------------------------------------------------------------------
@@ -124,11 +147,11 @@ public class ZoneClassList
 		JarFile jarFile = new JarFile(jarPath);
 		Enumeration<JarEntry> e = jarFile.entries();
 		
-		while(e.hasMoreElements())
+		while (e.hasMoreElements())
 		{
 			JarEntry je = (JarEntry) e.nextElement();
 			 
-			if(je.isDirectory() || !je.getName().endsWith(".class"))
+			if (je.isDirectory() || !je.getName().endsWith(".class"))
 				continue;
 			
 			String className = je.getName().substring(0, je.getName().length() - 6);
@@ -144,18 +167,18 @@ public class ZoneClassList
 		
 		String [] jar_paths = Serializer.getJarPaths();
 	
-		for(int i = 0 ; i < jar_paths.length ; i++)
-			getClassNames(jar_paths[i], classNames);
+		for (String jar_path : jar_paths)
+			getClassNames(jar_path, classNames);
 		
 		ClassLoader jarLoader = Serializer.getJarLoader();
 		
-		for(String className : classNames)
+		for (String className : classNames)
 		{
 			try
 			{
 				Class<?> c = jarLoader.loadClass(className);
 												
-				if(ZariaObjectDefinition.class.isAssignableFrom(c))
+				if (ZariaObjectDefinition.class.isAssignableFrom(c))
 					addClass((Class<? extends ZariaObjectDefinition>) c);
 				
 				findScriptFunctions(c);
@@ -172,16 +195,16 @@ public class ZoneClassList
 	private void addClass(Class<? extends ZariaObjectDefinition> cls)
 	{
 		// Check if this class is not in the excludes list.
-		for(String excl : excludes)
+		for (String excl : excludes)
 		{
-			if(cls.getCanonicalName().equals(excl))
+			if (cls.getCanonicalName().equals(excl))
 				return;
 		}
 		
 		// Check if the class can be created.
 		int modifiers = cls.getModifiers();
 		
-		if(Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers))
+		if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers))
 			return;
 		
 		// Load class data.
@@ -200,16 +223,23 @@ public class ZoneClassList
 	
 	private void findScriptFunctions(Class cls)
 	{
-		for(Method method : cls.getDeclaredMethods())
+		for (Method method : cls.getDeclaredMethods())
 		{
 			int modifiers = method.getModifiers();
 			
-			if(Modifier.isStatic(modifiers))
+			if (Modifier.isStatic(modifiers))
 			{
-				ScriptFunction annotation = method.getAnnotation(ScriptFunction.class);
+				ScriptFunction f_annotation = method.getAnnotation(ScriptFunction.class);
 				
-				if(annotation != null)
-					scriptFunctions.add(new ZoneScriptFunction(method, annotation));
+				if (f_annotation != null)
+					scriptFunctions.add(new ZoneScriptStaticFunction(method, f_annotation));								
+			}
+			else
+			{
+				ScriptMethod m_annotation = method.getAnnotation(ScriptMethod.class);
+				
+				if (m_annotation != null)
+					scriptMethods.add(new ZoneScriptMethod(method, cls, m_annotation));
 			}
 		}
 	}

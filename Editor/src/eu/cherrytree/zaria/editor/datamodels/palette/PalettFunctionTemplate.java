@@ -7,7 +7,7 @@
 
 package eu.cherrytree.zaria.editor.datamodels.palette;
 
-import eu.cherrytree.zaria.editor.classlist.ZoneScriptFunction;
+import eu.cherrytree.zaria.editor.classlist.ZoneScriptStaticFunction;
 import eu.cherrytree.zaria.editor.components.ButtonTabComponent;
 
 import java.awt.datatransfer.DataFlavor;
@@ -42,7 +42,7 @@ public class PalettFunctionTemplate extends PaletteElement<PalettFunctionTemplat
 	
 	//--------------------------------------------------------------------------
 	
-	public PalettFunctionTemplate(ZoneScriptFunction function)
+	public PalettFunctionTemplate(ZoneScriptStaticFunction function)
 	{
 		super(function.getName());
 		

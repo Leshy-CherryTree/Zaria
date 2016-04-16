@@ -207,7 +207,7 @@ public class ZoneDocument
 			case ZONE:
 				currentState = EditType.GRAPH_EDIT;
 			
-				states[EditType.TEXT_EDIT.ordinal()] = new TextEditorState(text, this);
+				states[EditType.TEXT_EDIT.ordinal()] = new TextEditorState(text, this, zoneClassList);
 				states[EditType.GRAPH_EDIT.ordinal()] = new GraphEditorState(text, this, propertySheetPanel, popupMenu, zoneClassList);
 				
 				break;
@@ -216,7 +216,7 @@ public class ZoneDocument
 			case ZONE_SCRIPT:
 				currentState = EditType.TEXT_EDIT;
 				
-				states[EditType.TEXT_EDIT.ordinal()] = new TextEditorState(text, this);
+				states[EditType.TEXT_EDIT.ordinal()] = new TextEditorState(text, this, zoneClassList);
 				states[EditType.GRAPH_EDIT.ordinal()] = null;
 				
 				break;

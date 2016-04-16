@@ -8,7 +8,7 @@
 package eu.cherrytree.zaria.editor.datamodels.palette;
 
 import eu.cherrytree.zaria.editor.classlist.ZoneClassList;
-import eu.cherrytree.zaria.editor.classlist.ZoneScriptFunction;
+import eu.cherrytree.zaria.editor.classlist.ZoneScriptStaticFunction;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 
@@ -37,7 +37,7 @@ public class ScriptPaletteDataModel extends PaletteDataModel
 	{
 		root = new PaletteRoot();
 		
-		for(ZoneScriptFunction function : classList.getScriptFunctions())
+		for(ZoneScriptStaticFunction function : classList.getScriptFunctions())
 		{
 			String cat = function.getCategory();
 

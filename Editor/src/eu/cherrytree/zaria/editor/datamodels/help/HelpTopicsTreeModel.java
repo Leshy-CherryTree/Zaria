@@ -7,7 +7,7 @@
 
 package eu.cherrytree.zaria.editor.datamodels.help;
 
-import eu.cherrytree.zaria.editor.classlist.ZoneScriptFunction;
+import eu.cherrytree.zaria.editor.classlist.ZoneScriptStaticFunction;
 import java.util.ArrayList;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
@@ -25,12 +25,12 @@ public class HelpTopicsTreeModel implements TreeModel
 
 	//--------------------------------------------------------------------------
 	
-	public HelpTopicsTreeModel(String[] links, String base, ArrayList<ZoneScriptFunction> functions)
+	public HelpTopicsTreeModel(String[] links, String base, ArrayList<ZoneScriptStaticFunction> functions)
 	{
 		for(String link : links)
 			createHtmlTopic(link.replace(base, ""), link);
 		
-		for(ZoneScriptFunction function : functions)
+		for(ZoneScriptStaticFunction function : functions)
 			createFunctionTopic(function);
 	}
 	
@@ -49,7 +49,7 @@ public class HelpTopicsTreeModel implements TreeModel
 	
 	//--------------------------------------------------------------------------
 	
-	private void createFunctionTopic(ZoneScriptFunction function)
+	private void createFunctionTopic(ZoneScriptStaticFunction function)
 	{	
 		HelpTopicCategory category = root.getCategory("Scripting").getCategory("Functions").getCategory(function.getCategory());		
 		category.addTopic(new ZoneFunctionHelpTopic(function));
