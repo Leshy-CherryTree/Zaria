@@ -65,7 +65,7 @@ public class ScriptFunctionCompletion extends AbstractCompletion
 	@Override
 	public String toString()
 	{
-		return function.getName() + " - " + function.getSignature() + " [" + function.getCategory() + "]";
+		return function.getName() + " - " + function.getSignature() + " - [" + function.getCategory() + "]";
 	}
 
 	//--------------------------------------------------------------------------

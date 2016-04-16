@@ -107,6 +107,38 @@ public class ZoneClassList
 		
 		loadBaseClasses();
 		loadFromJars();	
+		
+		// Making sure that all methds are here only for their most base types.
+		ArrayList<ZoneScriptMethod> newScriptMethods = new ArrayList<>();
+		
+		for (ZoneScriptMethod method : scriptMethods)
+		{
+			boolean can_add = true;
+			
+			for (ZoneScriptMethod new_method : newScriptMethods)
+			{
+				if (new_method.getSignature().equals(method.getSignature()))
+				{
+					if (new_method.getType().isAssignableFrom(method.getType()))
+					{
+						can_add = false;
+						break;
+					}
+					else if (method.getType().isAssignableFrom(new_method.getType()))
+					{
+						newScriptMethods.remove(new_method);
+						break;
+					}
+				}
+			}
+			
+			if (can_add)
+			{
+				newScriptMethods.add(method);
+			}
+		}
+		
+		scriptMethods = newScriptMethods;
 	}
 	
 	//--------------------------------------------------------------------------
