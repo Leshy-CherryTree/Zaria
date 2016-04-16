@@ -10,7 +10,9 @@ package eu.cherrytree.zaria.editor.document;
 import eu.cherrytree.zaria.editor.EditorApplication;
 import eu.cherrytree.zaria.editor.document.parsers.ZoneParser;
 import eu.cherrytree.zaria.editor.Settings;
+import eu.cherrytree.zaria.editor.classlist.ZoneClassList;
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
+import eu.cherrytree.zaria.editor.document.autocomplete.ScriptCompletionProvider;
 import eu.cherrytree.zaria.editor.document.parsers.ScriptDocument;
 import eu.cherrytree.zaria.editor.document.parsers.ScriptParser;
 import eu.cherrytree.zaria.editor.modes.ZoneTokenMaker;
@@ -35,9 +37,16 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.TextAction;
 
+import org.fife.ui.autocomplete.AutoCompletion;
+import org.fife.ui.autocomplete.BasicCompletion;
+import org.fife.ui.autocomplete.CompletionProvider;
+import org.fife.ui.autocomplete.DefaultCompletionProvider;
+import org.fife.ui.autocomplete.ShorthandCompletion;
+
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Style;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
@@ -112,7 +121,7 @@ public class TextEditorState implements EditorState, DocumentListener, ScriptDoc
 	
 	//--------------------------------------------------------------------------
 
-	public TextEditorState(String text, ZoneDocument document)
+	public TextEditorState(String text, ZoneDocument document, ZoneClassList classList)
 	{		
 		this.document = document;
 
@@ -139,10 +148,14 @@ public class TextEditorState implements EditorState, DocumentListener, ScriptDoc
 				break;
 				
 			case ZONE_SCRIPT:
+			{
 				textArea.addParser(new ScriptParser(this, EditorApplication.getScriptsLocation()));
-				break;
-					
-		}
+					     
+				AutoCompletion ac = new AutoCompletion(new ScriptCompletionProvider(classList));
+				ac.install(textArea);
+			}
+				break;					
+		}				
 		
 		updateSettings();				
 				

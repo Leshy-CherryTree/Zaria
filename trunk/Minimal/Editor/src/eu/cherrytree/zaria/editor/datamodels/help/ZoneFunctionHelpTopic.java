@@ -7,7 +7,7 @@
 
 package eu.cherrytree.zaria.editor.datamodels.help;
 
-import eu.cherrytree.zaria.editor.classlist.ZoneScriptFunction;
+import eu.cherrytree.zaria.editor.classlist.ZoneScriptStaticFunction;
 import java.net.URL;
 
 /**
@@ -22,7 +22,7 @@ public class ZoneFunctionHelpTopic extends HelpTopic
 	
 	//--------------------------------------------------------------------------
 
-	public ZoneFunctionHelpTopic(ZoneScriptFunction function)
+	public ZoneFunctionHelpTopic(ZoneScriptStaticFunction function)
 	{
 		StringBuilder page_builder = new StringBuilder();
 		
@@ -57,7 +57,7 @@ public class ZoneFunctionHelpTopic extends HelpTopic
 		
 		page_builder.append("<ul>\n");
 			
-		for(ZoneScriptFunction.FunctionParameterInfo param : function.getParameters())
+		for(ZoneScriptStaticFunction.FunctionParameterInfo param : function.getParameters())
 			page_builder.append("<li>").append(param.getName()).append(" - ").append("(<b>").append(param.getType().getSimpleName()).append("</b>) ").append(param.getDescription()).append("</li>\n");
 					
 		page_builder.append("\t<ul>\n");

@@ -1,20 +1,19 @@
 /****************************************/
-/* ZoneScriptFunction.java				*/
-/* Created on: 06-Jul-2014				*/
-/* Copyright Cherry Tree Studio 2014	*/
+/* ZoneScriptMethod.java					*/
+/* Created on: 16-04-2016				*/
+/* Copyright Cherry Tree Studio 2016	*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
 package eu.cherrytree.zaria.editor.classlist;
 
-import eu.cherrytree.zaria.scripting.annotations.ScriptFunction;
 import java.lang.reflect.Method;
 
 /**
  *
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
-public class ZoneScriptFunction
+public abstract class ZoneScriptFunction
 {
 	//--------------------------------------------------------------------------
 	
@@ -62,46 +61,49 @@ public class ZoneScriptFunction
 	private String details;
 	
 	private String returnDescription;
-	private Class returnType;
+	private Class returnType;	
 	
-	private FunctionParameterInfo[] parameters;
+	private String signature;
+	
+	private FunctionParameterInfo[] parameterInfo;
 				
 	//--------------------------------------------------------------------------
 
-	public ZoneScriptFunction(Method method, ScriptFunction annotation)
+	public ZoneScriptFunction(Method method, String category, String description, String details, String returnDescription, String[] parameters)
 	{
 		// Getting basic info.
-		category = annotation.category();
-		name = method.getName();
-		description = annotation.description();
-		details = annotation.details();
-		returnDescription = annotation.returnValue();
+		this.category = category;
+		this.description = description;
+		this.details = details;
+		this.returnDescription = returnDescription;
+				
+		name = method.getName();		
 		returnType = method.getReturnType();
 		
 		// Getting information on parameters.
-		parameters = new FunctionParameterInfo[method.getParameterTypes().length];
+		parameterInfo = new FunctionParameterInfo[method.getParameterTypes().length];
 		
-		if(method.getParameterTypes().length * 2 == annotation.parameters().length)
+		if(method.getParameterTypes().length * 2 == parameters.length)
 		{
 			for(int i = 0 ; i < method.getParameterTypes().length ; i++)
-				parameters[i] = new FunctionParameterInfo(method.getParameterTypes()[i], annotation.parameters()[i*2], annotation.parameters()[i*2+1]);
+				parameterInfo[i] = new FunctionParameterInfo(method.getParameterTypes()[i], parameters[i*2], parameters[i*2+1]);
 		}
 		else
 		{
 			details += " Information on parameters is invalid.";
 			
 			for(int i = 0 ; i < method.getParameterTypes().length ; i++)
-				parameters[i] = new FunctionParameterInfo(method.getParameterTypes()[i], "arg" + i, "A " + method.getParameterTypes()[i].getSimpleName() + " value.");
+				parameterInfo[i] = new FunctionParameterInfo(method.getParameterTypes()[i], "arg" + i, "A " + method.getParameterTypes()[i].getSimpleName() + " value.");
 		}		
 		
 		// Generating function template.
 		template = name + "(";
 		
-		for(int  i = 0 ; i < parameters.length ; i++)
+		for(int  i = 0 ; i < parameterInfo.length ; i++)
 		{
-			template += parameters[i].name;
+			template += parameterInfo[i].name;
 			
-			if(i < parameters.length-1)
+			if(i < parameterInfo.length-1)
 				template += ", ";
 		}
 		
@@ -114,11 +116,11 @@ public class ZoneScriptFunction
 		
 		tooltip_builder.append("<b>").append(returnType.getSimpleName()).append("</b> ").append(name).append("(");
 		
-		for(int  i = 0 ; i < parameters.length ; i++)
+		for(int  i = 0 ; i < parameterInfo.length ; i++)
 		{
-			tooltip_builder.append("<b>").append(parameters[i].type.getSimpleName()).append("</b> ").append(parameters[i].name);
+			tooltip_builder.append("<b>").append(parameterInfo[i].type.getSimpleName()).append("</b> ").append(parameterInfo[i].name);
 			
-			if(i < parameters.length-1)
+			if(i < parameterInfo.length-1)
 				tooltip_builder.append(", ");
 		}
 		
@@ -144,10 +146,29 @@ public class ZoneScriptFunction
 		tooltip_builder.append("</html>");
 		
 		toolTip = tooltip_builder.toString();
+		
+		signature = returnType.getSimpleName() + " " + name + "(";
+		
+		for (int i = 0 ; i < parameterInfo.length ; i++)
+		{
+			signature += parameterInfo[i].type.getSimpleName() + " " + parameterInfo[i].name;
+			
+			if (i < parameterInfo.length-1)
+				signature += ", ";
+		}
+		
+		signature += ")";
+			
+	}
+	//--------------------------------------------------------------------------
+
+	public String getSignature()
+	{
+		return signature;
 	}
 		
 	//--------------------------------------------------------------------------
-	
+
 	public String getCategory()
 	{
 		return category;
@@ -206,7 +227,7 @@ public class ZoneScriptFunction
 
 	public FunctionParameterInfo[] getParameters()
 	{
-		return parameters;
+		return parameterInfo;
 	}
 	
 	//--------------------------------------------------------------------------
