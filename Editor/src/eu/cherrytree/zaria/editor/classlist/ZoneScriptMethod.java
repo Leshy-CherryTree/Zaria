@@ -15,12 +15,25 @@ import java.lang.reflect.Method;
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
 public class ZoneScriptMethod extends ZoneScriptFunction
-{
+{	
+	//--------------------------------------------------------------------------
+	
+	private Class type;
+	
 	//--------------------------------------------------------------------------
 					
 	public ZoneScriptMethod(Method method, Class type, ScriptMethod annotation)
 	{
 		super(method, type.getSimpleName(), annotation.description(), annotation.details(), annotation.returnValue(), annotation.parameters());
+		
+		this.type = type;
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public Class getType()
+	{
+		return type;
 	}
 	
 	//--------------------------------------------------------------------------

@@ -10,6 +10,7 @@ package eu.cherrytree.zaria.editor.document.autocomplete;
 import eu.cherrytree.zaria.editor.classlist.ZoneClassList;
 import eu.cherrytree.zaria.editor.classlist.ZoneScriptMethod;
 import eu.cherrytree.zaria.editor.classlist.ZoneScriptStaticFunction;
+
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
 
@@ -52,7 +53,7 @@ public class ScriptCompletionProvider extends DefaultCompletionProvider
 	  
 		for (ZoneScriptStaticFunction function : classList.getScriptFunctions())
 			addCompletion(new ScriptFunctionCompletion(this, function));
-	  
+					
 		for (ZoneScriptMethod method : classList.getScriptMethods())
 			addCompletion(new ScriptFunctionCompletion(this, method));
 
