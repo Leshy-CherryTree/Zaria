@@ -488,13 +488,13 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 			else
 			{
 				if (field.getType().isArray())
-					field.set(definition, new String[0]);
+					field.set(definition, new UUID[0]);
 				else if (Link.class.isAssignableFrom(field.getType()))
 					field.set(definition, PropertyTools.createNewLink(null));
 				else if (LinkArray.class.isAssignableFrom(field.getType()))						
 					field.set(definition, PropertyTools.createNewLinkArray(new UUID[0]));
 				else
-					field.set(definition, "");
+					field.set(definition, null);
 			}
 			
 			updateLinkLists();

@@ -153,6 +153,8 @@ public class TextEditorState implements EditorState, DocumentListener, ScriptDoc
 					     
 				AutoCompletion ac = new AutoCompletion(new ScriptCompletionProvider(classList));
 				ac.install(textArea);
+				
+				ac.setChoicesWindowSize(800, 200);
 			}
 				break;					
 		}				
