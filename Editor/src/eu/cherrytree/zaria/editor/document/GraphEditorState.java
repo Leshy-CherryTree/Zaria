@@ -99,7 +99,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 				{
 					ZoneGraphNode node = new ZoneGraphNode(ReflectionTools.createNewDefinition(cls.getObjectClass()));
 					
-					if(node.getDefinition() != null)
+					if (node.getDefinition() != null)
 					{
 						addNode(node, srcX + (int) node.getGeometry().getWidth()/2 + 20, srcY);
 						
@@ -136,7 +136,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 				@Override
 				public void actionPerformed(ActionEvent ae)
 				{
-					if(OpenFileMenuItem.this.fileName != null)
+					if (OpenFileMenuItem.this.fileName != null)
 						document.getDocumentManager().openDocument(new File(OpenFileMenuItem.this.fileName));
 				}
 			});						
@@ -166,21 +166,21 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 					
 					boolean found = false;
 							
-					for(ZoneGraphPort.LinkInfo linkInfo : port.getLinks())
+					for (ZoneGraphPort.LinkInfo linkInfo : port.getLinks())
 					{
-						if(linkInfo.getUUID().equals(uuid))
+						if (linkInfo.getUUID().equals(uuid))
 						{
 							found = true;
 							break;
 						}
 					}
 
-					if(found)
+					if (found)
 						return;
 					
 					ZoneGraphNode node = graph.findNode(uuid);
 					
-					if(node != null)
+					if (node != null)
 					{
 						graph.setEventsEnabled(false);
 
@@ -189,7 +189,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 						graph.setEventsEnabled(true);
 					}
 					
-					if(uuid != null)
+					if (uuid != null)
 					{
 						ZoneGraphNode src_node = (ZoneGraphNode) port.getParent();
 						src_node.connectionAdded(port.getName(), uuid);
@@ -289,15 +289,15 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 				{
 					ZoneGraphNode [] nodes = graphClipboard.getNodes();
 
-					if(nodes != null)
+					if (nodes != null)
 					{
-						for(ZoneGraphNode node : nodes)
+						for (ZoneGraphNode node : nodes)
 						{
 							node.applyMetadata();
 							addNode(node, x, y);
 						}
 
-						for(ZoneGraphNode node : nodes)
+						for (ZoneGraphNode node : nodes)
 							graph.setLinks(node);
 					}
 				}
@@ -445,7 +445,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	@Override
 	public void editSelected()
 	{							
-//		if(selectedNodes.size() == 1)
+//		if (selectedNodes.size() == 1)
 //		{
 //			showProperties(selectedNodes.get(0));
 //		}						
@@ -521,7 +521,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	@Override
 	public void detach(JComponent parent)
 	{
-		for(ZoneGraphNode n : nodes)
+		for (ZoneGraphNode n : nodes)
 			propertySheetPanel.removePropertySheetChangeListener(n);
 		
 		undoStack.clear();
@@ -545,14 +545,14 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	{
 		if (mwe.getWheelRotation() < 0)
 		{
-			if(ctrlPressed)
+			if (ctrlPressed)
 			{
-				if(zoomFactor < 3.0f)
+				if (zoomFactor < 3.0f)
 					zoomFactor += 0.04f;	
 				
 				graphComponent.zoomTo(zoomFactor, false);				
 			}
-			else if(shiftPressed)
+			else if (shiftPressed)
 			{
 				scrollX(10);
 			}
@@ -563,14 +563,14 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		}
 		else
 		{
-			if(ctrlPressed)
+			if (ctrlPressed)
 			{
-				if(zoomFactor > 0.2f)
+				if (zoomFactor > 0.2f)
 					zoomFactor -= 0.04f;
 				
 				graphComponent.zoomTo(zoomFactor, false);
 			}
-			else if(shiftPressed)
+			else if (shiftPressed)
 			{
 				scrollX(-10);
 			}
@@ -605,7 +605,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	{
 		graph.getModel().beginUpdate();
 		
-		for(ZoneGraphNode node : nodes)
+		for (ZoneGraphNode node : nodes)
 			node.attach(graph);
 
 		graph.setLinks();
@@ -629,7 +629,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	{
 		ZariaObjectDefinition [] definitions = new ZariaObjectDefinition[nodes.size()];
 
-		for(int i = 0 ; i < definitions.length ; i++)
+		for (int i = 0 ; i < definitions.length ; i++)
 		{
 			nodes.get(i).saveMetadata();
 			definitions[i] = nodes.get(i).getDefinition();
@@ -670,7 +670,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 				{
 					string += Serializer.getText(getDefinitions());
 				}
-				catch(JsonProcessingException ex)
+				catch (Exception ex)
 				{
 					JOptionPane.showMessageDialog(null, "Couldn't generate zone source for " + document.getTitle() +  ".\n" + ex, "Error!", JOptionPane.ERROR_MESSAGE);
 
@@ -693,7 +693,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		{
 			definitions = objectMapper.readValue(text, ZariaObjectDefinition[].class);			
 		}
-		catch(Exception ex)
+		catch (Exception ex)
 		{
 			DebugConsole.logger.log(Level.SEVERE, null, ex);
 			
@@ -705,7 +705,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		graph = new ZoneGraph(document);
 		graphComponent.setGraph(graph);
 		
-		if(document.getFile() != null)
+		if (document.getFile() != null)
 			graphComponent.setName(document.getFile().getName());
 		else
 			graphComponent.setName("untitled.zone");
@@ -719,7 +719,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		nodes.clear();
 		selectedNodes.clear();
 		
-		for(ZariaObjectDefinition def : definitions)
+		for (ZariaObjectDefinition def : definitions)
 		{
 			ZoneGraphNode node = new ZoneGraphNode(def);
 			validateId(node);
@@ -759,7 +759,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		{
 			node.updateLinkLists();
 		}
-		catch(IllegalArgumentException | IllegalAccessException ex)
+		catch (IllegalArgumentException | IllegalAccessException ex)
 		{
 			throw new RuntimeException(ex);
 		}
@@ -798,7 +798,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		String id = node.getDefinition().getID();
 		int index = 0;
 		
-		if(id == null || id.isEmpty())
+		if (id == null || id.isEmpty())
 			id = node.getDefinitionClass().getSimpleName();
 		
 		boolean verified = false;
@@ -807,16 +807,16 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		{
 			verified = true;
 			
-			for(ZoneGraphNode n : nodes)
+			for (ZoneGraphNode n : nodes)
 			{
-				if(n == node)
+				if (n == node)
 					continue;
 				
 				String n_id = n.getDefinition().getID();
 				
-				if(n_id != null)
+				if (n_id != null)
 				{
-					if((index == 0 && n_id.equals(id)) || n_id.equals(id + "_" + index))
+					if ((index == 0 && n_id.equals(id)) || n_id.equals(id + "_" + index))
 					{
 						index++;
 						verified = false;
@@ -826,16 +826,16 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 			}
 		}
 		
-		if(index > 0)
+		if (index > 0)
 			id = id + "_" + index;
 		
 		Property[] properties = PropertyTools.getProperties(node.getDefinitionClass(), document);	
 		
 		Property idproperty = null;
 		
-		for(Property prop : properties)
+		for (Property prop : properties)
 		{
-			if(prop.getName().equals("id"))
+			if (prop.getName().equals("id"))
 			{
 				idproperty = prop;
 				break;
@@ -855,9 +855,9 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	{
 		ZoneProperty property = (ZoneProperty) evt.getSource();
 
-		if(property.getType() == LinkArray.class || property.getType().isArray())
+		if (property.getType() == LinkArray.class || property.getType().isArray())
 		{					
-			if(selectedNodes.size() == 1)
+			if (selectedNodes.size() == 1)
 				showProperties(selectedNodes.get(0));
 			else
 				hideProperties();
@@ -875,7 +875,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		
 		propertySheetPanel.setProperties(properties);
 						
-		for(ZoneGraphNode n : nodes)
+		for (ZoneGraphNode n : nodes)
 			propertySheetPanel.removePropertySheetChangeListener(n);
 		
 		propertySheetPanel.addPropertySheetChangeListener(node);
@@ -890,7 +890,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	{
 		propertySheetPanel.setProperties(new Property[0]);
 		
-		for(ZoneGraphNode n : nodes)
+		for (ZoneGraphNode n : nodes)
 			propertySheetPanel.removePropertySheetChangeListener(n);
 	}
 	
@@ -898,13 +898,13 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	
 	private void setSelected(ArrayList<mxCell> cells, boolean selected)
 	{
-		for(mxCell cell : cells)
+		for (mxCell cell : cells)
 		{
-			if(cell instanceof ZoneGraphNode)
+			if (cell instanceof ZoneGraphNode)
 			{
 				ZoneGraphNode node = (ZoneGraphNode) cell;
 				
-				if(selected)
+				if (selected)
 					selectedNodes.add(node);	
 				else
 					selectedNodes.remove(node);										
@@ -914,7 +914,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 			}
 		}
 		
-		if(selectedNodes.size() == 1)
+		if (selectedNodes.size() == 1)
 		{
 			showProperties(selectedNodes.get(0));		
 			document.setEditingObjectEnabled(false);
@@ -935,7 +935,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		{
 //			EditorApplication.getDebugConsole().addLine("EVENT: " + evt.getName() + " from: " + sender.getClass().getSimpleName());
 //
-//			for(String key : evt.getProperties().keySet())
+//			for (String key : evt.getProperties().keySet())
 //				EditorApplication.getDebugConsole().addLine("key: " + key + " value: " + evt.getProperty(key));		
 //
 //			EditorApplication.getDebugConsole().addLine("");
@@ -961,12 +961,12 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 //				default:
 //					System.out.println("EVENT: " + evt.getName() + " from: " + sender);
 //
-//					for(String key : evt.getProperties().keySet())
+//					for (String key : evt.getProperties().keySet())
 //						System.out.println("key: " + key + " value: " + evt.getProperty(key));
 //					break;				
 			}
 		}		
-		catch(Throwable t)
+		catch (Throwable t)
 		{
 			DebugConsole.logger.log(Level.SEVERE, null, t);
 		}
@@ -978,16 +978,16 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	{			
 		document.setModified();
 		
-		if(!undoStack.isLocked())
+		if (!undoStack.isLocked())
 		{
 			double dx = (double) evt.getProperty("dx");
 			double dy = (double) evt.getProperty("dy");
 
 			Object [] objects = (Object[]) evt.getProperty("cells");
 
-			for(Object obj : objects)
+			for (Object obj : objects)
 			{
-				if(obj instanceof ZoneGraphNode)
+				if (obj instanceof ZoneGraphNode)
 				{
 					ZoneGraphNode node = (ZoneGraphNode) obj;					
 					
@@ -1001,9 +1001,9 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	
 	private void onSelectionChange(mxEventObject evt)
 	{
-		for(String key : evt.getProperties().keySet())
+		for (String key : evt.getProperties().keySet())
 		{
-			if(evt.getProperty(key) instanceof ArrayList)
+			if (evt.getProperty(key) instanceof ArrayList)
 			{
 				ArrayList<mxCell> changed_nodes = (ArrayList) evt.getProperty(key);
 				
@@ -1109,15 +1109,15 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		// This is the most trivial implementation. If need be this can be 
 		// optimized and extended.
 		
-		for(ZoneGraphNode n : nodes)
+		for (ZoneGraphNode n : nodes)
 		{
-			for(int i = 0 ; i < n.getNumberOfInputs() ; i++)
+			for (int i = 0 ; i < n.getNumberOfInputs() ; i++)
 			{
-				if(n.getInputPort(i).linksContain(node.getDefinition().getUUID()))
+				if (n.getInputPort(i).linksContain(node.getDefinition().getUUID()))
 				{
 					n.connectionRemoved(n.getInputPort(i).getName(), node.getDefinition().getUUID());
 
-					if(!undoStack.isLocked())
+					if (!undoStack.isLocked())
 						undoStack.addUndoAction(new DisconnectUndoAction((ZoneGraphInputPort) n.getInputPort(i), (ZoneGraphOutputPort) node.getOutputPort()), true);
 					
 					graph.getModel().setStyle(n, n.getNodeStyle());
@@ -1135,31 +1135,31 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		ArrayList<ZoneGraphNode> toremove = new ArrayList<>();	
 		ArrayList<mxCell> todisconnect = new ArrayList<>();
 		
-		for(Object obj : objects)
+		for (Object obj : objects)
 		{
-			if(!(obj instanceof ZoneGraphInputPort.ExternalMarker))
+			if (!(obj instanceof ZoneGraphInputPort.ExternalMarker))
 			{
-				if(obj instanceof ZoneGraphNode)
+				if (obj instanceof ZoneGraphNode)
 					toremove.add((ZoneGraphNode)obj);
-				else if(obj instanceof mxCell)
+				else if (obj instanceof mxCell)
 					todisconnect.add((mxCell) obj);
 				else
 					throw new RuntimeException("Removing unkown object: " + obj);	
 			}			
 		} 
 			
-		for(ZoneGraphNode node : toremove)
+		for (ZoneGraphNode node : toremove)
 		{
 			disconnectRemovedNode(node);
 			graph.removeNode(node);
 			
-			if(!undoStack.isLocked())
+			if (!undoStack.isLocked())
 				undoStack.addUndoAction(new RemoveUndoAction(node), true);
 			
 			propertySheetPanel.removePropertySheetChangeListener(node);
 		}
 		
-		for(mxCell cell : todisconnect)
+		for (mxCell cell : todisconnect)
 		{
 			ZoneGraphPort srcport = (ZoneGraphPort) cell.getSource();
 			ZoneGraphNode src = (ZoneGraphNode) srcport.getParent();
@@ -1168,22 +1168,22 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 			ZoneGraphNode tgt = (ZoneGraphNode) tgtport.getParent();				
 
 			// No need to disconnect nodes that just have been removed.
-			if(!toremove.contains(tgt) && !toremove.contains(src))
+			if (!toremove.contains(tgt) && !toremove.contains(src))
 			{
-				if(srcport.isInput())
+				if (srcport.isInput())
 				{
 					src.connectionRemoved(srcport.getName(), tgt.getDefinition().getUUID());
 
-					if(!undoStack.isLocked())
+					if (!undoStack.isLocked())
 						undoStack.addUndoAction(new DisconnectUndoAction((ZoneGraphInputPort) srcport, (ZoneGraphOutputPort) tgtport), true);
 					
 					graph.getModel().setStyle(src, src.getNodeStyle());
 				}
-				else if(tgtport.isInput())
+				else if (tgtport.isInput())
 				{
 					tgt.connectionRemoved(tgtport.getName(), src.getDefinition().getUUID());
 
-					if(!undoStack.isLocked())
+					if (!undoStack.isLocked())
 						undoStack.addUndoAction(new DisconnectUndoAction((ZoneGraphInputPort) tgtport, (ZoneGraphOutputPort) srcport), true);
 					
 					graph.getModel().setStyle(tgt, tgt.getNodeStyle());
@@ -1209,7 +1209,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	@Override
 	public void onFocusLost(JComponent parent)
 	{
-		for(ZoneGraphNode n : nodes)
+		for (ZoneGraphNode n : nodes)
 			propertySheetPanel.removePropertySheetChangeListener(n);
 	}
 	
@@ -1231,9 +1231,9 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		
 		undoStack.unlock();
 		
-		if(type == UndoAction.Type.UNDO)
+		if (type == UndoAction.Type.UNDO)
 			undoStack.addRedoAction(new RemoveUndoAction(node));
-		else if(type == UndoAction.Type.REDO)
+		else if (type == UndoAction.Type.REDO)
 			undoStack.addUndoAction(new RemoveUndoAction(node), false);
 	}
 	
@@ -1241,9 +1241,9 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	
 	public void undoMove(ZoneGraphNode node, float x, float y, UndoAction.Type type)
 	{
-		if(type == UndoAction.Type.UNDO)
+		if (type == UndoAction.Type.UNDO)
 			undoStack.addRedoAction(new MoveUndoAction(node, (float)node.getGeometry().getX(), (float)node.getGeometry().getY()));
-		else if(type == UndoAction.Type.REDO)
+		else if (type == UndoAction.Type.REDO)
 			undoStack.addUndoAction(new MoveUndoAction(node, (float)node.getGeometry().getX(), (float)node.getGeometry().getY()), false);
 				
 		undoStack.lock();
@@ -1271,9 +1271,9 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 				
 		undoStack.unlock();
 		
-		if(type == UndoAction.Type.UNDO)
+		if (type == UndoAction.Type.UNDO)
 			undoStack.addRedoAction(new AddUndoAction(node));
-		else if(type == UndoAction.Type.REDO)
+		else if (type == UndoAction.Type.REDO)
 			undoStack.addUndoAction(new AddUndoAction(node), false);
 	}
 	
@@ -1283,9 +1283,9 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	{
 		mxICell cell = null;
 		
-		for(int i = 0 ; i < inputPort.getEdgeCount() && cell == null; i++)
+		for (int i = 0 ; i < inputPort.getEdgeCount() && cell == null; i++)
 		{
-			if(inputPort.getEdgeAt(i).getTerminal(false) == outputPort)
+			if (inputPort.getEdgeAt(i).getTerminal(false) == outputPort)
 				cell = inputPort.getEdgeAt(i);
 		}
 		
@@ -1303,9 +1303,9 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		
 		undoStack.unlock();	
 		
-		if(type == UndoAction.Type.UNDO)
+		if (type == UndoAction.Type.UNDO)
 			undoStack.addRedoAction(new DisconnectUndoAction(inputPort, outputPort));
-		else if(type == UndoAction.Type.REDO)
+		else if (type == UndoAction.Type.REDO)
 			undoStack.addUndoAction(new DisconnectUndoAction(inputPort, outputPort), false);
 	}
 	
@@ -1330,9 +1330,9 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 
 		input.connectionAdded(inputPort.getName(), output.getDefinition().getUUID());
 		
-		if(type == UndoAction.Type.UNDO)
+		if (type == UndoAction.Type.UNDO)
 			undoStack.addRedoAction(new ConnectUndoAction(inputPort, outputPort));
-		else if(type == UndoAction.Type.REDO)
+		else if (type == UndoAction.Type.REDO)
 			undoStack.addUndoAction(new ConnectUndoAction(inputPort, outputPort), false);
 		
 		graph.getModel().setStyle(input, input.getNodeStyle());
@@ -1343,11 +1343,11 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	@Override
 	public void mouseClicked(MouseEvent evt)
 	{
-		if(evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2)
+		if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2)
 		{
 			Object cell = graphComponent.getCellAt(evt.getX(), evt.getY());
 
-			if(cell instanceof ZoneGraphNode)
+			if (cell instanceof ZoneGraphNode)
 			{
 				ZoneGraphNode node = (ZoneGraphNode) cell;
 
@@ -1361,11 +1361,11 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	@Override
 	public void mousePressed(MouseEvent evt)
 	{
-		if(evt.isPopupTrigger())
+		if (evt.isPopupTrigger())
 		{
 			Object cell = graphComponent.getCellAt(evt.getX(), evt.getY());
 			
-			if(cell != null && ZoneGraphInputPort.class.isAssignableFrom(cell.getClass()))
+			if (cell != null && ZoneGraphInputPort.class.isAssignableFrom(cell.getClass()))
 			{				
 				ZoneGraphPort port = (ZoneGraphPort) cell;
 				
@@ -1375,16 +1375,16 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 					
 					ArrayList<ZoneClass> classes = zoneClassList.getClasses(port.getDefinitionClass());										
 					
-					if(classes.isEmpty())
+					if (classes.isEmpty())
 						return;
 					
 					HashMap<String , JMenu> categories = new HashMap<>();
 					
-					for(ZoneClass cls : classes)
+					for (ZoneClass cls : classes)
 					{
 						JMenu menu;
 						
-						if(categories.containsKey(cls.getCategory()))
+						if (categories.containsKey(cls.getCategory()))
 							menu = categories.get(cls.getCategory());
 						else
 						{
@@ -1401,13 +1401,13 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 					popupMenu.show(graphComponent, evt.getX() - graphComponent.getHorizontalScrollBar().getValue(), evt.getY() - graphComponent.getVerticalScrollBar().getValue());
 				}
 			}
-			else if(cell != null && ZoneGraphInputPort.ExternalMarker.class.isAssignableFrom(cell.getClass()))
+			else if (cell != null && ZoneGraphInputPort.ExternalMarker.class.isAssignableFrom(cell.getClass()))
 			{				
 				popupMenu.removeAll();	
 				
 				try
 				{
-					for(ZoneGraphPort.LinkInfo link : ((ZoneGraphInputPort.ExternalMarker)cell).getLinks())
+					for (ZoneGraphPort.LinkInfo link : ((ZoneGraphInputPort.ExternalMarker)cell).getLinks())
 						popupMenu.add(new OpenFileMenuItem(DataBase.getID(link.getUUID()), DataBase.getLocation(link.getUUID())));
 					
 					popupMenu.show(graphComponent, evt.getX() - graphComponent.getHorizontalScrollBar().getValue(), evt.getY() - graphComponent.getVerticalScrollBar().getValue());
@@ -1417,23 +1417,23 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 					DebugConsole.logger.log(Level.SEVERE, null, ex);
 				}								
 			}
-			else if(cell != null && selectedNodes.isEmpty())
+			else if (cell != null && selectedNodes.isEmpty())
 			{
-				if(ZoneGraphOutputPort.class.isAssignableFrom(cell.getClass()))
+				if (ZoneGraphOutputPort.class.isAssignableFrom(cell.getClass()))
 				{
 					ZoneGraphOutputPort port = (ZoneGraphOutputPort) cell;
 					showNodePopupMenu((ZoneGraphNode) port.getParent(), evt.getX() - graphComponent.getHorizontalScrollBar().getValue(), evt.getY() - graphComponent.getVerticalScrollBar().getValue());
 				}
-				else if(ZoneGraphNode.class.isAssignableFrom(cell.getClass()))
+				else if (ZoneGraphNode.class.isAssignableFrom(cell.getClass()))
 				{
 					showNodePopupMenu((ZoneGraphNode) cell, evt.getX() - graphComponent.getHorizontalScrollBar().getValue(), evt.getY() - graphComponent.getVerticalScrollBar().getValue());
 				}	
 			}	
-			else if(!selectedNodes.isEmpty())
+			else if (!selectedNodes.isEmpty())
 			{
 				showNodePopupMenu(selectedNodes, evt.getX() - graphComponent.getHorizontalScrollBar().getValue(), evt.getY() - graphComponent.getVerticalScrollBar().getValue());
 			}
-			else if(graphClipboard.getNodes() != null)
+			else if (graphClipboard.getNodes() != null)
 			{
 				popupMenu.removeAll();
 				
@@ -1443,7 +1443,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 			}
 				
 		}		
-		else if(evt.getButton() == MouseEvent.BUTTON2)
+		else if (evt.getButton() == MouseEvent.BUTTON2)
 		{
 			mouseScrollPoint = evt.getLocationOnScreen();
 		}
@@ -1454,7 +1454,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	@Override
 	public void mouseReleased(MouseEvent evt)
 	{
-		if(evt.getButton() == MouseEvent.BUTTON2)
+		if (evt.getButton() == MouseEvent.BUTTON2)
 		{
 			mouseScrollPoint = null;
 		}
@@ -1481,7 +1481,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	@Override
 	public void mouseDragged(MouseEvent evt)
 	{
-		if(mouseScrollPoint != null)
+		if (mouseScrollPoint != null)
 		{
 			int dx = evt.getXOnScreen() - mouseScrollPoint.x;
 			int dy = evt.getYOnScreen() - mouseScrollPoint.y;
