@@ -82,7 +82,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void setEditType(ZoneDocument.EditType editType)
 	{
-		if(currentDocument != null)
+		if (currentDocument != null)
 			currentDocument.setState(editType);	
 		
 		popupMenu.removeAll();
@@ -104,7 +104,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	{
 		File file = showOpenDialog();
 		
-		if(file != null)
+		if (file != null)
 			openDocument(file);
 	}
 	
@@ -113,7 +113,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	public void openDocument(File file)
 	{
 		// Checking if the file is not too big.
-		if(file.length() > 1024 * 1024 * maxSize)
+		if (file.length() > 1024 * 1024 * maxSize)
 		{
 			float size = file.length() / (1024.0f * 1024.0f);
 
@@ -126,7 +126,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 		// Checking if the file is not already opened.
 		for(int i = 0 ; i < documents.size() ; i++)
 		{
-			if(documents.get(i).getPath() != null && documents.get(i).getPath().equals(file.getAbsolutePath()))
+			if (documents.get(i).getPath() != null && documents.get(i).getPath().equals(file.getAbsolutePath()))
 			{
 				tabPane.setSelectedIndex(i);
 				return;
@@ -137,14 +137,14 @@ public class DocumentManager implements ChangeListener, CaretListener
 		
 		for(ZoneDocument.DocumentType doc_type : ZoneDocument.DocumentType.values())
 		{			
-			if(file.getName().toLowerCase().endsWith(doc_type.getSuffix()))
+			if (file.getName().toLowerCase().endsWith(doc_type.getSuffix()))
 			{
-				if(file.getAbsolutePath().contains(doc_type.getLocationType().getPath()))
+				if (file.getAbsolutePath().contains(doc_type.getLocationType().getPath()))
 					type = doc_type;
 			}
 		}
 		
-		if(type == null)
+		if (type == null)
 		{
 			int choice = JOptionPane.showConfirmDialog(editorFrame, "File " + file.getName() + " is of unkown type. Open as a Zone file?", 
 					"File is of unkown type!", JOptionPane.WARNING_MESSAGE);
@@ -191,7 +191,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void saveDocument()
 	{
-		if(currentDocument == null)
+		if (currentDocument == null)
 			return;
 		
 		try
@@ -201,12 +201,12 @@ public class DocumentManager implements ChangeListener, CaretListener
 			currentDocument.save();
 			tabPane.repaint();
 			
-			if(oldPath == null)
+			if (oldPath == null)
 				editorFrame.onDocumentOpened(currentDocument);
 			
 			setPaneTooltip(currentDocument);
 		}
-		catch(IOException ex)
+		catch (IOException ex)
 		{
 			JOptionPane.showMessageDialog(null,"Couldn't save document " + currentDocument.getTitle() + ".\n" + ex,"Error!",JOptionPane.ERROR_MESSAGE);
 				
@@ -218,29 +218,29 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void saveDocumentAs()
 	{
-		if(currentDocument == null)
+		if (currentDocument == null)
 			return;
 		
 		try
 		{							
 			File file = showSaveDialog(currentDocument.getDocumentType());
 			
-			if(file != null)
+			if (file != null)
 			{
 				String oldPath = currentDocument.getPath();
 				
 				currentDocument.save(file);
 				tabPane.repaint();
 				
-				if(oldPath == null)
+				if (oldPath == null)
 					editorFrame.onDocumentOpened(currentDocument);
-				else if(!currentDocument.getPath().equals(oldPath))
+				else if (!currentDocument.getPath().equals(oldPath))
 					editorFrame.onDocumentSavedAs(currentDocument, oldPath);		
 				
 				setPaneTooltip(currentDocument);
 			}
 		}
-		catch(IOException ex)
+		catch (IOException ex)
 		{
 			JOptionPane.showMessageDialog(null,"Couldn't save document " + currentDocument.getTitle() + ".\n" + ex,"Error!",JOptionPane.ERROR_MESSAGE);
 				
@@ -259,7 +259,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 				doc.save();
 				setPaneTooltip(doc);
 			}
-			catch(IOException ex)
+			catch (IOException ex)
 			{
 				JOptionPane.showMessageDialog(null,"Couldn't save document " + doc.getTitle() + ".\n" + ex,"Error!",JOptionPane.ERROR_MESSAGE);
 				
@@ -274,15 +274,15 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	private void checkSaved(ZoneDocument document)
 	{
-		if(!document.isSaved())
+		if (!document.isSaved())
 		{
-			if(JOptionPane.showConfirmDialog(editorFrame, "File  " + document.getTitle() + " is not saved. Save file?", "File not saved!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION)			
+			if (JOptionPane.showConfirmDialog(editorFrame, "File  " + document.getTitle() + " is not saved. Save file?", "File not saved!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION)			
 			{
 				try
 				{
 					document.save();
 				}
-				catch(IOException ex)
+				catch (IOException ex)
 				{
 					JOptionPane.showMessageDialog(null,"Couldn't save document " + document.getTitle() + ".\n" + ex,"Error!",JOptionPane.ERROR_MESSAGE);
 				
@@ -296,7 +296,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void closeDocument()
 	{
-		if(currentDocument == null)
+		if (currentDocument == null)
 			return;
 		
 		checkSaved(currentDocument);
@@ -346,7 +346,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	private void checkEditStateForNoDocuments()
 	{
-		if(documents.isEmpty())
+		if (documents.isEmpty())
 			editorFrame.goToEditMode(ZoneDocument.EditType.TEXT_EDIT);
 	}
 	
@@ -405,7 +405,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 			{
 				EditorState state = doc.getEditorState(type);
 				
-				if(state != null)
+				if (state != null)
 					state.setCtrlButton(pressed);
 			}
 		}
@@ -421,7 +421,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 			{
 				EditorState state = doc.getEditorState(type);
 				
-				if(state != null)
+				if (state != null)
 					state.setAltButton(pressed);
 			}
 		}
@@ -437,7 +437,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 			{
 				EditorState state = doc.getEditorState(type);
 				
-				if(state != null)
+				if (state != null)
 					state.setShiftButton(pressed);
 			}
 		}
@@ -447,7 +447,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void undo()
 	{
-		if(currentDocument != null)
+		if (currentDocument != null)
 			currentDocument.undo();
 	}
 	
@@ -455,7 +455,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void redo()
 	{
-		if(currentDocument != null)
+		if (currentDocument != null)
 			currentDocument.redo();
 	}
 	
@@ -463,7 +463,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void cut()
 	{
-		if(currentDocument != null)
+		if (currentDocument != null)
 			currentDocument.cut();
 	}
 	
@@ -471,7 +471,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void copy()
 	{
-		if(currentDocument != null)
+		if (currentDocument != null)
 			currentDocument.copy();
 	}
 	
@@ -479,7 +479,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void paste()
 	{
-		if(currentDocument != null)
+		if (currentDocument != null)
 			currentDocument.paste();
 	}
 	
@@ -487,7 +487,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void selectAll()
 	{
-		if(currentDocument != null)
+		if (currentDocument != null)
 			currentDocument.selectAll();
 	}
 	
@@ -497,10 +497,10 @@ public class DocumentManager implements ChangeListener, CaretListener
 	{
 		try
 		{
-			if(currentDocument != null)
+			if (currentDocument != null)
 				currentDocument.goToLine(line);
 		}
-		catch(BadLocationException ex)
+		catch (BadLocationException ex)
 		{
 			DebugConsole.logger.log(Level.SEVERE, null, ex);
 		}
@@ -510,9 +510,9 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void find(String text, FindOptions options)
 	{
-		if(currentDocument != null && !text.isEmpty())
+		if (currentDocument != null && !text.isEmpty())
 		{
-			if(!currentDocument.find(text, options))
+			if (!currentDocument.find(text, options))
 				JOptionPane.showMessageDialog(editorFrame, "Couldn't find \"" + text + "\".", "Find result.", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
@@ -521,9 +521,9 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void replace(String text, String replace, FindOptions options)
 	{
-		if(currentDocument != null && !text.isEmpty())
+		if (currentDocument != null && !text.isEmpty())
 		{
-			if(!currentDocument.replace(text, replace, options))
+			if (!currentDocument.replace(text, replace, options))
 				JOptionPane.showMessageDialog(editorFrame, "Couldn't replace \"" + text + "\".", "Replace result.", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
@@ -532,9 +532,9 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void replaceFind(String text, String replace, FindOptions options)
 	{
-		if(currentDocument != null && !text.isEmpty())
+		if (currentDocument != null && !text.isEmpty())
 		{
-			if(!currentDocument.replaceFind(text, replace, options))
+			if (!currentDocument.replaceFind(text, replace, options))
 				JOptionPane.showMessageDialog(editorFrame, "Couldn't replace \"" + text + "\".", "Replace result.", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
@@ -543,9 +543,9 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void replaceAll(String text, String replace, FindOptions options)
 	{
-		if(currentDocument != null && !text.isEmpty())
+		if (currentDocument != null && !text.isEmpty())
 		{
-			if(currentDocument.replaceAll(text, replace, options) < 0)
+			if (currentDocument.replaceAll(text, replace, options) < 0)
 				JOptionPane.showMessageDialog(editorFrame, "Couldn't replace \"" + text + "\".", "Replace result.", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
@@ -554,7 +554,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void unmark()
 	{
-		if(currentDocument != null)
+		if (currentDocument != null)
 			currentDocument.unmark();
 	}
 	
@@ -562,7 +562,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void editSelected()
 	{
-		if(currentDocument != null)
+		if (currentDocument != null)
 			currentDocument.editSelected();
 	}
 	
@@ -579,7 +579,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 	{
 		for(ZoneDocument doc : documents)
 		{
-			if(doc.getPath() != null && doc.getPath().equals(path))
+			if (doc.getPath() != null && doc.getPath().equals(path))
 				return true;
 		}
 		
@@ -596,7 +596,7 @@ public class DocumentManager implements ChangeListener, CaretListener
 		popupMenu.removeAll();
 		popupMenu.setVisible(false);
 		
-		if(documents.size() > 0 && index >= 0)
+		if (documents.size() > 0 && index >= 0)
 		{			
 			if (currentDocument != null)
 				currentDocument.onFocusLost();
@@ -648,12 +648,12 @@ public class DocumentManager implements ChangeListener, CaretListener
 			
 			String name = file.getName().toLowerCase();
 			
-			if(!name.endsWith(type.getSuffix()))
+			if (!name.endsWith(type.getSuffix()))
 				file = new File(file.getAbsolutePath() + type.getSuffix());
 			
-			if(file.exists())
+			if (file.exists())
 			{
-				if(JOptionPane.showConfirmDialog(editorFrame, "File " + file.getName() + " already exits. Overwrite file?", "File exists!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION)			
+				if (JOptionPane.showConfirmDialog(editorFrame, "File " + file.getName() + " already exits. Overwrite file?", "File exists!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION)			
 					file = showSaveDialog(type);
 			}
 			
