@@ -90,7 +90,7 @@ public class ZoneGraphTransferHandler extends mxGraphTransferHandler
 
 				return true;
 			}
-			catch(UnsupportedFlavorException | IOException ex)
+			catch(Exception ex)
 			{
 				DebugConsole.logger.log(Level.SEVERE, null, ex);		
 			}
