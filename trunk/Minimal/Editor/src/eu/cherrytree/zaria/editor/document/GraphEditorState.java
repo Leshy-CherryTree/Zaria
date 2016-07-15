@@ -7,7 +7,6 @@
 
 package eu.cherrytree.zaria.editor.document;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.mxgraph.model.mxCell;
@@ -15,7 +14,6 @@ import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource;
-import eu.cherrytree.zaria.editor.EditorApplication;
 
 import eu.cherrytree.zaria.editor.classlist.ZoneClass;
 import eu.cherrytree.zaria.editor.classlist.ZoneClassList;
@@ -40,6 +38,7 @@ import eu.cherrytree.zaria.editor.graph.undo.DisconnectUndoAction;
 import eu.cherrytree.zaria.editor.graph.undo.MoveUndoAction;
 import eu.cherrytree.zaria.editor.graph.undo.RemoveUndoAction;
 import eu.cherrytree.zaria.editor.ReflectionTools;
+import eu.cherrytree.zaria.editor.dialogs.EditorFactory;
 import eu.cherrytree.zaria.editor.properties.Property;
 import eu.cherrytree.zaria.editor.properties.PropertyTools;
 import eu.cherrytree.zaria.editor.properties.ZoneProperty;
@@ -328,6 +327,29 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	
 	//--------------------------------------------------------------------------
 	
+	private class EditNodeMenuItem extends JMenuItem
+	{				
+		public EditNodeMenuItem(final ZoneGraphNode node)
+		{
+			super("Edit");
+			
+			addActionListener(new ActionListener()
+			{				
+				@Override
+				public void actionPerformed(ActionEvent ae)
+				{			
+					DocumentManager.openEditorDialog(node.getDefinition());
+					
+					if(selectedNodes.size() == 1 && selectedNodes.contains(node))
+						showProperties(node);
+				}
+			});
+			
+		}		
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	private static GraphClipboard graphClipboard = new GraphClipboard();
 	
 	//--------------------------------------------------------------------------
@@ -445,10 +467,11 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	@Override
 	public void editSelected()
 	{							
-//		if (selectedNodes.size() == 1)
-//		{
-//			showProperties(selectedNodes.get(0));
-//		}						
+		if(selectedNodes.size() == 1)
+		{
+			DocumentManager.openEditorDialog(selectedNodes.get(0).getDefinition());
+			showProperties(selectedNodes.get(0));
+		}						
 	}
 	
 	//--------------------------------------------------------------------------
@@ -916,8 +939,8 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		
 		if (selectedNodes.size() == 1)
 		{
-			showProperties(selectedNodes.get(0));		
-			document.setEditingObjectEnabled(false);
+			showProperties(selectedNodes.get(0));
+			document.setEditingObjectEnabled(EditorFactory.hasEditor(selectedNodes.get(0).getDefinitionClass()));
 		}
 		else
 		{
@@ -1585,6 +1608,16 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		popupMenu.add(new CopyNodesMenuItem(nodes));
 		popupMenu.add(new CopyUUIDsMenuItem(nodes));
 		popupMenu.add(new JPopupMenu.Separator());		
+		
+		if(nodes.length == 1)
+		{
+			if(EditorFactory.hasEditor(nodes[0].getDefinitionClass()))
+			{
+				popupMenu.add(new EditNodeMenuItem(nodes[0]));
+				popupMenu.add(new JPopupMenu.Separator());
+			}
+		}
+		
 		popupMenu.add(new DeleteNodesMenuItem(nodes));				
 				
 		popupMenu.show(graphComponent, x, y);
