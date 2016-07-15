@@ -5,10 +5,13 @@
 /* Released under EUPL v1.1				*/
 /****************************************/
 
-package eu.cherrytree.zaria.utilities;
+package eu.cherrytree.zaria.math;
 
+import eu.cherrytree.zaria.serialization.ColorName;
 import eu.cherrytree.zaria.serialization.DefinitionValidation;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
+import eu.cherrytree.zaria.serialization.annotations.DefinitionCategory;
+import eu.cherrytree.zaria.serialization.annotations.DefinitionColor;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
@@ -21,6 +24,8 @@ import org.apache.commons.math3.fitting.WeightedObservedPoints;
  *
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
+@DefinitionCategory("Math")
+@DefinitionColor(ColorName.CadetBlue)
 public class Curve extends ZariaObjectDefinition
 {
 	//--------------------------------------------------------------------------
