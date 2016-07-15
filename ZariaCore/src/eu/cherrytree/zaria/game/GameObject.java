@@ -63,7 +63,7 @@ public abstract class GameObject<Definition extends GameObjectDefinition> implem
 
 			if(objectCounters.containsKey(definition.getID()))
 			{
-				count = objectCounters.get(definition.getID()).intValue();		
+				count = objectCounters.get(definition.getID());		
 				count++;			
 			}
 			else
