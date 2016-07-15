@@ -57,7 +57,7 @@ public class AboutDialog extends JDialog
         versionLabel.setFont(new Font("Cantarell", 0, 20));
         versionLabel.setText("v" + EditorApplication.getVersion());
 
-        copyrightLabel.setText("Copyright © Cherry Tree Studio 2014");
+        copyrightLabel.setText("Copyright © Cherry Tree Studio 2016");
 
         licenseLabel.setText("Released under EUPL v1.1");
 
