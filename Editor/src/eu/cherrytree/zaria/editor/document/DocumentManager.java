@@ -15,6 +15,8 @@ import eu.cherrytree.zaria.editor.debug.DebugConsole;
 import eu.cherrytree.zaria.editor.dialogs.ArrayEditDialog;
 import eu.cherrytree.zaria.editor.dialogs.BrowseDefinitionsDialog;
 import eu.cherrytree.zaria.editor.dialogs.BrowseScriptsDialog;
+import eu.cherrytree.zaria.editor.dialogs.EditorDialog;
+import eu.cherrytree.zaria.editor.dialogs.EditorFactory;
 import eu.cherrytree.zaria.editor.dialogs.ExtendedInformationDialog;
 import eu.cherrytree.zaria.editor.dialogs.ListSearchDialog;
 import eu.cherrytree.zaria.editor.dialogs.WaitDialog;
@@ -26,7 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -704,10 +705,27 @@ public class DocumentManager implements ChangeListener, CaretListener
 		}
 		catch (InterruptedException ex)
 		{
-			Logger.getLogger(DocumentManager.class.getName()).log(Level.SEVERE, null, ex);
+			DebugConsole.logger.log(Level.SEVERE, null, ex);
 		}		
 		
 		return result;
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static void openEditorDialog(ZariaObjectDefinition definition)
+	{
+		assert EditorFactory.hasEditor(definition.getClass());
+		
+		try
+		{
+			EditorDialog editor = EditorFactory.getEditor(definition, editorFrame);
+			editor.setVisible(true);
+		}
+		catch(Exception ex)
+		{
+			DebugConsole.logger.log(Level.SEVERE, null, ex);
+		}				
 	}
 	
 	//--------------------------------------------------------------------------
