@@ -80,7 +80,7 @@ public class Random
 		assert sides > 1 && amount > 0;
 
 		int value = 0;
-
+		
 		for (int i = 0; i < amount; i++)
 			value += (getInteger() % sides) + 1;
 
