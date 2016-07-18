@@ -14,6 +14,7 @@ import eu.cherrytree.zaria.editor.document.AssetFileFilter;
 import eu.cherrytree.zaria.editor.document.DocumentManager;
 
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -131,7 +132,7 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 			.addGroup(fileViewPanelLayout.createSequentialGroup()
 				.addContainerGap()
 				.addGap(1, 1, 1)
-				.addComponent(fileViewScrollPane, GroupLayout.DEFAULT_SIZE, 871, Short.MAX_VALUE)
+				.addComponent(fileViewScrollPane, GroupLayout.DEFAULT_SIZE, 651, Short.MAX_VALUE)
 				.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
 				.addGroup(fileViewPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 					.addComponent(addButton)
@@ -169,7 +170,7 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 			imageListPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
 			.addGroup(imageListPanelLayout.createSequentialGroup()
 				.addContainerGap()
-				.addComponent(imageListScrollPane, GroupLayout.DEFAULT_SIZE, 454, Short.MAX_VALUE)
+				.addComponent(imageListScrollPane, GroupLayout.DEFAULT_SIZE, 334, Short.MAX_VALUE)
 				.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
 				.addGroup(imageListPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 					.addComponent(removeButton)
@@ -216,6 +217,7 @@ public class TextureAtlasDialog extends JDialog implements ActionListener, TreeS
 		okButton.addActionListener(this);
 		removeButton.addActionListener(this);
 		
+		setMaximumSize(Toolkit.getDefaultToolkit().getScreenSize());
 		
 		pack();
 	}
