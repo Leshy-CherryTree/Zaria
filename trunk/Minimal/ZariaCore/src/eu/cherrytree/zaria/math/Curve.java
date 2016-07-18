@@ -7,11 +7,8 @@
 
 package eu.cherrytree.zaria.math;
 
-import eu.cherrytree.zaria.serialization.ColorName;
 import eu.cherrytree.zaria.serialization.DefinitionValidation;
-import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
-import eu.cherrytree.zaria.serialization.annotations.DefinitionCategory;
-import eu.cherrytree.zaria.serialization.annotations.DefinitionColor;
+import eu.cherrytree.zaria.serialization.annotations.DefinitionDescription;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
@@ -24,15 +21,14 @@ import org.apache.commons.math3.fitting.WeightedObservedPoints;
  *
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
-@DefinitionCategory("Math")
-@DefinitionColor(ColorName.CadetBlue)
-public class Curve extends ZariaObjectDefinition
+@DefinitionDescription("A function defined by a set of control points.")
+public class Curve extends Value
 {
 	//--------------------------------------------------------------------------
 	
 	public enum CurveType
 	{
-		Linear(3),
+		Linear(2),
 		Spline(3),
 		Polynomial(2);	
 		
@@ -63,6 +59,7 @@ public class Curve extends ZariaObjectDefinition
 	
 	//--------------------------------------------------------------------------
 	
+	@Override
 	public float getValue(float x)
 	{
 		if (x <= minX)
