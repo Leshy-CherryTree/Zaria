@@ -10,6 +10,7 @@ package eu.cherrytree.zaria.serialization;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -146,6 +147,14 @@ public final class LinkArray<Definition extends ZariaObjectDefinition> implement
 	public Iterator<Definition> iterator()
 	{
 		return new LinkArrayIterator();
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public void fill(Collection<Definition> collection)
+	{
+		for (Object obj : objects)
+			collection.add((Definition) obj);
 	}
 	
 	//--------------------------------------------------------------------------
