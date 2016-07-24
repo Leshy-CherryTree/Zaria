@@ -1,5 +1,5 @@
 /****************************************/
-/* Const.java							*/
+/* ConstFunction.java					*/
 /* Created on: 17-07-2016				*/
 /* Copyright Cherry Tree Studio 2016	*/
 /* Released under EUPL v1.1				*/
@@ -15,7 +15,7 @@ import eu.cherrytree.zaria.serialization.annotations.DefinitionDescription;
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
 @DefinitionDescription("A constant floating point value.")
-public class Const extends Value
+public class ConstFunction extends Function
 {
 	//--------------------------------------------------------------------------
 	
