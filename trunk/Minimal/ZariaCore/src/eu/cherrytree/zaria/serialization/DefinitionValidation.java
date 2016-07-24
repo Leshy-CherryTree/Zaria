@@ -1,7 +1,7 @@
 /****************************************/
-/* DefinitionValidation.java			*/
+/* DefinitionValidation.java				*/
 /* Created on: 10-May-2013				*/
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 

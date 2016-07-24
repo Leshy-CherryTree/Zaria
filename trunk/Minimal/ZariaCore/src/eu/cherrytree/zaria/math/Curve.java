@@ -22,7 +22,7 @@ import org.apache.commons.math3.fitting.WeightedObservedPoints;
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
 @DefinitionDescription("A function defined by a set of control points.")
-public class Curve extends Value
+public class Curve extends Function
 {
 	//--------------------------------------------------------------------------
 	
