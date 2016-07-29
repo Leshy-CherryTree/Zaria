@@ -59,6 +59,8 @@ public class CurveEditingDialog extends EditorDialog implements ActionListener, 
 	{
 		super(parent, definition);
 
+		setTitle("Curve Editor - " + definition.getID());
+		
 		graphPanel.setListener(this);
 		graphPanel.init((Curve) definition);	
 		
