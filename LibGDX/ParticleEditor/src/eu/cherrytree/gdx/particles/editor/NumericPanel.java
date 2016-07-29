@@ -17,7 +17,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import eu.cherrytree.gdx.particles.ParticleEmitter.NumericValue;
+import eu.cherrytree.gdx.particles.NumericValue;
 
 
 /**

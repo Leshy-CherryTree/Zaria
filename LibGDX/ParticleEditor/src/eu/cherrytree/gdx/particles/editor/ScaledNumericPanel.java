@@ -7,7 +7,7 @@
 
 package eu.cherrytree.gdx.particles.editor;
 
-import eu.cherrytree.gdx.particles.ParticleEmitter.ScaledNumericValue;
+import eu.cherrytree.gdx.particles.ScaledNumericValue;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;

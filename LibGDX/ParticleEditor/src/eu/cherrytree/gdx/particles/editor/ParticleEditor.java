@@ -38,6 +38,7 @@ import eu.cherrytree.gdx.particles.ParticleEffect;
 import eu.cherrytree.gdx.particles.ParticleEmitter;
 
 import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
+import eu.cherrytree.zaria.utilities.Random;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
@@ -73,6 +74,8 @@ public class ParticleEditor extends JFrame
 		{
 			ex.printStackTrace();
 		}
+		
+		Random.init();
 		
 		renderer = new Renderer(this);
 		lwjglCanvas = new LwjglCanvas(renderer);
@@ -125,11 +128,11 @@ public class ParticleEditor extends JFrame
 					emittersPanel.add(effectPanel);
 				}
 			}
-			leftSplit.setDividerLocation(575);
+			leftSplit.setDividerLocation(355);
 		}
 		splitPane.setDividerLocation(325);
 
-		setSize(1150, 750);
+		setSize(1150, 700);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setVisible(true);

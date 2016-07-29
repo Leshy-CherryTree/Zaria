@@ -18,7 +18,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import eu.cherrytree.gdx.particles.ParticleEmitter.ScaledNumericValue;
+import eu.cherrytree.gdx.particles.ScaledNumericValue;
 
 
 /**

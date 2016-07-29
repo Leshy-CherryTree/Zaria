@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import eu.cherrytree.gdx.particles.ParticleEmitter.RangedNumericValue;
+import eu.cherrytree.gdx.particles.RangedNumericValue;
 
 
 /**
