@@ -7,7 +7,7 @@
 
 package eu.cherrytree.gdx.particles.editor;
 
-import eu.cherrytree.gdx.particles.ParticleEmitter.ParticleValue;
+import eu.cherrytree.gdx.particles.ParticleValue;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridBagConstraints;

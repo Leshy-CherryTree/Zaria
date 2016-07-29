@@ -7,9 +7,9 @@
 
 package eu.cherrytree.gdx.particles.editor;
 
-import eu.cherrytree.gdx.particles.ParticleEmitter.SpawnEllipseSide;
-import eu.cherrytree.gdx.particles.ParticleEmitter.SpawnShape;
-import eu.cherrytree.gdx.particles.ParticleEmitter.SpawnShapeValue;
+import eu.cherrytree.gdx.particles.SpawnEllipseSide;
+import eu.cherrytree.gdx.particles.SpawnShape;
+import eu.cherrytree.gdx.particles.SpawnShapeValue;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -58,18 +58,20 @@ class SpawnPanel extends EditorPanel
 				spawnShapeValue.setShape(shape);
 				switch (shape)
 				{
-					case line:
-					case square:
+					case Line:
+					case Square:
 						setEdgesVisible(false);
 						editor.setVisible("Spawn Width", true);
 						editor.setVisible("Spawn Height", true);
 						break;
-					case ellipse:
+						
+					case Ellipse:
 						setEdgesVisible(true);
 						editor.setVisible("Spawn Width", true);
 						editor.setVisible("Spawn Height", true);
 						break;
-					case point:
+						
+					case Point:
 						setEdgesVisible(false);
 						editor.setVisible("Spawn Width", false);
 						editor.setVisible("Spawn Height", false);

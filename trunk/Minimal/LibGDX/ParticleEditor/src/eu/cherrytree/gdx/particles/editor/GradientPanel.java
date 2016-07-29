@@ -18,7 +18,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JColorChooser;
 import javax.swing.JPanel;
 
-import eu.cherrytree.gdx.particles.ParticleEmitter.GradientColorValue;
+import eu.cherrytree.gdx.particles.GradientColorValue;
 
 /**
  * 
