@@ -1,76 +1,144 @@
-/*******************************************************************************
- * Copyright 2011 See AUTHORS file.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
+/****************************************/
+/* OptionsPanel.java					*/
+/* Created on: 27-Jul-2016				*/
+/* Copyright Cherry Tree Studio 2016	*/
+/* Released under EUPL v1.1				*/
+/****************************************/
 
 package eu.cherrytree.gdx.particles.editor;
 
 import eu.cherrytree.gdx.particles.ParticleEmitter;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-class OptionsPanel extends EditorPanel {
-	JCheckBox attachedCheckBox;
-	JCheckBox continuousCheckbox;
-	JCheckBox alignedCheckbox;
-	JCheckBox additiveCheckbox;
-	JCheckBox behindCheckbox;
-	JCheckBox premultipliedAlphaCheckbox;
 
-	public OptionsPanel (final ParticleEditor editor, String name, String description) {
+/**
+ * 
+ * Branched from Particle Editor of libGDX in gdx-tools.
+ */
+class OptionsPanel extends EditorPanel
+{
+	//--------------------------------------------------------------------------
+
+	private JCheckBox attachedCheckBox;
+	private JCheckBox continuousCheckbox;
+	private JCheckBox alignedCheckbox;
+	private JCheckBox additiveCheckbox;
+	private JCheckBox behindCheckbox;
+	private JCheckBox premultipliedAlphaCheckbox;
+	
+	//--------------------------------------------------------------------------
+
+	public OptionsPanel(final ParticleEditor editor, String name, String description)
+	{
 		super(null, name, description);
 
-		initializeComponents();
+		JPanel contentPanel = getContentPanel();
+		{
+			JLabel label = new JLabel("Additive:");
+			contentPanel.add(label, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0));
+		}
+		{
+			additiveCheckbox = new JCheckBox();
+			contentPanel.add(additiveCheckbox, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
+		}
+		{
+			JLabel label = new JLabel("Attached:");
+			contentPanel.add(label, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0));
+		}
+		{
+			attachedCheckBox = new JCheckBox();
+			contentPanel.add(attachedCheckBox, new GridBagConstraints(1, 2, 1, 1, 1, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
+		}
+		{
+			JLabel label = new JLabel("Continuous:");
+			contentPanel.add(label, new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0));
+		}
+		{
+			continuousCheckbox = new JCheckBox();
+			contentPanel.add(continuousCheckbox, new GridBagConstraints(1, 3, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
+		}
+		{
+			JLabel label = new JLabel("Aligned:");
+			contentPanel.add(label, new GridBagConstraints(0, 4, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0));
+		}
+		{
+			alignedCheckbox = new JCheckBox();
+			contentPanel.add(alignedCheckbox, new GridBagConstraints(1, 4, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
+		}
+		{
+			JLabel label = new JLabel("Behind:");
+			contentPanel.add(label, new GridBagConstraints(0, 5, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0));
+		}
+		{
+			behindCheckbox = new JCheckBox();
+			contentPanel.add(behindCheckbox, new GridBagConstraints(1, 5, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
+		}
+		{
+			JLabel label = new JLabel("Premultiplied Alpha:");
+			contentPanel.add(label, new GridBagConstraints(0, 6, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0));
+		}
+		{
+			premultipliedAlphaCheckbox = new JCheckBox();
+			contentPanel.add(premultipliedAlphaCheckbox, new GridBagConstraints(1, 6, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
+		}
 
-		attachedCheckBox.addActionListener(new ActionListener() {
-			public void actionPerformed (ActionEvent event) {
+		attachedCheckBox.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
 				editor.getEmitter().setAttached(attachedCheckBox.isSelected());
 			}
 		});
 
-		continuousCheckbox.addActionListener(new ActionListener() {
-			public void actionPerformed (ActionEvent event) {
+		continuousCheckbox.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
 				editor.getEmitter().setContinuous(continuousCheckbox.isSelected());
 			}
 		});
 
-		alignedCheckbox.addActionListener(new ActionListener() {
-			public void actionPerformed (ActionEvent event) {
+		alignedCheckbox.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
 				editor.getEmitter().setAligned(alignedCheckbox.isSelected());
 			}
 		});
 
-		additiveCheckbox.addActionListener(new ActionListener() {
-			public void actionPerformed (ActionEvent event) {
+		additiveCheckbox.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
 				editor.getEmitter().setAdditive(additiveCheckbox.isSelected());
 			}
 		});
 
-		behindCheckbox.addActionListener(new ActionListener() {
-			public void actionPerformed (ActionEvent event) {
+		behindCheckbox.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
 				editor.getEmitter().setBehind(behindCheckbox.isSelected());
 			}
 		});
 
-		premultipliedAlphaCheckbox.addActionListener(new ActionListener() {
+		premultipliedAlphaCheckbox.addActionListener(new ActionListener()
+		{
 			@Override
-			public void actionPerformed (ActionEvent event) {
+			public void actionPerformed(ActionEvent event)
+			{
 				editor.getEmitter().setPremultipliedAlpha(premultipliedAlphaCheckbox.isSelected());
 			}
 		});
@@ -83,68 +151,14 @@ class OptionsPanel extends EditorPanel {
 		behindCheckbox.setSelected(emitter.isBehind());
 		premultipliedAlphaCheckbox.setSelected(emitter.isPremultipliedAlpha());
 	}
+	
+	//--------------------------------------------------------------------------
+	
+	@Override
+	public void update(ParticleEditor editor)
+	{
+		// Intentionally empty.
+	}		
 
-	private void initializeComponents () {
-		JPanel contentPanel = getContentPanel();
-		{
-			JLabel label = new JLabel("Additive:");
-			contentPanel.add(label, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE,
-				new Insets(6, 0, 0, 0), 0, 0));
-		}
-		{
-			additiveCheckbox = new JCheckBox();
-			contentPanel.add(additiveCheckbox, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
-		}
-		{
-			JLabel label = new JLabel("Attached:");
-			contentPanel.add(label, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE,
-				new Insets(6, 0, 0, 0), 0, 0));
-		}
-		{
-			attachedCheckBox = new JCheckBox();
-			contentPanel.add(attachedCheckBox, new GridBagConstraints(1, 2, 1, 1, 1, 0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
-		}
-		{
-			JLabel label = new JLabel("Continuous:");
-			contentPanel.add(label, new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE,
-				new Insets(6, 0, 0, 0), 0, 0));
-		}
-		{
-			continuousCheckbox = new JCheckBox();
-			contentPanel.add(continuousCheckbox, new GridBagConstraints(1, 3, 1, 1, 0, 0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
-		}
-		{
-			JLabel label = new JLabel("Aligned:");
-			contentPanel.add(label, new GridBagConstraints(0, 4, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE,
-				new Insets(6, 0, 0, 0), 0, 0));
-		}
-		{
-			alignedCheckbox = new JCheckBox();
-			contentPanel.add(alignedCheckbox, new GridBagConstraints(1, 4, 1, 1, 0, 0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
-		}
-		{
-			JLabel label = new JLabel("Behind:");
-			contentPanel.add(label, new GridBagConstraints(0, 5, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE,
-				new Insets(6, 0, 0, 0), 0, 0));
-		}
-		{
-			behindCheckbox = new JCheckBox();
-			contentPanel.add(behindCheckbox, new GridBagConstraints(1, 5, 1, 1, 0, 0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
-		}
-		{
-			JLabel label = new JLabel("Premultiplied Alpha:");
-			contentPanel.add(label, new GridBagConstraints(0, 6, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE,
-				new Insets(6, 0, 0, 0), 0, 0));
-		}
-		{
-			premultipliedAlphaCheckbox = new JCheckBox();
-			contentPanel.add(premultipliedAlphaCheckbox, new GridBagConstraints(1, 6, 1, 1, 0, 0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(6, 6, 0, 0), 0, 0));
-		}
-	}
+	//--------------------------------------------------------------------------
 }
