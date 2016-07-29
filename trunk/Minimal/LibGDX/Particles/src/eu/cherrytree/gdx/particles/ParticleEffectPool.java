@@ -1,55 +1,73 @@
-/*******************************************************************************
- * Copyright 2011 See AUTHORS file.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
+/****************************************/
+/* ParticleEffectPool.java				*/
+/* Created on: 29-07-2016				*/
+/* Copyright Cherry Tree Studio 2016	*/
+/* Released under EUPL v1.1				*/
+/****************************************/
 
 package eu.cherrytree.gdx.particles;
 
-import eu.cherrytree.gdx.particles.ParticleEffect;
-import eu.cherrytree.gdx.particles.ParticleEffectPool.PooledEffect;
+
 import com.badlogic.gdx.utils.Pool;
 
-public class ParticleEffectPool extends Pool<PooledEffect> {
-	private final ParticleEffect effect;
+/**
+ * 
+ * Branched from libGDX particle system.
+ */
+public class ParticleEffectPool extends Pool<ParticleEffectPool.PooledEffect>
+{
+	//--------------------------------------------------------------------------
+	
+	public class PooledEffect extends ParticleEffect
+	{
 
-	public ParticleEffectPool (ParticleEffect effect, int initialCapacity, int max) {
-		super(initialCapacity, max);
-		this.effect = effect;
-	}
-
-	protected PooledEffect newObject () {
-		return new PooledEffect(effect);
-	}
-
-	public PooledEffect obtain () {
-		PooledEffect effect = super.obtain();
-		effect.reset();
-		return effect;
-	}
-
-	public class PooledEffect extends ParticleEffect {
-		PooledEffect (ParticleEffect effect) {
+		PooledEffect(ParticleEffect effect)
+		{
 			super(effect);
 		}
 
 		@Override
-		public void reset () {
+		public void reset()
+		{
 			super.reset();
 		}
 
-		public void free () {
+		public void free()
+		{
 			ParticleEffectPool.this.free(this);
 		}
 	}
+		
+	//--------------------------------------------------------------------------
+
+	private final ParticleEffect effect;
+	
+	//--------------------------------------------------------------------------
+
+	public ParticleEffectPool(ParticleEffect effect, int initialCapacity, int max)
+	{
+		super(initialCapacity, max);
+		this.effect = effect;
+	}
+	
+	//--------------------------------------------------------------------------
+
+	@Override
+	protected PooledEffect newObject()
+	{
+		return new PooledEffect(effect);
+	}
+	
+	//--------------------------------------------------------------------------
+
+	@Override
+	public PooledEffect obtain()
+	{
+		PooledEffect obtained = super.obtain();
+		obtained.reset();
+		
+		return obtained;
+	}
+	
+	//--------------------------------------------------------------------------
 }
