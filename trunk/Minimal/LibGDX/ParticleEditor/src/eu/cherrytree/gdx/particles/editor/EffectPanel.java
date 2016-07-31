@@ -24,6 +24,7 @@ import eu.cherrytree.gdx.particles.ParticleEmitter;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -63,20 +64,7 @@ public class EffectPanel extends JPanel
 
 	public ParticleEmitter createNewEmitter(String name, boolean select)
 	{
-		final ParticleEmitter emitter = new ParticleEmitter();
-
-		emitter.getDuration().setLow(1000);
-		emitter.getEmission().setHigh(50);
-		emitter.getLife().setHigh(500);
-		emitter.getScale().setHigh(32, 32);
-
-		emitter.getTint().setColors(new float[]
-		{
-			1, 0.12156863f, 0.047058824f
-		});
-		emitter.getTransparency().setHigh(1);
-
-		emitter.setMaxParticleCount(25);
+		ParticleEmitter emitter = new ParticleEmitter();
 
 		addEmitter(name, select, emitter);
 		return emitter;
@@ -246,11 +234,14 @@ public class EffectPanel extends JPanel
 
 	private void deleteEmitter()
 	{
-		if (editor.getEffect().getEmitters().size == 1)
+		if (editor.getEffect().getEmitters().size() == 1)
 			return;
+		
 		int row = emitterTable.getSelectedRow();
+		
 		if (row == -1)
 			return;
+		
 		if (row <= editIndex)
 		{
 			int oldEditIndex = editIndex;
@@ -258,7 +249,8 @@ public class EffectPanel extends JPanel
 			if (oldEditIndex == row)
 				editor.reloadRows();
 		}
-		editor.getEffect().getEmitters().removeIndex(row);
+		
+		editor.getEffect().getEmitters().remove(row);
 		emitterTableModel.removeRow(row);
 		emitterTable.getSelectionModel().setSelectionInterval(editIndex, editIndex);
 	}
@@ -269,18 +261,21 @@ public class EffectPanel extends JPanel
 	{
 		if (direction < 0 && editIndex == 0)
 			return;
-		Array<ParticleEmitter> emitters = editor.getEffect().getEmitters();
-		if (direction > 0 && editIndex == emitters.size - 1)
+		
+		ArrayList<ParticleEmitter> emitters = editor.getEffect().getEmitters();
+		
+		if (direction > 0 && editIndex == emitters.size() - 1)
 			return;
+		
 		int insertIndex = editIndex + direction;
+		
 		Object name = emitterTableModel.getValueAt(editIndex, 0);
 		emitterTableModel.removeRow(editIndex);
-		ParticleEmitter emitter = emitters.removeIndex(editIndex);
-		emitterTableModel.insertRow(insertIndex, new Object[]
-		{
-			name
-		});
-		emitters.insert(insertIndex, emitter);
+		
+		ParticleEmitter emitter = emitters.remove(editIndex);
+		emitterTableModel.insertRow(insertIndex, new Object[] { name });
+		emitters.add(insertIndex, emitter);
+		
 		editIndex = insertIndex;
 		emitterTable.getSelectionModel().setSelectionInterval(editIndex, editIndex);
 	}

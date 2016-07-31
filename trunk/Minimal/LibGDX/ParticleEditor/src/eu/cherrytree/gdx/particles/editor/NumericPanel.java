@@ -1,5 +1,5 @@
 /****************************************/
-/* NumericPanel.java					*/
+/* NumericPanel.java						*/
 /* Created on: 27-Jul-2016				*/
 /* Copyright Cherry Tree Studio 2016	*/
 /* Released under EUPL v1.1				*/

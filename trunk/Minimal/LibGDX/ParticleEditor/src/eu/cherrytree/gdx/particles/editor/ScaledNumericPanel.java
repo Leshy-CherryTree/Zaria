@@ -65,6 +65,7 @@ public class ScaledNumericPanel extends EditorPanel
 			public void stateChanged(ChangeEvent event)
 			{
 				value.setLowMin((Float) lowMinSlider.getValue());
+				
 				if (!lowMaxSlider.isVisible())
 					value.setLowMax((Float) lowMinSlider.getValue());
 			}
@@ -83,6 +84,7 @@ public class ScaledNumericPanel extends EditorPanel
 			public void stateChanged(ChangeEvent event)
 			{
 				value.setHighMin((Float) highMinSlider.getValue());
+				
 				if (!highMaxSlider.isVisible())
 					value.setHighMax((Float) highMinSlider.getValue());
 			}
@@ -111,13 +113,18 @@ public class ScaledNumericPanel extends EditorPanel
 			public void actionPerformed(ActionEvent event)
 			{
 				boolean visible = !lowMaxSlider.isVisible();
+				
 				lowMaxSlider.setVisible(visible);
 				lowRangeButton.setText(visible ? "<" : ">");
+				
 				GridBagLayout layout = (GridBagLayout) formPanel.getLayout();
 				GridBagConstraints constraints = layout.getConstraints(lowRangeButton);
+				
 				constraints.gridx = visible ? 5 : 4;
 				layout.setConstraints(lowRangeButton, constraints);
+				
 				Slider slider = visible ? lowMaxSlider : lowMinSlider;
+				
 				value.setLowMax((Float) slider.getValue());
 			}
 		});
@@ -128,13 +135,18 @@ public class ScaledNumericPanel extends EditorPanel
 			public void actionPerformed(ActionEvent event)
 			{
 				boolean visible = !highMaxSlider.isVisible();
+				
 				highMaxSlider.setVisible(visible);
 				highRangeButton.setText(visible ? "<" : ">");
+				
 				GridBagLayout layout = (GridBagLayout) formPanel.getLayout();
 				GridBagConstraints constraints = layout.getConstraints(highRangeButton);
+				
 				constraints.gridx = visible ? 5 : 4;
 				layout.setConstraints(highRangeButton, constraints);
+				
 				Slider slider = visible ? highMaxSlider : highMinSlider;
+				
 				value.setHighMax((Float) slider.getValue());
 			}
 		});
@@ -145,10 +157,13 @@ public class ScaledNumericPanel extends EditorPanel
 			public void actionPerformed(ActionEvent event)
 			{
 				chart.setExpanded(!chart.isExpanded());
+				
 				boolean expanded = chart.isExpanded();
+				
 				GridBagLayout layout = (GridBagLayout) getContentPanel().getLayout();
 				GridBagConstraints chartConstraints = layout.getConstraints(chart);
 				GridBagConstraints expandButtonConstraints = layout.getConstraints(expandButton);
+				
 				if (expanded)
 				{
 					chart.setPreferredSize(new Dimension(150, 200));
@@ -163,8 +178,10 @@ public class ScaledNumericPanel extends EditorPanel
 					chartConstraints.weightx = 0;
 					expandButtonConstraints.weightx = 1;
 				}
+				
 				layout.setConstraints(chart, chartConstraints);
 				layout.setConstraints(expandButton, expandButtonConstraints);
+				
 				relativeCheckBox.setVisible(!expanded);
 				formPanel.setVisible(!expanded);
 				chart.revalidate();
@@ -173,6 +190,7 @@ public class ScaledNumericPanel extends EditorPanel
 
 		if (value.getLowMin() == value.getLowMax())
 			lowRangeButton.doClick(0);
+		
 		if (value.getHighMin() == value.getHighMax())
 			highRangeButton.doClick(0);
 	}
@@ -245,6 +263,7 @@ public class ScaledNumericPanel extends EditorPanel
 					value.setScaling(chart.getValuesY());
 				}
 			};
+			
 			contentPanel.add(chart, new GridBagConstraints(6, 5, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 			chart.setPreferredSize(new Dimension(150, 30));
 		}

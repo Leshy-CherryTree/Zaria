@@ -70,6 +70,7 @@ class RangedNumericPanel extends EditorPanel
 			public void stateChanged(ChangeEvent event)
 			{
 				value.setLowMin((Float) minSlider.getValue());
+				
 				if (!maxSlider.isVisible())
 					value.setLowMax((Float) minSlider.getValue());
 			}
@@ -90,8 +91,10 @@ class RangedNumericPanel extends EditorPanel
 			public void actionPerformed(ActionEvent event)
 			{
 				boolean visible = !maxSlider.isVisible();
+				
 				maxSlider.setVisible(visible);
 				rangeButton.setText(visible ? "<" : ">");
+				
 				Slider slider = visible ? maxSlider : minSlider;
 				value.setLowMax((Float) slider.getValue());
 			}
