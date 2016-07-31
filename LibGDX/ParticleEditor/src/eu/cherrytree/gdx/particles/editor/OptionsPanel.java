@@ -1,5 +1,5 @@
 /****************************************/
-/* OptionsPanel.java					*/
+/* OptionsPanel.java						*/
 /* Created on: 27-Jul-2016				*/
 /* Copyright Cherry Tree Studio 2016	*/
 /* Released under EUPL v1.1				*/
@@ -142,6 +142,8 @@ class OptionsPanel extends EditorPanel
 				editor.getEmitter().setPremultipliedAlpha(premultipliedAlphaCheckbox.isSelected());
 			}
 		});
+		
+		// TODO Create a generic checkbox that links to a boolean value in a ZariaObjectDefinition.
 
 		ParticleEmitter emitter = editor.getEmitter();
 		attachedCheckBox.setSelected(emitter.isAttached());

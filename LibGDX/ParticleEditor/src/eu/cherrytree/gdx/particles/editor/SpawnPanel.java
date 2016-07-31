@@ -108,7 +108,7 @@ class SpawnPanel extends EditorPanel
 	@Override
 	public void update(ParticleEditor editor)
 	{
-		shapeCombo.setSelectedItem(editor.getEmitter().getSpawnShape().getShape());
+		shapeCombo.setSelectedItem(editor.getEmitter().getDefinition().getSpawnShapeValue().getShape());
 	}
 	
 	//--------------------------------------------------------------------------
@@ -117,7 +117,9 @@ class SpawnPanel extends EditorPanel
 	{
 		edgesCheckbox.setVisible(visible);
 		edgesLabel.setVisible(visible);
+		
 		visible = visible && edgesCheckbox.isSelected();
+		
 		sideCombo.setVisible(visible);
 		sideLabel.setVisible(visible);
 	}
