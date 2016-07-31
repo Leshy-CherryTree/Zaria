@@ -7,12 +7,7 @@
 
 package eu.cherrytree.gdx.particles;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Writer;
 import java.util.HashMap;
 
 import com.badlogic.gdx.files.FileHandle;
@@ -21,95 +16,90 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.StreamUtils;
+
+import eu.cherrytree.zaria.game.GameObject;
+import eu.cherrytree.zaria.game.messages.Message;
+import eu.cherrytree.zaria.serialization.LoadCapsule;
+import eu.cherrytree.zaria.serialization.SaveCapsule;
+import eu.cherrytree.zaria.serialization.ValueAlreadySetException;
+
+import java.util.ArrayList;
 
 /**
  * 
  * Branched from libGDX particle system.
  */
-public class ParticleEffect implements Disposable
+public class ParticleEffect extends GameObject<ParticleEffectDefinition>
 {
 	//--------------------------------------------------------------------------
 
-	private final Array<ParticleEmitter> emitters;
+	private ArrayList<ParticleEmitter> emitters = new ArrayList<>();
 	private BoundingBox bounds;
-	private boolean ownsTexture;
 	
 	//--------------------------------------------------------------------------
 
-	public ParticleEffect()
+	public ParticleEffect(ParticleEffectDefinition definition, String name)
 	{
-		emitters = new Array(8);
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public ParticleEffect(ParticleEffect effect)
-	{
-		emitters = new Array(true, effect.emitters.size);
+		super(definition, name);
 		
-		for (int i = 0, n = effect.emitters.size; i < n; i++)
-			emitters.add(new ParticleEmitter(effect.emitters.get(i)));
+		for (ParticleEmitterDefinition emitter_def : definition.getEmitters())
+			emitters.add(emitter_def.create());
 	}
 	
 	//--------------------------------------------------------------------------
 
 	public void start()
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
-			emitters.get(i).start();
+		for (ParticleEmitter emitter : emitters)
+			emitter.start();
 	}
 	
 	//--------------------------------------------------------------------------
 
 	public void reset()
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
-			emitters.get(i).reset();
+		for (ParticleEmitter emitter : emitters)
+			emitter.reset();
 	}
 	
 	//--------------------------------------------------------------------------
 
 	public void update(float delta)
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
-			emitters.get(i).update(delta);
+		for (ParticleEmitter emitter : emitters)
+			emitter.update(delta);
 	}
 	
 	//--------------------------------------------------------------------------
 
 	public void draw(Batch spriteBatch)
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
-			emitters.get(i).draw(spriteBatch);
+		for (ParticleEmitter emitter : emitters)
+			emitter.draw(spriteBatch);
 	}
 	
 	//--------------------------------------------------------------------------
 
 	public void draw(Batch spriteBatch, float delta)
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
-			emitters.get(i).draw(spriteBatch, delta);
+		for (ParticleEmitter emitter : emitters)
+			emitter.draw(spriteBatch, delta);
 	}
 	
 	//--------------------------------------------------------------------------
 
 	public void allowCompletion()
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
-			emitters.get(i).allowCompletion();
+		for (ParticleEmitter emitter : emitters)
+			emitter.allowCompletion();
 	}
 	
 	//--------------------------------------------------------------------------
 
 	public boolean isComplete()
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
+		for (ParticleEmitter emitter : emitters)
 		{
-			ParticleEmitter emitter = emitters.get(i);
 			if (!emitter.isComplete())
 				return false;
 		}
@@ -119,44 +109,23 @@ public class ParticleEffect implements Disposable
 	
 	//--------------------------------------------------------------------------
 
-	public void setDuration(int duration)
-	{
-		for (int i = 0, n = emitters.size; i < n; i++)
-		{
-			ParticleEmitter emitter = emitters.get(i);
-			emitter.setContinuous(false);
-			emitter.duration = duration;
-			emitter.durationTimer = 0;
-		}
-	}
-	
-	//--------------------------------------------------------------------------
-
 	public void setPosition(float x, float y)
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
-			emitters.get(i).setPosition(x, y);
+		for (ParticleEmitter emitter : emitters)
+			emitter.setPosition(x, y);
 	}
 	
 	//--------------------------------------------------------------------------
 
 	public void setFlip(boolean flipX, boolean flipY)
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
-			emitters.get(i).setFlip(flipX, flipY);
+		for (ParticleEmitter emitter : emitters)
+			emitter.setFlip(flipX, flipY);
 	}
 	
 	//--------------------------------------------------------------------------
 
-	public void flipY()
-	{
-		for (int i = 0, n = emitters.size; i < n; i++)
-			emitters.get(i).flipY();
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public Array<ParticleEmitter> getEmitters()
+	public ArrayList<ParticleEmitter> getEmitters()
 	{
 		return emitters;
 	}
@@ -168,9 +137,8 @@ public class ParticleEffect implements Disposable
 	 */
 	public ParticleEmitter findEmitter(String name)
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
+		for (ParticleEmitter emitter : emitters)
 		{
-			ParticleEmitter emitter = emitters.get(i);
 			if (emitter.getName().equals(name))
 				return emitter;
 		}
@@ -180,73 +148,10 @@ public class ParticleEffect implements Disposable
 	
 	//--------------------------------------------------------------------------
 
-	public void save(Writer output) throws IOException
-	{
-		int index = 0;
-		for (int i = 0, n = emitters.size; i < n; i++)
-		{
-			ParticleEmitter emitter = emitters.get(i);
-			if (index++ > 0)
-				output.write("\n\n");
-			emitter.save(output);
-		}
-	}
-
-	public void load(FileHandle effectFile, FileHandle imagesDir)
-	{
-		loadEmitters(effectFile);
-		loadEmitterImages(imagesDir);
-	}
-
-	public void load(FileHandle effectFile, TextureAtlas atlas)
-	{
-		load(effectFile, atlas, null);
-	}
-
-	public void load(FileHandle effectFile, TextureAtlas atlas, String atlasPrefix)
-	{
-		loadEmitters(effectFile);
-		loadEmitterImages(atlas, atlasPrefix);
-	}
-
-	public void loadEmitters(FileHandle effectFile)
-	{
-		InputStream input = effectFile.read();
-		emitters.clear();
-		BufferedReader reader = null;
-		try
-		{
-			reader = new BufferedReader(new InputStreamReader(input), 512);
-			while (true)
-			{
-				ParticleEmitter emitter = new ParticleEmitter(reader);
-				emitters.add(emitter);
-				if (reader.readLine() == null)
-					break;
-				if (reader.readLine() == null)
-					break;
-			}
-		}
-		catch (IOException ex)
-		{
-			throw new GdxRuntimeException("Error loading effect: " + effectFile, ex);
-		}
-		finally
-		{
-			StreamUtils.closeQuietly(reader);
-		}
-	}
-
-	public void loadEmitterImages(TextureAtlas atlas)
-	{
-		loadEmitterImages(atlas, null);
-	}
-
 	public void loadEmitterImages(TextureAtlas atlas, String atlasPrefix)
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
+		for (ParticleEmitter emitter : emitters)
 		{
-			ParticleEmitter emitter = emitters.get(i);
 			String imagePath = emitter.getImagePath();
 			if (imagePath == null)
 				continue;
@@ -265,11 +170,11 @@ public class ParticleEffect implements Disposable
 
 	public void loadEmitterImages(FileHandle imagesDir)
 	{
-		ownsTexture = true;
-		HashMap<String, Sprite> loadedSprites = new HashMap<String, Sprite>(emitters.size);
-		for (int i = 0, n = emitters.size; i < n; i++)
+//		ownsTexture = true;
+		HashMap<String, Sprite> loadedSprites = new HashMap<>(emitters.size());
+		
+		for (ParticleEmitter emitter : emitters)
 		{
-			ParticleEmitter emitter = emitters.get(i);
 			String imagePath = emitter.getImagePath();
 			if (imagePath == null)
 				continue;
@@ -290,23 +195,6 @@ public class ParticleEffect implements Disposable
 	}
 
 	//--------------------------------------------------------------------------
-	
-	/**
-	 * Disposes the texture for each sprite for each ParticleEmitter.
-	 */
-	@Override
-	public void dispose()
-	{
-		if (!ownsTexture)
-			return;
-		for (int i = 0, n = emitters.size; i < n; i++)
-		{
-			ParticleEmitter emitter = emitters.get(i);
-			emitter.getSprite().getTexture().dispose();
-		}
-	}
-	
-	//--------------------------------------------------------------------------
 
 	/**
 	 * Returns the bounding box for all active particles. z axis will always be zero.
@@ -318,53 +206,11 @@ public class ParticleEffect implements Disposable
 
 		BoundingBox bounds = this.bounds;
 		bounds.inf();
+		
 		for (ParticleEmitter emitter : this.emitters)
 			bounds.ext(emitter.getBoundingBox());
+		
 		return bounds;
-	}
-
-	//--------------------------------------------------------------------------
-	
-	public void scaleEffect(float scaleFactor)
-	{
-		for (ParticleEmitter particleEmitter : emitters)
-		{
-			particleEmitter.getScale().setHigh(particleEmitter.getScale().getHighMin() * scaleFactor,
-				particleEmitter.getScale().getHighMax() * scaleFactor);
-			particleEmitter.getScale().setLow(particleEmitter.getScale().getLowMin() * scaleFactor,
-				particleEmitter.getScale().getLowMax() * scaleFactor);
-
-			particleEmitter.getVelocity().setHigh(particleEmitter.getVelocity().getHighMin() * scaleFactor,
-				particleEmitter.getVelocity().getHighMax() * scaleFactor);
-			particleEmitter.getVelocity().setLow(particleEmitter.getVelocity().getLowMin() * scaleFactor,
-				particleEmitter.getVelocity().getLowMax() * scaleFactor);
-
-			particleEmitter.getGravity().setHigh(particleEmitter.getGravity().getHighMin() * scaleFactor,
-				particleEmitter.getGravity().getHighMax() * scaleFactor);
-			particleEmitter.getGravity().setLow(particleEmitter.getGravity().getLowMin() * scaleFactor,
-				particleEmitter.getGravity().getLowMax() * scaleFactor);
-
-			particleEmitter.getWind().setHigh(particleEmitter.getWind().getHighMin() * scaleFactor,
-				particleEmitter.getWind().getHighMax() * scaleFactor);
-			particleEmitter.getWind().setLow(particleEmitter.getWind().getLowMin() * scaleFactor,
-				particleEmitter.getWind().getLowMax() * scaleFactor);
-
-			particleEmitter.getSpawnWidth().setHigh(particleEmitter.getSpawnWidth().getHighMin() * scaleFactor,
-				particleEmitter.getSpawnWidth().getHighMax() * scaleFactor);
-			particleEmitter.getSpawnWidth().setLow(particleEmitter.getSpawnWidth().getLowMin() * scaleFactor,
-				particleEmitter.getSpawnWidth().getLowMax() * scaleFactor);
-
-			particleEmitter.getSpawnHeight().setHigh(particleEmitter.getSpawnHeight().getHighMin() * scaleFactor,
-				particleEmitter.getSpawnHeight().getHighMax() * scaleFactor);
-			particleEmitter.getSpawnHeight().setLow(particleEmitter.getSpawnHeight().getLowMin() * scaleFactor,
-				particleEmitter.getSpawnHeight().getLowMax() * scaleFactor);
-
-			particleEmitter.getXOffsetValue().setLow(particleEmitter.getXOffsetValue().getLowMin() * scaleFactor,
-				particleEmitter.getXOffsetValue().getLowMax() * scaleFactor);
-
-			particleEmitter.getYOffsetValue().setLow(particleEmitter.getYOffsetValue().getLowMin() * scaleFactor,
-				particleEmitter.getYOffsetValue().getLowMax() * scaleFactor);
-		}
 	}
 	
 	//--------------------------------------------------------------------------
@@ -383,8 +229,41 @@ public class ParticleEffect implements Disposable
 	 */
 	public void setEmittersCleanUpBlendFunction(boolean cleanUpBlendFunction)
 	{
-		for (int i = 0, n = emitters.size; i < n; i++)
-			emitters.get(i).setCleansUpBlendFunction(cleanUpBlendFunction);
+		for (ParticleEmitter emitter : emitters)
+			emitter.setCleansUpBlendFunction(cleanUpBlendFunction);
+	}
+	
+	//--------------------------------------------------------------------------
+
+	@Override
+	public void load(LoadCapsule capsule)
+	{
+		throw new UnsupportedOperationException("Particle effects do not support state saving.");
+	}
+	
+	//--------------------------------------------------------------------------
+
+	@Override
+	public void save(SaveCapsule capsule) throws ValueAlreadySetException
+	{
+		throw new UnsupportedOperationException("Particle effects do not support state saving.");
+	}
+	
+	//--------------------------------------------------------------------------
+	
+
+	@Override
+	public void destroy()
+	{
+		// What should be here?
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	@Override
+	public void handleMessage(Message message)
+	{
+		// Intentionally empty.
 	}
 	
 	//--------------------------------------------------------------------------

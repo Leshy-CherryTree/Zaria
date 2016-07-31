@@ -7,10 +7,6 @@
 
 package eu.cherrytree.gdx.particles;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Writer;
-
 /**
  * 
  * Branched from libGDX particle system.
@@ -23,46 +19,16 @@ public class NumericValue extends ParticleValue
 
 	//--------------------------------------------------------------------------
 	
-	public float getValue()
-	{
-		return value;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public void setValue(float value)
+	public NumericValue(float value)
 	{
 		this.value = value;
 	}
 	
 	//--------------------------------------------------------------------------
-
-	@Override
-	public void save(Writer output) throws IOException
-	{
-		super.save(output);
-		if (!active)
-			return;
-		output.write("value: " + value + "\n");
-	}
 	
-	//--------------------------------------------------------------------------
-
-	@Override
-	public void load(BufferedReader reader) throws IOException
+	public float getValue()
 	{
-		super.load(reader);
-		if (!active)
-			return;
-		value = readFloat(reader, "value");
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public void load(NumericValue value)
-	{
-		super.load(value);
-		this.value = value.value;
+		return value;
 	}
 	
 	//--------------------------------------------------------------------------
