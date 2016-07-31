@@ -7,9 +7,6 @@
 
 package eu.cherrytree.gdx.particles;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Writer;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -18,13 +15,19 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.collision.BoundingBox;
+
+import eu.cherrytree.zaria.game.GameObject;
+import eu.cherrytree.zaria.game.messages.Message;
+import eu.cherrytree.zaria.serialization.LoadCapsule;
+import eu.cherrytree.zaria.serialization.SaveCapsule;
+import eu.cherrytree.zaria.serialization.ValueAlreadySetException;
 import eu.cherrytree.zaria.utilities.Random;
 
 /**
  * 
  * Branched from libGDX particle system.
  */
-public class ParticleEmitter
+public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 {
 	//--------------------------------------------------------------------------
 
@@ -38,31 +41,11 @@ public class ParticleEmitter
 	
 	//--------------------------------------------------------------------------
 
-	private RangedNumericValue delayValue = new RangedNumericValue();
-	private ScaledNumericValue lifeOffsetValue = new ScaledNumericValue();
-	private RangedNumericValue durationValue = new RangedNumericValue();
-	private ScaledNumericValue lifeValue = new ScaledNumericValue();
-	private ScaledNumericValue emissionValue = new ScaledNumericValue();
-	private ScaledNumericValue scaleValue = new ScaledNumericValue();
-	private ScaledNumericValue rotationValue = new ScaledNumericValue();
-	private ScaledNumericValue velocityValue = new ScaledNumericValue();
-	private ScaledNumericValue angleValue = new ScaledNumericValue();
-	private ScaledNumericValue windValue = new ScaledNumericValue();
-	private ScaledNumericValue gravityValue = new ScaledNumericValue();
-	private ScaledNumericValue transparencyValue = new ScaledNumericValue();
-	private GradientColorValue tintValue = new GradientColorValue();
-	private RangedNumericValue xOffsetValue = new ScaledNumericValue();
-	private RangedNumericValue yOffsetValue = new ScaledNumericValue();
-	private ScaledNumericValue spawnWidthValue = new ScaledNumericValue();
-	private ScaledNumericValue spawnHeightValue = new ScaledNumericValue();
-	private SpawnShapeValue spawnShapeValue = new SpawnShapeValue();
-
 	private float accumulator;
 	private Sprite sprite;
 	private Particle[] particles;
-	private int minParticleCount, maxParticleCount = 4;
+	
 	private float x, y;
-	private String name;
 	private String imagePath;
 	private int activeCount;
 	private boolean[] active;
@@ -80,87 +63,18 @@ public class ParticleEmitter
 	public float duration = 1, durationTimer;
 	private float delay, delayTimer;
 
-	private boolean attached;
-	private boolean continuous;
-	private boolean aligned;
-	private boolean behind;
-	private boolean additive = true;
-	private boolean premultipliedAlpha = false;
 	private boolean cleansUpBlendFunction = true;
 	
 	//--------------------------------------------------------------------------
-
-	public ParticleEmitter()
-	{
-		initialize();
-	}
 	
-	//--------------------------------------------------------------------------
 
-	public ParticleEmitter(BufferedReader reader) throws IOException
+	public ParticleEmitter(ParticleEmitterDefinition definition, String name)
 	{
-		initialize();
-		load(reader);
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public ParticleEmitter(ParticleEmitter emitter)
-	{
-		sprite = emitter.sprite;
-		name = emitter.name;
-		imagePath = emitter.imagePath;
-		setMaxParticleCount(emitter.maxParticleCount);
-		minParticleCount = emitter.minParticleCount;
-		delayValue.load(emitter.delayValue);
-		durationValue.load(emitter.durationValue);
-		emissionValue.load(emitter.emissionValue);
-		lifeValue.load(emitter.lifeValue);
-		lifeOffsetValue.load(emitter.lifeOffsetValue);
-		scaleValue.load(emitter.scaleValue);
-		rotationValue.load(emitter.rotationValue);
-		velocityValue.load(emitter.velocityValue);
-		angleValue.load(emitter.angleValue);
-		windValue.load(emitter.windValue);
-		gravityValue.load(emitter.gravityValue);
-		transparencyValue.load(emitter.transparencyValue);
-		tintValue.load(emitter.tintValue);
-		xOffsetValue.load(emitter.xOffsetValue);
-		yOffsetValue.load(emitter.yOffsetValue);
-		spawnWidthValue.load(emitter.spawnWidthValue);
-		spawnHeightValue.load(emitter.spawnHeightValue);
-		spawnShapeValue.load(emitter.spawnShapeValue);
-		attached = emitter.attached;
-		continuous = emitter.continuous;
-		aligned = emitter.aligned;
-		behind = emitter.behind;
-		additive = emitter.additive;
-		premultipliedAlpha = emitter.premultipliedAlpha;
-		cleansUpBlendFunction = emitter.cleansUpBlendFunction;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	private void initialize()
-	{
-		durationValue.setAlwaysActive(true);
-		emissionValue.setAlwaysActive(true);
-		lifeValue.setAlwaysActive(true);
-		scaleValue.setAlwaysActive(true);
-		transparencyValue.setAlwaysActive(true);
-		spawnShapeValue.setAlwaysActive(true);
-		spawnWidthValue.setAlwaysActive(true);
-		spawnHeightValue.setAlwaysActive(true);
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public final void setMaxParticleCount(int maxParticleCount)
-	{
-		this.maxParticleCount = maxParticleCount;
-		active = new boolean[maxParticleCount];
+		super(definition, name);
+		
+		active = new boolean[getDefinition().getMaxParticleCount()];
 		activeCount = 0;
-		particles = new Particle[maxParticleCount];
+		particles = new Particle[getDefinition().getMaxParticleCount()];
 	}
 	
 	//--------------------------------------------------------------------------
@@ -168,7 +82,7 @@ public class ParticleEmitter
 	public void addParticle()
 	{
 		int active_count = this.activeCount;
-		if (active_count == maxParticleCount)
+		if (active_count == getDefinition().getMaxParticleCount())
 			return;
 		
 		boolean[] is_active = active;
@@ -190,7 +104,7 @@ public class ParticleEmitter
 
 	public void addParticles(int count)
 	{
-		count = Math.min(count, maxParticleCount - activeCount);
+		count = Math.min(count, getDefinition().getMaxParticleCount() - activeCount);
 		
 		if (count == 0)
 			return;
@@ -244,7 +158,7 @@ public class ParticleEmitter
 
 			if (durationTimer < duration)
 				durationTimer += deltaMillis;
-			else if (!continuous || allowCompletion)
+			else if (!getDefinition().isContinuous() || allowCompletion)
 				done = true;
 			else
 				restart();
@@ -252,7 +166,7 @@ public class ParticleEmitter
 			if (!done)
 			{
 				emissionDelta += deltaMillis;
-				float emissionTime = emission + emissionDiff * emissionValue.getScale(durationTimer / (float) duration);
+				float emissionTime = emission + emissionDiff * getDefinition().getEmissionValue().getScale(durationTimer / (float) duration);
 				
 				if (emissionTime > 0)
 				{
@@ -260,15 +174,15 @@ public class ParticleEmitter
 					if (emissionDelta >= emissionTime)
 					{
 						int emitCount = (int) (emissionDelta / emissionTime);
-						emitCount = Math.min(emitCount, maxParticleCount - activeCount);
+						emitCount = Math.min(emitCount, getDefinition().getMaxParticleCount() - activeCount);
 						emissionDelta -= emitCount * emissionTime;
 						emissionDelta %= emissionTime;
 						addParticles(emitCount);
 					}
 				}
 				
-				if (activeCount < minParticleCount)
-					addParticles(minParticleCount - activeCount);
+				if (activeCount < getDefinition().getMinParticleCount())
+					addParticles(getDefinition().getMinParticleCount() - activeCount);
 			}
 		}
 
@@ -292,11 +206,11 @@ public class ParticleEmitter
 	
 	public void draw(Batch batch)
 	{
-		if (premultipliedAlpha)
+		if (getDefinition().isPremultipliedAlpha())
 		{
 			batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		}
-		else if (additive)
+		else if (getDefinition().isAdditive())
 		{
 			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 		}
@@ -313,7 +227,7 @@ public class ParticleEmitter
 				particles[i].draw(batch);
 		}
 
-		if (cleansUpBlendFunction && (additive || premultipliedAlpha))
+		if (cleansUpBlendFunction && (getDefinition().isAdditive() || getDefinition().isPremultipliedAlpha()))
 			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 	}
 	
@@ -335,9 +249,9 @@ public class ParticleEmitter
 		int deltaMillis = (int) accumulator;
 		accumulator -= deltaMillis;
 
-		if (premultipliedAlpha)
+		if (getDefinition().isPremultipliedAlpha())
 			batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		else if (additive)
+		else if (getDefinition().isAdditive())
 			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 		else
 			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -366,7 +280,7 @@ public class ParticleEmitter
 		
 		this.activeCount = activeCount;
 
-		if (cleansUpBlendFunction && (additive || premultipliedAlpha))
+		if (cleansUpBlendFunction && (getDefinition().isAdditive() || getDefinition().isPremultipliedAlpha()))
 			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
 		if (delayTimer < delay)
@@ -387,14 +301,14 @@ public class ParticleEmitter
 		}
 		else
 		{
-			if (!continuous || allowCompletion)
+			if (!getDefinition().isContinuous() || allowCompletion)
 				return;
 
 			restart();
 		}
 
 		emissionDelta += deltaMillis;
-		float emissionTime = emission + emissionDiff * emissionValue.getScale(durationTimer / (float) duration);
+		float emissionTime = emission + emissionDiff * getDefinition().getEmissionValue().getScale(durationTimer / (float) duration);
 		
 		if (emissionTime > 0)
 		{
@@ -403,15 +317,15 @@ public class ParticleEmitter
 			if (emissionDelta >= emissionTime)
 			{
 				int emitCount = (int) (emissionDelta / emissionTime);
-				emitCount = Math.min(emitCount, maxParticleCount - activeCount);
+				emitCount = Math.min(emitCount, getDefinition().getMaxParticleCount() - activeCount);
 				emissionDelta -= emitCount * emissionTime;
 				emissionDelta %= emissionTime;
 				addParticles(emitCount);
 			}
 		}
 		
-		if (activeCount < minParticleCount)
-			addParticles(minParticleCount - activeCount);
+		if (activeCount < getDefinition().getMinParticleCount())
+			addParticles(getDefinition().getMinParticleCount() - activeCount);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -442,63 +356,63 @@ public class ParticleEmitter
 
 	private void restart()
 	{
-		delay = delayValue.active ? delayValue.newLowValue() : 0;
+		delay = getDefinition().getDelayValue().active ? getDefinition().getDelayValue().newLowValue() : 0;
 		delayTimer = 0;
 
 		durationTimer -= duration;
-		duration = durationValue.newLowValue();
+		duration = getDefinition().getDurationValue().newLowValue();
 
-		emission = (int) emissionValue.newLowValue();
-		emissionDiff = (int) emissionValue.newHighValue();
+		emission = (int) getDefinition().getEmissionValue().newLowValue();
+		emissionDiff = (int) getDefinition().getEmissionValue().newHighValue();
 		
-		if (!emissionValue.isRelative())
+		if (!getDefinition().getEmissionValue().isRelative())
 			emissionDiff -= emission;
 
-		life = (int) lifeValue.newLowValue();
-		lifeDiff = (int) lifeValue.newHighValue();
+		life = (int) getDefinition().getLifeValue().newLowValue();
+		lifeDiff = (int) getDefinition().getLifeValue().newHighValue();
 		
-		if (!lifeValue.isRelative())
+		if (!getDefinition().getLifeValue().isRelative())
 			lifeDiff -= life;
 
-		lifeOffset = lifeOffsetValue.active ? (int) lifeOffsetValue.newLowValue() : 0;
-		lifeOffsetDiff = (int) lifeOffsetValue.newHighValue();
+		lifeOffset = getDefinition().getLifeOffsetValue().active ? (int) getDefinition().getLifeOffsetValue().newLowValue() : 0;
+		lifeOffsetDiff = (int) getDefinition().getLifeOffsetValue().newHighValue();
 		
-		if (!lifeOffsetValue.isRelative())
+		if (!getDefinition().getLifeOffsetValue().isRelative())
 			lifeOffsetDiff -= lifeOffset;
 
-		spawnWidth = spawnWidthValue.newLowValue();
-		spawnWidthDiff = spawnWidthValue.newHighValue();
+		spawnWidth = getDefinition().getSpawnWidthValue().newLowValue();
+		spawnWidthDiff = getDefinition().getSpawnWidthValue().newHighValue();
 		
-		if (!spawnWidthValue.isRelative())
+		if (!getDefinition().getSpawnWidthValue().isRelative())
 			spawnWidthDiff -= spawnWidth;
 
-		spawnHeight = spawnHeightValue.newLowValue();
-		spawnHeightDiff = spawnHeightValue.newHighValue();
+		spawnHeight = getDefinition().getSpawnHeightValue().newLowValue();
+		spawnHeightDiff = getDefinition().getSpawnHeightValue().newHighValue();
 		
-		if (!spawnHeightValue.isRelative())
+		if (!getDefinition().getSpawnHeightValue().isRelative())
 			spawnHeightDiff -= spawnHeight;
 
 		updateFlags = 0;
 		
-		if (angleValue.active && angleValue.getTimeline().length > 1)
+		if (getDefinition().getAngleValue().active && getDefinition().getAngleValue().getTimeline().length > 1)
 			updateFlags |= UPDATE_ANGLE;
 
-		if (velocityValue.active)
+		if (getDefinition().getVelocityValue().active)
 			updateFlags |= UPDATE_VELOCITY;
 
-		if (scaleValue.getTimeline().length > 1)
+		if (getDefinition().getScaleValue().getTimeline().length > 1)
 			updateFlags |= UPDATE_SCALE;
 			
-		if (rotationValue.active && rotationValue.getTimeline().length > 1)
+		if (getDefinition().getRotationValue().active && getDefinition().getRotationValue().getTimeline().length > 1)
 			updateFlags |= UPDATE_ROTATION;
 
-		if (windValue.active)
+		if (getDefinition().getWindValue().active)
 			updateFlags |= UPDATE_WIND;
 
-		if (gravityValue.active)
+		if (getDefinition().getGravityValue().active)
 			updateFlags |= UPDATE_GRAVITY;
 		
-		if (tintValue.getTimeline().length > 1)
+		if (getDefinition().getTintValue().getTimeline().length > 1)
 			updateFlags |= UPDATE_TINT;
 	}
 	
@@ -524,70 +438,72 @@ public class ParticleEmitter
 		float percent = durationTimer / (float) duration;
 		int updateFlags = this.updateFlags;
 
-		particle.currentLife = particle.life = life + (int) (lifeDiff * lifeValue.getScale(percent));
+		particle.currentLife = particle.life = life + (int) (lifeDiff * getDefinition().getLifeValue().getScale(percent));
 
-		if (velocityValue.active)
+		if (getDefinition().getVelocityValue().active)
 		{
-			particle.velocity = velocityValue.newLowValue();
-			particle.velocityDiff = velocityValue.newHighValue();
+			particle.velocity = getDefinition().getVelocityValue().newLowValue();
+			particle.velocityDiff = getDefinition().getVelocityValue().newHighValue();
 
-			if (!velocityValue.isRelative())
+			if (!getDefinition().getVelocityValue().isRelative())
 				particle.velocityDiff -= particle.velocity;
 		}
 
-		particle.angle = angleValue.newLowValue();
-		particle.angleDiff = angleValue.newHighValue();
+		particle.angle = getDefinition().getAngleValue().newLowValue();
+		particle.angleDiff = getDefinition().getAngleValue().newHighValue();
 
-		if (!angleValue.isRelative())
+		if (!getDefinition().getAngleValue().isRelative())
 			particle.angleDiff -= particle.angle;
 
 		float angle = 0;
 
 		if ((updateFlags & UPDATE_ANGLE) == 0)
 		{
-			angle = particle.angle + particle.angleDiff * angleValue.getScale(0);
+			angle = particle.angle + particle.angleDiff * getDefinition().getAngleValue().getScale(0);
 			particle.angle = angle;
 			particle.angleCos = MathUtils.cosDeg(angle);
 			particle.angleSin = MathUtils.sinDeg(angle);
 		}
 
 		float spriteWidth = sprite.getWidth();
-		particle.scale = scaleValue.newLowValue() / spriteWidth;
-		particle.scaleDiff = scaleValue.newHighValue() / spriteWidth;
+		particle.scale = getDefinition().getScaleValue().newLowValue() / spriteWidth;
+		particle.scaleDiff = getDefinition().getScaleValue().newHighValue() / spriteWidth;
 		
-		if (!scaleValue.isRelative())
+		if (!getDefinition().getScaleValue().isRelative())
 			particle.scaleDiff -= particle.scale;
 		
-		particle.setScale(particle.scale + particle.scaleDiff * scaleValue.getScale(0));
+		particle.setScale(particle.scale + particle.scaleDiff * getDefinition().getScaleValue().getScale(0));
 
-		if (rotationValue.active)
+		if (getDefinition().getRotationValue().active)
 		{
-			particle.rotation = rotationValue.newLowValue();
-			particle.rotationDiff = rotationValue.newHighValue();
-			if (!rotationValue.isRelative())
+			particle.rotation = getDefinition().getRotationValue().newLowValue();
+			particle.rotationDiff = getDefinition().getRotationValue().newHighValue();
+			
+			if (!getDefinition().getRotationValue().isRelative())
 				particle.rotationDiff -= particle.rotation;
-			float rotation = particle.rotation + particle.rotationDiff * rotationValue.getScale(0);
-			if (aligned)
+			
+			float rotation = particle.rotation + particle.rotationDiff * getDefinition().getRotationValue().getScale(0);
+			
+			if (getDefinition().isAligned())
 				rotation += angle;
+			
 			particle.setRotation(rotation);
 		}
 
-		if (windValue.active)
+		if (getDefinition().getWindValue().active)
 		{
-			particle.wind = windValue.newLowValue();
-			particle.windDiff = windValue.newHighValue();
-			if (!windValue.isRelative())
-				particle.windDiff -= particle.wind;
+			particle.wind = getDefinition().getWindValue().newLowValue();
+			particle.windDiff = getDefinition().getWindValue().newHighValue();
 			
-			System.out.println("wind: " + particle.wind);
-			System.out.println("diff: " + particle.windDiff);
+			if (!getDefinition().getWindValue().isRelative())
+				particle.windDiff -= particle.wind;
 		}
 
-		if (gravityValue.active)
+		if (getDefinition().getGravityValue().active)
 		{
-			particle.gravity = gravityValue.newLowValue();
-			particle.gravityDiff = gravityValue.newHighValue();
-			if (!gravityValue.isRelative())
+			particle.gravity = getDefinition().getGravityValue().newLowValue();
+			particle.gravityDiff = getDefinition().getGravityValue().newHighValue();
+			if (!getDefinition().getGravityValue().isRelative())
 				particle.gravityDiff -= particle.gravity;
 		}
 
@@ -596,31 +512,31 @@ public class ParticleEmitter
 		if (color == null)
 			particle.tint = color = new float[3];
 		
-		float[] temp = tintValue.getColor(0);
+		float[] temp = getDefinition().getTintValue().getColor(0);
 		color[0] = temp[0];
 		color[1] = temp[1];
 		color[2] = temp[2];
 
-		particle.transparency = transparencyValue.newLowValue();
-		particle.transparencyDiff = transparencyValue.newHighValue() - particle.transparency;
+		particle.transparency = getDefinition().getTransparencyValue().newLowValue();
+		particle.transparencyDiff = getDefinition().getTransparencyValue().newHighValue() - particle.transparency;
 
 		// Spawn.
 		float x = this.x;
 		
-		if (xOffsetValue.active)
-			x += xOffsetValue.newLowValue();
+		if (getDefinition().getXOffsetValue().active)
+			x += getDefinition().getXOffsetValue().newLowValue();
 		
 		float y = this.y;
 		
-		if (yOffsetValue.active)
-			y += yOffsetValue.newLowValue();
+		if (getDefinition().getYOffsetValue().active)
+			y += getDefinition().getYOffsetValue().newLowValue();
 		
-		switch (spawnShapeValue.getShape())
+		switch (getDefinition().getSpawnShapeValue().getShape())
 		{
 			case Square:
 			{
-				float width = spawnWidth + (spawnWidthDiff * spawnWidthValue.getScale(percent));
-				float height = spawnHeight + (spawnHeightDiff * spawnHeightValue.getScale(percent));
+				float width = spawnWidth + (spawnWidthDiff * getDefinition().getSpawnWidthValue().getScale(percent));
+				float height = spawnHeight + (spawnHeightDiff * getDefinition().getSpawnHeightValue().getScale(percent));
 				x += MathUtils.random(width) - width / 2;
 				y += MathUtils.random(height) - height / 2;
 				break;
@@ -628,8 +544,8 @@ public class ParticleEmitter
 			
 			case Ellipse:
 			{
-				float width = spawnWidth + (spawnWidthDiff * spawnWidthValue.getScale(percent));
-				float height = spawnHeight + (spawnHeightDiff * spawnHeightValue.getScale(percent));
+				float width = spawnWidth + (spawnWidthDiff * getDefinition().getSpawnWidthValue().getScale(percent));
+				float height = spawnHeight + (spawnHeightDiff * getDefinition().getSpawnHeightValue().getScale(percent));
 				float radiusX = width / 2;
 				float radiusY = height / 2;
 				
@@ -638,10 +554,10 @@ public class ParticleEmitter
 				
 				float scaleY = radiusX / (float) radiusY;
 				
-				if (spawnShapeValue.isEdges())
+				if (getDefinition().getSpawnShapeValue().isEdges())
 				{
 					float spawnAngle;
-					switch (spawnShapeValue.getSide())
+					switch (getDefinition().getSpawnShapeValue().getSide())
 					{
 						case Top:
 							spawnAngle = -MathUtils.random(179f);
@@ -687,8 +603,8 @@ public class ParticleEmitter
 			
 			case Line:
 			{
-				float width = spawnWidth + (spawnWidthDiff * spawnWidthValue.getScale(percent));
-				float height = spawnHeight + (spawnHeightDiff * spawnHeightValue.getScale(percent));
+				float width = spawnWidth + (spawnWidthDiff * getDefinition().getSpawnWidthValue().getScale(percent));
+				float height = spawnHeight + (spawnHeightDiff * getDefinition().getSpawnHeightValue().getScale(percent));
 				
 				if (width != 0)
 				{
@@ -708,7 +624,7 @@ public class ParticleEmitter
 		float spriteHeight = sprite.getHeight();
 		particle.setBounds(x - spriteWidth / 2, y - spriteHeight / 2, spriteWidth, spriteHeight);
 
-		int offsetTime = (int) (lifeOffset + lifeOffsetDiff * lifeOffsetValue.getScale(percent));
+		int offsetTime = (int) (lifeOffset + lifeOffsetDiff * getDefinition().getLifeOffsetValue().getScale(percent));
 		
 		if (offsetTime > 0)
 		{
@@ -734,25 +650,25 @@ public class ParticleEmitter
 		int updateFlags = this.updateFlags;
 
 		if ((updateFlags & UPDATE_SCALE) != 0)
-			particle.setScale(particle.scale + particle.scaleDiff * scaleValue.getScale(percent));
+			particle.setScale(particle.scale + particle.scaleDiff * getDefinition().getScaleValue().getScale(percent));
 
 		if ((updateFlags & UPDATE_VELOCITY) != 0)
 		{
-			float velocity = (particle.velocity + particle.velocityDiff * velocityValue.getScale(percent)) * delta;
+			float velocity = (particle.velocity + particle.velocityDiff * getDefinition().getVelocityValue().getScale(percent)) * delta;
 
 			float velocityX, velocityY;
 			
 			if ((updateFlags & UPDATE_ANGLE) != 0)
 			{
-				float angle = particle.angle + particle.angleDiff * angleValue.getScale(percent);
+				float angle = particle.angle + particle.angleDiff * getDefinition().getAngleValue().getScale(percent);
 				velocityX = velocity * MathUtils.cosDeg(angle);
 				velocityY = velocity * MathUtils.sinDeg(angle);
 				
 				if ((updateFlags & UPDATE_ROTATION) != 0)
 				{
-					float rotation = particle.rotation + particle.rotationDiff * rotationValue.getScale(percent);
+					float rotation = particle.rotation + particle.rotationDiff * getDefinition().getRotationValue().getScale(percent);
 					
-					if (aligned)
+					if (getDefinition().isAligned())
 						rotation += angle;
 					
 					particle.setRotation(rotation);
@@ -763,10 +679,10 @@ public class ParticleEmitter
 				velocityX = velocity * particle.angleCos;
 				velocityY = velocity * particle.angleSin;
 				
-				if (aligned || (updateFlags & UPDATE_ROTATION) != 0)
+				if (getDefinition().isAligned() || (updateFlags & UPDATE_ROTATION) != 0)
 				{
-					float rotation = particle.rotation + particle.rotationDiff * rotationValue.getScale(percent);
-					if (aligned)
+					float rotation = particle.rotation + particle.rotationDiff * getDefinition().getRotationValue().getScale(percent);
+					if (getDefinition().isAligned())
 						rotation += particle.angle;
 					
 					particle.setRotation(rotation);
@@ -774,34 +690,34 @@ public class ParticleEmitter
 			}
 
 			if ((updateFlags & UPDATE_WIND) != 0)
-				velocityX += (particle.wind + particle.windDiff * windValue.getScale(percent)) * delta;
+				velocityX += (particle.wind + particle.windDiff * getDefinition().getWindValue().getScale(percent)) * delta;
 
 			if ((updateFlags & UPDATE_GRAVITY) != 0)
-				velocityY += (particle.gravity + particle.gravityDiff * gravityValue.getScale(percent)) * delta;
+				velocityY += (particle.gravity + particle.gravityDiff * getDefinition().getGravityValue().getScale(percent)) * delta;
 
 			particle.translate(velocityX, velocityY);
 		}
 		else if ((updateFlags & UPDATE_ROTATION) != 0)
 		{
-			particle.setRotation(particle.rotation + particle.rotationDiff * rotationValue.getScale(percent));
+			particle.setRotation(particle.rotation + particle.rotationDiff * getDefinition().getRotationValue().getScale(percent));
 		}
 		
 		float[] color;
 		
 		if ((updateFlags & UPDATE_TINT) != 0)
-			color = tintValue.getColor(percent);
+			color = getDefinition().getTintValue().getColor(percent);
 		else
 			color = particle.tint;
 
-		if (premultipliedAlpha)
+		if (getDefinition().isPremultipliedAlpha())
 		{
-			float alphaMultiplier = additive ? 0 : 1;
-			float a = particle.transparency + particle.transparencyDiff * transparencyValue.getScale(percent);
+			float alphaMultiplier = getDefinition().isAdditive() ? 0 : 1;
+			float a = particle.transparency + particle.transparencyDiff * getDefinition().getTransparencyValue().getScale(percent);
 			particle.setColor(color[0] * a, color[1] * a, color[2] * a, a * alphaMultiplier);
 		}
 		else
 		{
-			particle.setColor(color[0], color[1], color[2], particle.transparency + particle.transparencyDiff * transparencyValue.getScale(percent));
+			particle.setColor(color[0], color[1], color[2], particle.transparency + particle.transparencyDiff * getDefinition().getTransparencyValue().getScale(percent));
 		}
 	
 		return true;
@@ -811,7 +727,7 @@ public class ParticleEmitter
 
 	public void setPosition(float x, float y)
 	{
-		if (attached)
+		if (getDefinition().isAttached())
 		{
 			float xAmount = x - this.x;
 			float yAmount = y - this.y;
@@ -855,7 +771,7 @@ public class ParticleEmitter
 	//--------------------------------------------------------------------------
 
 	/**
-	 * Ignores the {@link #setContinuous(boolean) continuous} setting until the emitter is started again. This allows
+	 * Ignores the {@link #setContinuous(boolean) getDefinition().isContinuous()} setting until the emitter is started again. This allows
 	 * the emitter to stop smoothly.
 	 */
 	public void allowCompletion()
@@ -869,154 +785,6 @@ public class ParticleEmitter
 	public Sprite getSprite()
 	{
 		return sprite;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public String getName()
-	{
-		return name;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public ScaledNumericValue getLife()
-	{
-		return lifeValue;
-	}
-
-	public ScaledNumericValue getScale()
-	{
-		return scaleValue;
-	}
-
-	public ScaledNumericValue getRotation()
-	{
-		return rotationValue;
-	}
-
-	public GradientColorValue getTint()
-	{
-		return tintValue;
-	}
-
-	public ScaledNumericValue getVelocity()
-	{
-		return velocityValue;
-	}
-
-	public ScaledNumericValue getWind()
-	{
-		return windValue;
-	}
-
-	public ScaledNumericValue getGravity()
-	{
-		return gravityValue;
-	}
-
-	public ScaledNumericValue getAngle()
-	{
-		return angleValue;
-	}
-
-	public ScaledNumericValue getEmission()
-	{
-		return emissionValue;
-	}
-
-	public ScaledNumericValue getTransparency()
-	{
-		return transparencyValue;
-	}
-
-	public RangedNumericValue getDuration()
-	{
-		return durationValue;
-	}
-
-	public RangedNumericValue getDelay()
-	{
-		return delayValue;
-	}
-
-	public ScaledNumericValue getLifeOffset()
-	{
-		return lifeOffsetValue;
-	}
-
-	public RangedNumericValue getXOffsetValue()
-	{
-		return xOffsetValue;
-	}
-
-	public RangedNumericValue getYOffsetValue()
-	{
-		return yOffsetValue;
-	}
-
-	public ScaledNumericValue getSpawnWidth()
-	{
-		return spawnWidthValue;
-	}
-
-	public ScaledNumericValue getSpawnHeight()
-	{
-		return spawnHeightValue;
-	}
-
-	public SpawnShapeValue getSpawnShape()
-	{
-		return spawnShapeValue;
-	}
-	
-	
-
-	public boolean isAttached()
-	{
-		return attached;
-	}
-
-	public void setAttached(boolean attached)
-	{
-		this.attached = attached;
-	}
-
-	public boolean isContinuous()
-	{
-		return continuous;
-	}
-
-	public void setContinuous(boolean continuous)
-	{
-		this.continuous = continuous;
-	}
-
-	public boolean isAligned()
-	{
-		return aligned;
-	}
-
-	public void setAligned(boolean aligned)
-	{
-		this.aligned = aligned;
-	}
-
-	public boolean isAdditive()
-	{
-		return additive;
-	}
-
-	public void setAdditive(boolean additive)
-	{
-		this.additive = additive;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -1037,7 +805,7 @@ public class ParticleEmitter
 	 * Set whether to automatically return the {@link com.badlogic.gdx.graphics.g2d.Batch Batch}'s blend function to the
 	 * alpha-blending default (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) when done drawing. Is true by default. If set to
 	 * false, the Batch's blend function is left as it was for drawing this ParticleEmitter, which prevents the Batch
-	 * from being flushed repeatedly if consecutive ParticleEmitters with the same additive or pre-multiplied alpha
+	 * from being flushed repeatedly if consecutive ParticleEmitters with the same getDefinition().isAdditive() or pre-multiplied alpha
 	 * state are drawn in a row.
 	 * <p>
 	 * IMPORTANT: If set to false and if the next object to use this Batch expects alpha blending, you are responsible
@@ -1050,57 +818,12 @@ public class ParticleEmitter
 	{
 		this.cleansUpBlendFunction = cleansUpBlendFunction;
 	}
-	
-	//--------------------------------------------------------------------------
 
-	public boolean isBehind()
-	{
-		return behind;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public void setBehind(boolean behind)
-	{
-		this.behind = behind;
-	}
-
-	//--------------------------------------------------------------------------
-	
-	public boolean isPremultipliedAlpha()
-	{
-		return premultipliedAlpha;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public void setPremultipliedAlpha(boolean premultipliedAlpha)
-	{
-		this.premultipliedAlpha = premultipliedAlpha;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public int getMinParticleCount()
-	{
-		return minParticleCount;
-	}
-
-	public void setMinParticleCount(int minParticleCount)
-	{
-		this.minParticleCount = minParticleCount;
-	}
-
-	public int getMaxParticleCount()
-	{
-		return maxParticleCount;
-	}
-	
 	//--------------------------------------------------------------------------
 
 	public boolean isComplete()
 	{
-		if (continuous && !allowCompletion)
+		if (getDefinition().isContinuous() && !allowCompletion)
 			return false;
 		
 		if (delayTimer < delay)
@@ -1166,23 +889,6 @@ public class ParticleEmitter
 				particle.flip(flipX, flipY);
 		}
 	}
-
-	public void flipY()
-	{
-		angleValue.setHigh(-angleValue.getHighMin(), -angleValue.getHighMax());
-		angleValue.setLow(-angleValue.getLowMin(), -angleValue.getLowMax());
-
-		gravityValue.setHigh(-gravityValue.getHighMin(), -gravityValue.getHighMax());
-		gravityValue.setLow(-gravityValue.getLowMin(), -gravityValue.getLowMax());
-
-		windValue.setHigh(-windValue.getHighMin(), -windValue.getHighMax());
-		windValue.setLow(-windValue.getLowMin(), -windValue.getLowMax());
-
-		rotationValue.setHigh(-rotationValue.getHighMin(), -rotationValue.getHighMax());
-		rotationValue.setLow(-rotationValue.getLowMin(), -rotationValue.getLowMax());
-
-		yOffsetValue.setLow(-yOffsetValue.getLowMin(), -yOffsetValue.getLowMax());
-	}
 	
 	//--------------------------------------------------------------------------
 
@@ -1212,158 +918,34 @@ public class ParticleEmitter
 	
 	//--------------------------------------------------------------------------
 
-	public void save(Writer output) throws IOException
+	@Override
+	public void load(LoadCapsule capsule)
 	{
-		output.write(name + "\n");
-		output.write("- Delay -\n");
-		delayValue.save(output);
-		output.write("- Duration - \n");
-		durationValue.save(output);
-		output.write("- Count - \n");
-		output.write("min: " + minParticleCount + "\n");
-		output.write("max: " + maxParticleCount + "\n");
-		output.write("- Emission - \n");
-		emissionValue.save(output);
-		output.write("- Life - \n");
-		lifeValue.save(output);
-		output.write("- Life Offset - \n");
-		lifeOffsetValue.save(output);
-		output.write("- X Offset - \n");
-		xOffsetValue.save(output);
-		output.write("- Y Offset - \n");
-		yOffsetValue.save(output);
-		output.write("- Spawn Shape - \n");
-		spawnShapeValue.save(output);
-		output.write("- Spawn Width - \n");
-		spawnWidthValue.save(output);
-		output.write("- Spawn Height - \n");
-		spawnHeightValue.save(output);
-		output.write("- Scale - \n");
-		scaleValue.save(output);
-		output.write("- Velocity - \n");
-		velocityValue.save(output);
-		output.write("- Angle - \n");
-		angleValue.save(output);
-		output.write("- Rotation - \n");
-		rotationValue.save(output);
-		output.write("- Wind - \n");
-		windValue.save(output);
-		output.write("- Gravity - \n");
-		gravityValue.save(output);
-		output.write("- Tint - \n");
-		tintValue.save(output);
-		output.write("- Transparency - \n");
-		transparencyValue.save(output);
-		output.write("- Options - \n");
-		output.write("attached: " + attached + "\n");
-		output.write("continuous: " + continuous + "\n");
-		output.write("aligned: " + aligned + "\n");
-		output.write("additive: " + additive + "\n");
-		output.write("behind: " + behind + "\n");
-		output.write("premultipliedAlpha: " + premultipliedAlpha + "\n");
-		output.write("- Image Path -\n");
-		output.write(imagePath + "\n");
+		throw new UnsupportedOperationException("Particle emitters do not save their state.");
 	}
+	
+	//--------------------------------------------------------------------------
 
-	public final void load(BufferedReader reader) throws IOException
+	@Override
+	public void save(SaveCapsule capsule) throws ValueAlreadySetException
 	{
-		try
-		{
-			name = readString(reader, "name");
-			reader.readLine();
-			delayValue.load(reader);
-			reader.readLine();
-			durationValue.load(reader);
-			reader.readLine();
-			setMinParticleCount(readInt(reader, "minParticleCount"));
-			setMaxParticleCount(readInt(reader, "maxParticleCount"));
-			reader.readLine();
-			emissionValue.load(reader);
-			reader.readLine();
-			lifeValue.load(reader);
-			reader.readLine();
-			lifeOffsetValue.load(reader);
-			reader.readLine();
-			xOffsetValue.load(reader);
-			reader.readLine();
-			yOffsetValue.load(reader);
-			reader.readLine();
-			spawnShapeValue.load(reader);
-			reader.readLine();
-			spawnWidthValue.load(reader);
-			reader.readLine();
-			spawnHeightValue.load(reader);
-			reader.readLine();
-			scaleValue.load(reader);
-			reader.readLine();
-			velocityValue.load(reader);
-			reader.readLine();
-			angleValue.load(reader);
-			reader.readLine();
-			rotationValue.load(reader);
-			reader.readLine();
-			windValue.load(reader);
-			reader.readLine();
-			gravityValue.load(reader);
-			reader.readLine();
-			tintValue.load(reader);
-			reader.readLine();
-			transparencyValue.load(reader);
-			reader.readLine();
-			attached = readBoolean(reader, "attached");
-			continuous = readBoolean(reader, "continuous");
-			aligned = readBoolean(reader, "aligned");
-			additive = readBoolean(reader, "additive");
-			behind = readBoolean(reader, "behind");
-
-			// Backwards compatibility
-			String line = reader.readLine();
-			if (line.startsWith("premultipliedAlpha"))
-			{
-				premultipliedAlpha = readBoolean(line);
-				reader.readLine();
-			}
-			setImagePath(reader.readLine());
-		}
-		catch (RuntimeException ex)
-		{
-			if (name == null)
-				throw ex;
-			throw new RuntimeException("Error parsing emitter: " + name, ex);
-		}
+		throw new UnsupportedOperationException("Particle emitters do not save their state."); 
 	}
+	
+	//--------------------------------------------------------------------------
 
-	static String readString(String line) throws IOException
+	@Override
+	public void destroy()
 	{
-		return line.substring(line.indexOf(":") + 1).trim();
+		// Intentionally empty.
 	}
+	
+	//--------------------------------------------------------------------------
 
-	static String readString(BufferedReader reader, String name) throws IOException
+	@Override
+	public void handleMessage(Message message)
 	{
-		String line = reader.readLine();
-		if (line == null)
-			throw new IOException("Missing value: " + name);
-		return readString(line);
-	}
-
-	static boolean readBoolean(String line) throws IOException
-	{
-		return Boolean.parseBoolean(readString(line));
-	}
-
-	static boolean readBoolean(BufferedReader reader, String name) throws IOException
-	{
-		return Boolean.parseBoolean(readString(reader, name));
-	}
-
-	static int readInt(BufferedReader reader, String name) throws IOException
-	{
-		return Integer.parseInt(readString(reader, name));
-	}
-
-	static float readFloat(BufferedReader reader, String name) throws IOException
-	{
-		return Float.parseFloat(readString(reader, name));
+		// Intentionally empty.
 	}
 	
 	//--------------------------------------------------------------------------
