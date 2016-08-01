@@ -7,6 +7,7 @@
 
 package eu.cherrytree.gdx.particles;
 
+import com.badlogic.gdx.assets.AssetManager;
 import java.io.File;
 import java.util.HashMap;
 
@@ -147,52 +148,59 @@ public class ParticleEffect extends GameObject<ParticleEffectDefinition>
 	}
 	
 	//--------------------------------------------------------------------------
-
-	public void loadEmitterImages(TextureAtlas atlas, String atlasPrefix)
+	
+	public void loadAssets(AssetManager assetManager)
 	{
-		for (ParticleEmitter emitter : emitters)
-		{
-			String imagePath = emitter.getImagePath();
-			if (imagePath == null)
-				continue;
-			String imageName = new File(imagePath.replace('\\', '/')).getName();
-			int lastDotIndex = imageName.lastIndexOf('.');
-			if (lastDotIndex != -1)
-				imageName = imageName.substring(0, lastDotIndex);
-			if (atlasPrefix != null)
-				imageName = atlasPrefix + imageName;
-			Sprite sprite = atlas.createSprite(imageName);
-			if (sprite == null)
-				throw new IllegalArgumentException("SpriteSheet missing image: " + imageName);
-			emitter.setSprite(sprite);
-		}
+		// TODO
+		// This should work properly even if the emitters are already running.
 	}
+	
+	//--------------------------------------------------------------------------
 
-	public void loadEmitterImages(FileHandle imagesDir)
-	{
-//		ownsTexture = true;
-		HashMap<String, Sprite> loadedSprites = new HashMap<>(emitters.size());
-		
-		for (ParticleEmitter emitter : emitters)
-		{
-			String imagePath = emitter.getImagePath();
-			if (imagePath == null)
-				continue;
-			String imageName = new File(imagePath.replace('\\', '/')).getName();
-			Sprite sprite = loadedSprites.get(imageName);
-			if (sprite == null)
-			{
-				sprite = new Sprite(loadTexture(imagesDir.child(imageName)));
-				loadedSprites.put(imageName, sprite);
-			}
-			emitter.setSprite(sprite);
-		}
-	}
-
-	protected Texture loadTexture(FileHandle file)
-	{
-		return new Texture(file, false);
-	}
+//	public void loadEmitterImages(TextureAtlas atlas, String atlasPrefix)
+//	{
+//		for (ParticleEmitter emitter : emitters)
+//		{
+//			String imagePath = emitter.getImagePath();
+//			if (imagePath == null)
+//				continue;
+//			String imageName = new File(imagePath.replace('\\', '/')).getName();
+//			int lastDotIndex = imageName.lastIndexOf('.');
+//			if (lastDotIndex != -1)
+//				imageName = imageName.substring(0, lastDotIndex);
+//			if (atlasPrefix != null)
+//				imageName = atlasPrefix + imageName;
+//			Sprite sprite = atlas.createSprite(imageName);
+//			if (sprite == null)
+//				throw new IllegalArgumentException("SpriteSheet missing image: " + imageName);
+//			emitter.setSprite(sprite);
+//		}
+//	}
+//
+//	public void loadEmitterImages(FileHandle imagesDir)
+//	{
+//		HashMap<String, Sprite> loadedSprites = new HashMap<>(emitters.size());
+//		
+//		for (ParticleEmitter emitter : emitters)
+//		{
+//			String imagePath = emitter.getImagePath();
+//			if (imagePath == null)
+//				continue;
+//			String imageName = new File(imagePath.replace('\\', '/')).getName();
+//			Sprite sprite = loadedSprites.get(imageName);
+//			if (sprite == null)
+//			{
+//				sprite = new Sprite(loadTexture(imagesDir.child(imageName)));
+//				loadedSprites.put(imageName, sprite);
+//			}
+//			emitter.setSprite(sprite);
+//		}
+//	}
+//
+//	protected Texture loadTexture(FileHandle file)
+//	{
+//		return new Texture(file, false);
+//	}
 
 	//--------------------------------------------------------------------------
 

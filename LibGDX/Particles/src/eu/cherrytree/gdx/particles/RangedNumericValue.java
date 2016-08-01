@@ -18,7 +18,8 @@ public class RangedNumericValue extends ParticleValue
 {
 	//--------------------------------------------------------------------------
 
-	private float lowMin, lowMax;
+	private float lowMin;
+	private float lowMax;
 
 	//--------------------------------------------------------------------------
 	
