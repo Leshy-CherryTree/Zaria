@@ -11,21 +11,15 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import eu.cherrytree.gdx.particles.ParticleEmitter;
-import java.awt.EventQueue;
+
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.net.URI;
-import javax.swing.JOptionPane;
+
+import eu.cherrytree.gdx.particles.ParticleEmitter;
 
 
 /**
@@ -67,10 +61,9 @@ public class Renderer implements ApplicationListener, InputProcessor
 		worldCamera = new OrthographicCamera();
 		textCamera = new OrthographicCamera();
 
-		font = new BitmapFont(Gdx.files.getFileHandle("eu/cherrytree/gdx/particles/editor/res/default.fnt", Files.FileType.Internal),
-		Gdx.files.getFileHandle("eu/cherrytree/gdx/particles/editor/res/default.png", Files.FileType.Internal), true);
+		font = new BitmapFont(Gdx.files.getFileHandle("eu/cherrytree/gdx/particles/editor/res/default.fnt", Files.FileType.Internal),Gdx.files.getFileHandle("eu/cherrytree/gdx/particles/editor/res/default.png", Files.FileType.Internal), true);
 
-		editor.createNewEmitter();
+		ParticleEffectZoneContainer.addParticleEmitter();
 
 		Gdx.input.setInputProcessor(this);
 	}
@@ -95,7 +88,7 @@ public class Renderer implements ApplicationListener, InputProcessor
 		textCamera.setToOrtho(true, width, height);
 		textCamera.update();
 
-		editor.getEffect().setPosition(worldCamera.viewportWidth / 2, worldCamera.viewportHeight / 2);
+		ParticleEffectZoneContainer.getEffect().setPosition(worldCamera.viewportWidth / 2, worldCamera.viewportHeight / 2);
 	}
 
 	//--------------------------------------------------------------------------
@@ -114,7 +107,8 @@ public class Renderer implements ApplicationListener, InputProcessor
 		worldCamera.setToOrtho(false, viewWidth, viewHeight);
 		worldCamera.zoom = 1.0f;
 		worldCamera.update();
-		editor.getEffect().setPosition(worldCamera.viewportWidth / 2, worldCamera.viewportHeight / 2);
+		
+		ParticleEffectZoneContainer.getEffect().setPosition(worldCamera.viewportWidth / 2, worldCamera.viewportHeight / 2);
 
 		spriteBatch.setProjectionMatrix(worldCamera.combined);
 
@@ -124,22 +118,28 @@ public class Renderer implements ApplicationListener, InputProcessor
 
 		activeCount = 0;
 		boolean complete = true;
-		for (ParticleEmitter emitter : editor.getEffect().getEmitters())
+		
+		for (ParticleEmitter emitter : ParticleEffectZoneContainer.getEffect().getEmitters())
 		{
 			if (emitter.getSprite() == null && emitter.getImagePath() != null)
 				loadImage(emitter);
+			
 			boolean enabled = editor.isEnabled(emitter);
+			
 			if (enabled)
 			{
 				if (emitter.getSprite() != null)
 					emitter.draw(spriteBatch, delta);
+				
 				activeCount += emitter.getActiveCount();
+		
 				if (!emitter.isComplete())
 					complete = false;
 			}
 		}
+		
 		if (complete)
-			editor.getEffect().start();
+			ParticleEffectZoneContainer.getEffect().start();
 
 		maxActive = Math.max(maxActive, activeCount);
 		maxActiveTimer += delta;
@@ -164,44 +164,44 @@ public class Renderer implements ApplicationListener, InputProcessor
 
 	private void loadImage(ParticleEmitter emitter)
 	{
-		final String imagePath = emitter.getImagePath();
-		String imageName = new File(imagePath.replace('\\', '/')).getName();
-		try
-		{
-			FileHandle file;
-			if ((imagePath.contains("/") || imagePath.contains("\\")) && !imageName.contains(".."))
-			{
-				file = Gdx.files.absolute(imagePath);
-				if (!file.exists())
-				{
-					// try to use image in editor.getEffect() directory
-					file = Gdx.files.absolute(new File(editor.getEffectFile().getParentFile(), imageName).getAbsolutePath());
-				}
-			}
-			else
-			{
-				file = Gdx.files.absolute(new File(editor.getEffectFile().getParentFile(), imagePath).getAbsolutePath());
-			}
-			emitter.setSprite(new Sprite(new Texture(file)));
-			if (editor.getEffectFile() != null)
-			{
-				URI relativeUri = editor.getEffectFile().getParentFile().toURI().relativize(file.file().toURI());
-				emitter.setImagePath(relativeUri.getPath());
-			}
-		}
-		catch (GdxRuntimeException ex)
-		{
-			ex.printStackTrace();
-			EventQueue.invokeLater(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					JOptionPane.showMessageDialog(editor, "Error loading image:\n" + imagePath);
-				}
-			});
-			emitter.setImagePath(null);
-		}
+//		final String imagePath = emitter.getImagePath();
+//		String imageName = new File(imagePath.replace('\\', '/')).getName();
+//		try
+//		{
+//			FileHandle file;
+//			if ((imagePath.contains("/") || imagePath.contains("\\")) && !imageName.contains(".."))
+//			{
+//				file = Gdx.files.absolute(imagePath);
+//				if (!file.exists())
+//				{
+//					// try to use image in editor.getEffect() directory
+//					file = Gdx.files.absolute(new File(editor.getEffectFile().getParentFile(), imageName).getAbsolutePath());
+//				}
+//			}
+//			else
+//			{
+//				file = Gdx.files.absolute(new File(editor.getEffectFile().getParentFile(), imagePath).getAbsolutePath());
+//			}
+//			emitter.setSprite(new Sprite(new Texture(file)));
+//			if (editor.getEffectFile() != null)
+//			{
+//				URI relativeUri = editor.getEffectFile().getParentFile().toURI().relativize(file.file().toURI());
+//				emitter.setImagePath(relativeUri.getPath());
+//			}
+//		}
+//		catch (GdxRuntimeException ex)
+//		{
+//			ex.printStackTrace();
+//			EventQueue.invokeLater(new Runnable()
+//			{
+//				@Override
+//				public void run()
+//				{
+//					JOptionPane.showMessageDialog(editor, "Error loading image:\n" + imagePath);
+//				}
+//			});
+//			emitter.setImagePath(null);
+//		}
 	}
 	
 	//--------------------------------------------------------------------------
@@ -234,8 +234,11 @@ public class Renderer implements ApplicationListener, InputProcessor
 	public boolean touchDown(int x, int y, int pointer, int newParam)
 	{
 		Vector3 touchPoint = new Vector3(x, y, 0);
+		
 		worldCamera.unproject(touchPoint);
-		editor.getEffect().setPosition(touchPoint.x, touchPoint.y);
+		
+		ParticleEffectZoneContainer.getEffect().setPosition(touchPoint.x, touchPoint.y);
+		
 		return false;
 	}
 	
@@ -247,6 +250,7 @@ public class Renderer implements ApplicationListener, InputProcessor
 		editor.dispatchEvent(new WindowEvent(editor, WindowEvent.WINDOW_LOST_FOCUS));
 		editor.dispatchEvent(new WindowEvent(editor, WindowEvent.WINDOW_GAINED_FOCUS));
 		editor.requestFocusInWindow();
+	
 		return false;
 	}
 	
@@ -256,8 +260,11 @@ public class Renderer implements ApplicationListener, InputProcessor
 	public boolean touchDragged(int x, int y, int pointer)
 	{
 		Vector3 touchPoint = new Vector3(x, y, 0);
+		
 		worldCamera.unproject(touchPoint);
-		editor.getEffect().setPosition(touchPoint.x, touchPoint.y);
+		
+		ParticleEffectZoneContainer.getEffect().setPosition(touchPoint.x, touchPoint.y);
+		
 		return false;
 	}
 	

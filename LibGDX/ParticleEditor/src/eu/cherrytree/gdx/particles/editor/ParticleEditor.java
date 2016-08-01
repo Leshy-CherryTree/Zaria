@@ -15,8 +15,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Properties;
 
-import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -34,13 +32,16 @@ import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import java.io.IOException;
+import javax.imageio.ImageIO;
+
+import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
+import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
+
 import eu.cherrytree.gdx.particles.ParticleEffect;
 import eu.cherrytree.gdx.particles.ParticleEmitter;
 
-import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 import eu.cherrytree.zaria.utilities.Random;
-import java.io.IOException;
-import javax.imageio.ImageIO;
 
 /**
  * 
@@ -55,9 +56,7 @@ public class ParticleEditor extends JFrame
 	private JPanel rowsPanel;
 	private EffectPanel effectPanel;
 	private JSplitPane splitPane;
-
-	private ParticleEffect effect = new ParticleEffect();
-	private File effectFile;
+	
 	private HashMap<ParticleEmitter, ParticleData> particleData = new HashMap();
 	
 	//--------------------------------------------------------------------------
@@ -65,7 +64,7 @@ public class ParticleEditor extends JFrame
 	public ParticleEditor()
 	{
 		super("Zaria Particle Editor for libGDX");
-
+		
 		try
 		{
 			setIconImage(ImageIO.read(getClass().getResourceAsStream("/eu/cherrytree/gdx/particles/editor/res/zone32.png")));
@@ -76,9 +75,11 @@ public class ParticleEditor extends JFrame
 		}
 		
 		Random.init();
+		ParticleEffectZoneContainer.createNew();
 		
 		renderer = new Renderer(this);
 		lwjglCanvas = new LwjglCanvas(renderer);
+		
 		addWindowListener(new WindowAdapter()
 		{
 			@Override
@@ -91,6 +92,7 @@ public class ParticleEditor extends JFrame
 		splitPane = new JSplitPane();
 		splitPane.setDividerSize(4);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
+		
 		{
 			JPanel propertiesPanel = new JPanel(new GridBagLayout());
 			splitPane.add(propertiesPanel, JSplitPane.RIGHT);
@@ -98,9 +100,9 @@ public class ParticleEditor extends JFrame
 			.createTitledBorder("Emitter Properties")));
 			{
 				JScrollPane scroll = new JScrollPane();
-				propertiesPanel.add(scroll, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.NORTH,
-				GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+				propertiesPanel.add(scroll, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 				scroll.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+				
 				{
 					rowsPanel = new JPanel(new GridBagLayout());
 					scroll.setViewportView(rowsPanel);
@@ -108,21 +110,23 @@ public class ParticleEditor extends JFrame
 				}
 			}
 		}
+		
 		{
 			JSplitPane leftSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 			leftSplit.setDividerSize(4);
 			splitPane.add(leftSplit, JSplitPane.LEFT);
+			
 			{
 				JPanel spacer = new JPanel(new BorderLayout());
 				leftSplit.add(spacer, JSplitPane.TOP);
 				spacer.add(lwjglCanvas.getCanvas());
 				spacer.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 4));
-			}
+			}			
 			{
 				JPanel emittersPanel = new JPanel(new BorderLayout());
 				leftSplit.add(emittersPanel, JSplitPane.BOTTOM);
-				emittersPanel.setBorder(new CompoundBorder(BorderFactory.createEmptyBorder(0, 6, 6, 0), BorderFactory
-				.createTitledBorder("Effect Emitters")));
+				emittersPanel.setBorder(new CompoundBorder(BorderFactory.createEmptyBorder(0, 6, 6, 0), BorderFactory.createTitledBorder("Effect Emitters")));
+				
 				{
 					effectPanel = new EffectPanel(this);
 					emittersPanel.add(effectPanel);
@@ -130,6 +134,7 @@ public class ParticleEditor extends JFrame
 			}
 			leftSplit.setDividerLocation(355);
 		}
+		
 		splitPane.setDividerLocation(325);
 
 		setSize(1150, 700);
@@ -147,61 +152,47 @@ public class ParticleEditor extends JFrame
 			@Override
 			public void run()
 			{
-				rowsPanel.removeAll();
-				ParticleEmitter emitter = getEmitter();
-				
-				addRow(new ImagePanel(ParticleEditor.this, "Image", ""));
-				addRow(new CountPanel(ParticleEditor.this, "Count", "Min number of particles at all times, max number of particles allowed."));
-				addRow(new RangedNumericPanel(emitter.getDefinition().getDelayValue(), "Delay", "Time from beginning of effect to emission start, in milliseconds."));
-				addRow(new RangedNumericPanel(emitter.getDefinition().getDurationValue(), "Duration", "Time particles will be emitted, in milliseconds."));
-				addRow(new ScaledNumericPanel(emitter.getDefinition().getEmissionValue(), "Duration", "Emission", "Number of particles emitted per second."));
-				addRow(new ScaledNumericPanel(emitter.getDefinition().getLifeValue(), "Duration", "Life", "Time particles will live, in milliseconds."));
-				addRow(new ScaledNumericPanel(emitter.getDefinition().getLifeOffsetValue(), "Duration", "Life Offset", "Particle starting life consumed, in milliseconds."));
-				addRow(new RangedNumericPanel(emitter.getDefinition().getXOffsetValue(), "X Offset", "Amount to offset a particle's starting X location, in world units."));
-				addRow(new RangedNumericPanel(emitter.getDefinition().getYOffsetValue(), "Y Offset", "Amount to offset a particle's starting Y location, in world units."));
-				addRow(new SpawnPanel(ParticleEditor.this, emitter.getDefinition().getSpawnShapeValue(), "Spawn", "Shape used to spawn particles."));
-				addRow(new ScaledNumericPanel(emitter.getDefinition().getSpawnWidthValue(), "Duration", "Spawn Width", "Width of the spawn shape, in world units."));
-				addRow(new ScaledNumericPanel(emitter.getDefinition().getSpawnHeightValue(), "Duration", "Spawn Height", "Height of the spawn shape, in world units."));
-				addRow(new ScaledNumericPanel(emitter.getDefinition().getScaleValue(), "Life", "Size", "Particle size, in world units."));
-				addRow(new ScaledNumericPanel(emitter.getDefinition().getVelocityValue(), "Life", "Velocity", "Particle speed, in world units per second."));
-				addRow(new ScaledNumericPanel(emitter.getDefinition().getAngleValue(), "Life", "Angle", "Particle emission angle, in degrees."));
-				addRow(new ScaledNumericPanel(emitter.getDefinition().getRotationValue(), "Life", "Rotation", "Particle rotation, in degrees."));
-				addRow(new ScaledNumericPanel(emitter.getDefinition().getWindValue(), "Life", "Wind", "Wind strength, in world units per second."));
-				addRow(new ScaledNumericPanel(emitter.getDefinition().getGravityValue(), "Life", "Gravity", "Gravity strength, in world units per second."));
-				addRow(new GradientPanel(emitter.getDefinition().getTintValue(), "Tint", "", false));
-				addRow(new PercentagePanel(emitter.getDefinition().getTransparencyValue(), "Life", "Transparency", ""));
-				addRow(new OptionsPanel(ParticleEditor.this, "Options", ""));
-				
-				for (Component component : rowsPanel.getComponents())
+				try
 				{
-					if (component instanceof EditorPanel)
-						((EditorPanel) component).update(ParticleEditor.this);
+					rowsPanel.removeAll();
+					ParticleEmitter emitter = getEmitter();
+					
+					addRow(new ImagePanel(ParticleEditor.this, "Image", ""));
+					addRow(new CountPanel(ParticleEditor.this, "Count", "Min number of particles at all times, max number of particles allowed."));
+					addRow(new RangedNumericPanel(emitter.getDefinition().getDelayValue(), "Delay", "Time from beginning of effect to emission start, in milliseconds."));
+					addRow(new RangedNumericPanel(emitter.getDefinition().getDurationValue(), "Duration", "Time particles will be emitted, in milliseconds."));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getEmissionValue(), "Duration", "Emission", "Number of particles emitted per second."));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getLifeValue(), "Duration", "Life", "Time particles will live, in milliseconds."));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getLifeOffsetValue(), "Duration", "Life Offset", "Particle starting life consumed, in milliseconds."));
+					addRow(new RangedNumericPanel(emitter.getDefinition().getXOffsetValue(), "X Offset", "Amount to offset a particle's starting X location, in world units."));
+					addRow(new RangedNumericPanel(emitter.getDefinition().getYOffsetValue(), "Y Offset", "Amount to offset a particle's starting Y location, in world units."));
+					addRow(new SpawnPanel(ParticleEditor.this, emitter.getDefinition().getSpawnShapeValue(), "Spawn", "Shape used to spawn particles."));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getSpawnWidthValue(), "Duration", "Spawn Width", "Width of the spawn shape, in world units."));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getSpawnHeightValue(), "Duration", "Spawn Height", "Height of the spawn shape, in world units."));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getScaleValue(), "Life", "Size", "Particle size, in world units."));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getVelocityValue(), "Life", "Velocity", "Particle speed, in world units per second."));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getAngleValue(), "Life", "Angle", "Particle emission angle, in degrees."));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getRotationValue(), "Life", "Rotation", "Particle rotation, in degrees."));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getWindValue(), "Life", "Wind", "Wind strength, in world units per second."));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getGravityValue(), "Life", "Gravity", "Gravity strength, in world units per second."));
+					addRow(new GradientPanel(emitter.getDefinition().getTintValue(), "Tint", "", false));
+					addRow(new ScaledNumericPanel(emitter.getDefinition().getTransparencyValue(), "Life", "Transparency", "Transparency of particles"));
+					addRow(new OptionsPanel(ParticleEditor.this, "Options", ""));
+					
+					for (Component component : rowsPanel.getComponents())
+					{
+						if (component instanceof EditorPanel)
+							((EditorPanel) component).update(ParticleEditor.this);
+					}
+					
+					rowsPanel.repaint();
 				}
-				
-				rowsPanel.repaint();
+				catch (SecurityException | NoSuchFieldException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
-	}
-	
-	//--------------------------------------------------------------------------
-	
-	public void createNewEmitter()
-	{
-		effectPanel.createNewEmitter("Untitled", true);
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public ParticleEffect getEffect()
-	{
-		return effect;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public File getEffectFile()
-	{
-		return effectFile;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -215,7 +206,7 @@ public class ParticleEditor extends JFrame
 	
 	public ParticleEmitter getEmitter()
 	{
-		return effect.getEmitters().get(effectPanel.getEditIndex());
+		return ParticleEffectZoneContainer.getEmitter(effectPanel.getEditIndex());
 	}
 	
 	//--------------------------------------------------------------------------
@@ -223,8 +214,7 @@ public class ParticleEditor extends JFrame
 	private void addRow(JPanel row)
 	{
 		row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, java.awt.Color.black));
-		rowsPanel.add(row, new GridBagConstraints(0, -1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		new Insets(0, 0, 0, 0), 0, 0));
+		rowsPanel.add(row, new GridBagConstraints(0, -1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
 	}
 
 	//--------------------------------------------------------------------------

@@ -18,9 +18,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
-import com.badlogic.gdx.utils.Array;
-
-import eu.cherrytree.gdx.particles.ParticleEmitter;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -29,6 +26,8 @@ import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
+
+import eu.cherrytree.gdx.particles.ParticleEmitter;
 
 
 /**
@@ -64,7 +63,7 @@ public class EffectPanel extends JPanel
 
 	public ParticleEmitter createNewEmitter(String name, boolean select)
 	{
-		ParticleEmitter emitter = new ParticleEmitter();
+		ParticleEmitter emitter = ParticleEffectZoneContainer.addParticleEmitter();
 
 		addEmitter(name, select, emitter);
 		return emitter;
@@ -74,9 +73,9 @@ public class EffectPanel extends JPanel
 
 	private void addEmitter(String name, boolean select, final ParticleEmitter emitter)
 	{
-		Array<ParticleEmitter> emitters = editor.getEffect().getEmitters();
+		ArrayList<ParticleEmitter> emitters = ParticleEffectZoneContainer.getEffect().getEmitters();
 		
-		if (emitters.size == 0)
+		if (emitters.isEmpty())
 		{
 			emitter.setPosition(editor.getRenderer().getWorldCamera().viewportWidth / 2, editor.getRenderer().getWorldCamera().viewportHeight / 2);
 		}
@@ -221,20 +220,20 @@ public class EffectPanel extends JPanel
 
 	private void duplicateEmitter()
 	{
-		int row = emitterTable.getSelectedRow();
-		if (row == -1)
-			return;
-
-		String name = (String) emitterTableModel.getValueAt(row, 0);
-
-		addEmitter(name, true, new ParticleEmitter(editor.getEffect().getEmitters().get(row)));
+//		int row = emitterTable.getSelectedRow();
+//		if (row == -1)
+//			return;
+//
+//		String name = (String) emitterTableModel.getValueAt(row, 0);
+//
+//		addEmitter(name, true, new ParticleEmitter(ParticleEffectZoneContainer.getEffect().getEmitters().get(row)));
 	}
 	
 	//--------------------------------------------------------------------------
 
 	private void deleteEmitter()
 	{
-		if (editor.getEffect().getEmitters().size() == 1)
+		if (ParticleEffectZoneContainer.getEffect().getEmitters().size() == 1)
 			return;
 		
 		int row = emitterTable.getSelectedRow();
@@ -250,7 +249,9 @@ public class EffectPanel extends JPanel
 				editor.reloadRows();
 		}
 		
-		editor.getEffect().getEmitters().remove(row);
+		//ParticleEffectZoneContainer.getEffect().getEmitters().remove(row);
+		ParticleEffectZoneContainer.removeEmitter(row);
+		
 		emitterTableModel.removeRow(row);
 		emitterTable.getSelectionModel().setSelectionInterval(editIndex, editIndex);
 	}
@@ -262,7 +263,7 @@ public class EffectPanel extends JPanel
 		if (direction < 0 && editIndex == 0)
 			return;
 		
-		ArrayList<ParticleEmitter> emitters = editor.getEffect().getEmitters();
+		ArrayList<ParticleEmitter> emitters = ParticleEffectZoneContainer.getEffect().getEmitters();
 		
 		if (direction > 0 && editIndex == emitters.size() - 1)
 			return;
@@ -284,8 +285,8 @@ public class EffectPanel extends JPanel
 
 	private void emitterChecked(int index, boolean checked)
 	{
-		editor.setEnabled(editor.getEffect().getEmitters().get(index), checked);
-		editor.getEffect().start();
+		editor.setEnabled(ParticleEffectZoneContainer.getEffect().getEmitters().get(index), checked);
+		ParticleEffectZoneContainer.getEffect().start();
 	}
 	
 	//--------------------------------------------------------------------------

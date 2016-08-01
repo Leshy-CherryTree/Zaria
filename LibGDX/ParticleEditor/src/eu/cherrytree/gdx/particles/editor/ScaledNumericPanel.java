@@ -7,6 +7,7 @@
 
 package eu.cherrytree.gdx.particles.editor;
 
+import eu.cherrytree.gdx.particles.RangedNumericValue;
 import eu.cherrytree.gdx.particles.ScaledNumericValue;
 
 import java.awt.Dimension;
@@ -15,6 +16,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Field;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -34,6 +36,7 @@ public class ScaledNumericPanel extends EditorPanel
 	//--------------------------------------------------------------------------
 
 	private ScaledNumericValue value;
+	
 	private Slider lowMinSlider, lowMaxSlider;
 	private Slider highMinSlider, highMaxSlider;
 	private JCheckBox relativeCheckBox;
@@ -43,14 +46,106 @@ public class ScaledNumericPanel extends EditorPanel
 	private JButton lowRangeButton;
 	private JButton highRangeButton;
 	
+	private Field scalingField;
+	private Field timelineField;
+	private Field highMinField;
+	private Field highMaxField;
+	private Field lowMinField;
+	private Field lowMaxField;
+	private Field relativeField; 
+	
 	//--------------------------------------------------------------------------
 
-	public ScaledNumericPanel(final ScaledNumericValue value, String chartTitle, String name, String description)
+	public ScaledNumericPanel(ScaledNumericValue scaledNumericValue, String chartTitle, String name, String description) throws SecurityException, NoSuchFieldException
 	{
-		super(value, name, description);
-		this.value = value;
+		super(scaledNumericValue, name, description);
+		this.value = scaledNumericValue;
+		
+		scalingField = ScaledNumericValue.class.getField("scaling");
+		timelineField = ScaledNumericValue.class.getField("timeline");
+		highMinField = ScaledNumericValue.class.getField("highMin");
+		highMaxField = ScaledNumericValue.class.getField("highMax");
+		lowMinField = RangedNumericValue.class.getField("lowMin");
+		lowMaxField = RangedNumericValue.class.getField("lowMax");
+		relativeField = ScaledNumericValue.class.getField("relative");
+		
+		scalingField.setAccessible(true);
+		timelineField.setAccessible(true);
+		highMinField.setAccessible(true);
+		highMaxField.setAccessible(true);
+		lowMinField.setAccessible(true);
+		lowMaxField.setAccessible(true);
+		relativeField.setAccessible(true);
 
-		initializeComponents(chartTitle);
+		JPanel contentPanel = getContentPanel();
+		{
+			formPanel = new JPanel(new GridBagLayout());
+			contentPanel.add(formPanel, new GridBagConstraints(5, 5, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 6), 0, 0));
+			{
+				JLabel label = new JLabel("High:");
+				formPanel.add(label, new GridBagConstraints(2, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 6), 0, 0));
+			}
+			{
+				highMinSlider = new Slider(0, -99999, 99999, 1f, -400, 400);
+				formPanel.add(highMinSlider, new GridBagConstraints(3, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			}
+			{
+				highMaxSlider = new Slider(0, -99999, 99999, 1f, -400, 400);
+				formPanel.add(highMaxSlider, new GridBagConstraints(4, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 6, 0, 0), 0, 0));
+			}
+			{
+				highRangeButton = new JButton("<");
+				highRangeButton.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+				formPanel.add(highRangeButton, new GridBagConstraints(5, 1, 1, 1, 0.0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 1, 0, 0), 0, 0));
+			}
+			{
+				JLabel label = new JLabel("Low:");
+				formPanel.add(label, new GridBagConstraints(2, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 6), 0, 0));
+			}
+			{
+				lowMinSlider = new Slider(0, -99999, 99999, 1f, -400, 400);
+				formPanel.add(lowMinSlider, new GridBagConstraints(3, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			}
+			{
+				lowMaxSlider = new Slider(0, -99999, 99999, 1f, -400, 400);
+				formPanel.add(lowMaxSlider, new GridBagConstraints(4, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 6, 0, 0), 0, 0));
+			}
+			{
+				lowRangeButton = new JButton("<");
+				lowRangeButton.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+				formPanel.add(lowRangeButton, new GridBagConstraints(5, 2, 1, 1, 0.0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 1, 0, 0), 0, 0));
+			}
+		}
+		{
+			chart = new Chart(chartTitle)
+			{
+				@Override
+				public void pointsChanged()
+				{
+					try
+					{
+						timelineField.set(value, chart.getValuesX());
+						scalingField.set(value, chart.getValuesY());
+					}
+					catch (IllegalArgumentException | IllegalAccessException ex)
+					{
+						ex.printStackTrace();
+					}
+				}
+			};
+			
+			contentPanel.add(chart, new GridBagConstraints(6, 5, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+			chart.setPreferredSize(new Dimension(150, 30));
+		}
+		{
+			expandButton = new JButton("+");
+			contentPanel.add(expandButton, new GridBagConstraints(7, 5, 1, 1, 1, 0, GridBagConstraints.SOUTHWEST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
+			expandButton.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+		}
+		{
+			relativeCheckBox = new JCheckBox("Relative");
+			contentPanel.add(relativeCheckBox, new GridBagConstraints(7, 5, 1, 1, 0, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(0, 6, 0, 0), 0, 0));
+		}
 
 		lowMinSlider.setValue(value.getLowMin());
 		lowMaxSlider.setValue(value.getLowMax());
@@ -64,10 +159,17 @@ public class ScaledNumericPanel extends EditorPanel
 			@Override
 			public void stateChanged(ChangeEvent event)
 			{
-				value.setLowMin((Float) lowMinSlider.getValue());
-				
-				if (!lowMaxSlider.isVisible())
-					value.setLowMax((Float) lowMinSlider.getValue());
+				try
+				{
+					lowMinField.set(value, (Float) lowMinSlider.getValue());
+					
+					if (!lowMaxSlider.isVisible())
+						lowMaxField.set(value, (Float) lowMinSlider.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 		lowMaxSlider.addChangeListener(new ChangeListener()
@@ -75,7 +177,14 @@ public class ScaledNumericPanel extends EditorPanel
 			@Override
 			public void stateChanged(ChangeEvent event)
 			{
-				value.setLowMax((Float) lowMaxSlider.getValue());
+				try
+				{
+					lowMaxField.set(value, (Float) lowMaxSlider.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 		highMinSlider.addChangeListener(new ChangeListener()
@@ -83,10 +192,17 @@ public class ScaledNumericPanel extends EditorPanel
 			@Override
 			public void stateChanged(ChangeEvent event)
 			{
-				value.setHighMin((Float) highMinSlider.getValue());
-				
-				if (!highMaxSlider.isVisible())
-					value.setHighMax((Float) highMinSlider.getValue());
+				try
+				{
+					highMinField.set(value, (Float) highMinSlider.getValue());
+					
+					if (!highMaxSlider.isVisible())
+						highMaxField.set(value, (Float) highMinSlider.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 		highMaxSlider.addChangeListener(new ChangeListener()
@@ -94,7 +210,14 @@ public class ScaledNumericPanel extends EditorPanel
 			@Override
 			public void stateChanged(ChangeEvent event)
 			{
-				value.setHighMax((Float) highMaxSlider.getValue());
+				try
+				{
+					highMaxField.set(value, (Float) highMaxSlider.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 
@@ -103,7 +226,14 @@ public class ScaledNumericPanel extends EditorPanel
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
-				value.setRelative(relativeCheckBox.isSelected());
+				try
+				{
+					relativeField.set(value, relativeCheckBox.isSelected());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 
@@ -125,7 +255,14 @@ public class ScaledNumericPanel extends EditorPanel
 				
 				Slider slider = visible ? lowMaxSlider : lowMinSlider;
 				
-				value.setLowMax((Float) slider.getValue());
+				try
+				{
+					lowMaxField.set(value, (Float) slider.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 
@@ -147,7 +284,14 @@ public class ScaledNumericPanel extends EditorPanel
 				
 				Slider slider = visible ? highMaxSlider : highMinSlider;
 				
-				value.setHighMax((Float) slider.getValue());
+				try
+				{
+					highMaxField.set(value, (Float) slider.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 
@@ -209,74 +353,6 @@ public class ScaledNumericPanel extends EditorPanel
 	{
 		// Intentionally empty.
 	}		
-	
-	//--------------------------------------------------------------------------
-
-	private void initializeComponents(String chartTitle)
-	{
-		JPanel contentPanel = getContentPanel();
-		{
-			formPanel = new JPanel(new GridBagLayout());
-			contentPanel.add(formPanel, new GridBagConstraints(5, 5, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 6), 0, 0));
-			{
-				JLabel label = new JLabel("High:");
-				formPanel.add(label, new GridBagConstraints(2, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 6), 0, 0));
-			}
-			{
-				highMinSlider = new Slider(0, -99999, 99999, 1f, -400, 400);
-				formPanel.add(highMinSlider, new GridBagConstraints(3, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-			}
-			{
-				highMaxSlider = new Slider(0, -99999, 99999, 1f, -400, 400);
-				formPanel.add(highMaxSlider, new GridBagConstraints(4, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 6, 0, 0), 0, 0));
-			}
-			{
-				highRangeButton = new JButton("<");
-				highRangeButton.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
-				formPanel.add(highRangeButton, new GridBagConstraints(5, 1, 1, 1, 0.0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 1, 0, 0), 0, 0));
-			}
-			{
-				JLabel label = new JLabel("Low:");
-				formPanel.add(label, new GridBagConstraints(2, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 6), 0, 0));
-			}
-			{
-				lowMinSlider = new Slider(0, -99999, 99999, 1f, -400, 400);
-				formPanel.add(lowMinSlider, new GridBagConstraints(3, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-			}
-			{
-				lowMaxSlider = new Slider(0, -99999, 99999, 1f, -400, 400);
-				formPanel.add(lowMaxSlider, new GridBagConstraints(4, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 6, 0, 0), 0, 0));
-			}
-			{
-				lowRangeButton = new JButton("<");
-				lowRangeButton.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
-				formPanel.add(lowRangeButton, new GridBagConstraints(5, 2, 1, 1, 0.0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 1, 0, 0), 0, 0));
-			}
-		}
-		{
-			chart = new Chart(chartTitle)
-			{
-				@Override
-				public void pointsChanged()
-				{
-					value.setTimeline(chart.getValuesX());
-					value.setScaling(chart.getValuesY());
-				}
-			};
-			
-			contentPanel.add(chart, new GridBagConstraints(6, 5, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-			chart.setPreferredSize(new Dimension(150, 30));
-		}
-		{
-			expandButton = new JButton("+");
-			contentPanel.add(expandButton, new GridBagConstraints(7, 5, 1, 1, 1, 0, GridBagConstraints.SOUTHWEST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
-			expandButton.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
-		}
-		{
-			relativeCheckBox = new JCheckBox("Relative");
-			contentPanel.add(relativeCheckBox, new GridBagConstraints(7, 5, 1, 1, 0, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(0, 6, 0, 0), 0, 0));
-		}
-	}
 	
 	//--------------------------------------------------------------------------
 }
