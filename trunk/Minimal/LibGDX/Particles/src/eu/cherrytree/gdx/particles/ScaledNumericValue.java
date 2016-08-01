@@ -20,7 +20,8 @@ public class ScaledNumericValue extends RangedNumericValue
 
 	private float[] scaling = { 1 };
 	private float[] timeline = { 0 };
-	private float highMin, highMax;
+	private float highMin;
+	private float highMax;
 	private boolean relative = false;
 	
 	//--------------------------------------------------------------------------

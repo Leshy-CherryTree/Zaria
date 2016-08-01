@@ -9,6 +9,8 @@ package eu.cherrytree.gdx.particles;
 
 import eu.cherrytree.zaria.game.GameObjectDefinition;
 import eu.cherrytree.zaria.serialization.DefinitionValidation;
+import eu.cherrytree.zaria.serialization.Link;
+import eu.cherrytree.zaria.texture.TextureArea;
 
 /**
  *
@@ -17,6 +19,8 @@ import eu.cherrytree.zaria.serialization.DefinitionValidation;
 public class ParticleEmitterDefinition extends GameObjectDefinition<ParticleEmitter>
 {
 	//--------------------------------------------------------------------------
+	
+	private Link<TextureArea> texture = new Link<>();
 	
 	private RangedNumericValue delayValue = new RangedNumericValue(0.0f, 0.0f);
 	private ScaledNumericValue lifeOffsetValue = new ScaledNumericValue(0.0f, 0.0f, 0.0f, 0.0f);
@@ -29,7 +33,7 @@ public class ParticleEmitterDefinition extends GameObjectDefinition<ParticleEmit
 	private ScaledNumericValue angleValue = new ScaledNumericValue(0, 0, 0, 0);
 	private ScaledNumericValue windValue = new ScaledNumericValue(0, 0, 0, 0);
 	private ScaledNumericValue gravityValue = new ScaledNumericValue(10, 10, 10, 10);
-	private ScaledNumericValue transparencyValue = new ScaledNumericValue(1, 1, 1, 1);
+	private ScaledNumericValue transparencyValue = new ScaledNumericValue(1, 1, 0, 0);
 	private GradientColorValue tintValue = new GradientColorValue(new float[]{1.0f, 0.12156863f, 0.047058824f});
 	private RangedNumericValue xOffsetValue = new ScaledNumericValue(0 , 0, 0, 0);
 	private RangedNumericValue yOffsetValue = new ScaledNumericValue(0, 0, 0, 0);
@@ -46,7 +50,14 @@ public class ParticleEmitterDefinition extends GameObjectDefinition<ParticleEmit
 	
 	private int minParticleCount = 0;
 	private int maxParticleCount = 25;
+
+	//--------------------------------------------------------------------------
 	
+	public TextureArea getTexture()
+	{
+		return texture.getDefinition();
+	}
+			
 	//--------------------------------------------------------------------------
 
 	public RangedNumericValue getDelayValue()
