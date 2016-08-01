@@ -9,11 +9,14 @@ package eu.cherrytree.gdx.particles.editor;
 
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.lang.reflect.Field;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import eu.cherrytree.gdx.particles.ParticleEmitterDefinition;
 
 
 /**
@@ -24,14 +27,27 @@ class CountPanel extends EditorPanel
 {
 	//--------------------------------------------------------------------------
 
+	private ParticleEditor editor;
+	
 	private Slider maxSlider;
 	private Slider minSlider;
+	
+	private Field maxParticleCountField;
+	private Field minParticleCountField;
 
 	//--------------------------------------------------------------------------
 	
-	public CountPanel(final ParticleEditor editor, String name, String description)
+	public CountPanel(ParticleEditor editor, String name, String description) throws SecurityException, NoSuchFieldException
 	{
 		super(null, name, description);
+		
+		this.editor = editor;
+		
+		maxParticleCountField = ParticleEmitterDefinition.class.getField("maxParticleCount");
+		minParticleCountField = ParticleEmitterDefinition.class.getField("minParticleCount");
+		
+		maxParticleCountField.setAccessible(true);
+		minParticleCountField.setAccessible(true);
 
 		JPanel contentPanel = getContentPanel();
 		{
@@ -44,6 +60,7 @@ class CountPanel extends EditorPanel
 			contentPanel.add(minSlider, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE,
 			new Insets(0, 0, 0, 0), 0, 0));
 		}
+		
 		{
 			JLabel label = new JLabel("Max:");
 			contentPanel.add(label, new GridBagConstraints(2, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE,
@@ -55,23 +72,37 @@ class CountPanel extends EditorPanel
 			new Insets(0, 0, 0, 0), 0, 0));
 		}
 
-		maxSlider.setValue(editor.getEmitter().getMaxParticleCount());
+		maxSlider.setValue(editor.getEmitter().getDefinition().getMaxParticleCount());
 		maxSlider.addChangeListener(new ChangeListener()
 		{
 			@Override
 			public void stateChanged(ChangeEvent event)
 			{
-				editor.getEmitter().setMaxParticleCount((int) maxSlider.getValue());
+				try
+				{
+					maxParticleCountField.set(editor, (int) maxSlider.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 
-		minSlider.setValue(editor.getEmitter().getMinParticleCount());
+		minSlider.setValue(editor.getEmitter().getDefinition().getMinParticleCount());
 		minSlider.addChangeListener(new ChangeListener()
 		{
 			@Override
 			public void stateChanged(ChangeEvent event)
 			{
-				editor.getEmitter().setMinParticleCount((int) minSlider.getValue());
+				try
+				{
+					minParticleCountField.set(editor, (int) minSlider.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 	}

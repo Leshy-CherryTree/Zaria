@@ -19,6 +19,8 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import java.lang.reflect.Field;
+
 import eu.cherrytree.gdx.particles.RangedNumericValue;
 
 
@@ -35,12 +37,22 @@ class RangedNumericPanel extends EditorPanel
 	private JButton rangeButton;
 	private JLabel label;
 	
+	private Field lowMinField;
+	private Field lowMaxField;
+	
 	//--------------------------------------------------------------------------
 
-	public RangedNumericPanel(final RangedNumericValue value, String name, String description)
+	public RangedNumericPanel(RangedNumericValue value, String name, String description) throws SecurityException, NoSuchFieldException
 	{
 		super(value, name, description);
+		
 		this.value = value;
+		
+		lowMinField = RangedNumericValue.class.getField("lowMin");
+		lowMaxField = RangedNumericValue.class.getField("lowMax");
+		
+		lowMinField.setAccessible(true);
+		lowMaxField.setAccessible(true);
 
 		JPanel contentPanel = getContentPanel();
 		{
@@ -69,10 +81,17 @@ class RangedNumericPanel extends EditorPanel
 			@Override
 			public void stateChanged(ChangeEvent event)
 			{
-				value.setLowMin((Float) minSlider.getValue());
-				
-				if (!maxSlider.isVisible())
-					value.setLowMax((Float) minSlider.getValue());
+				try
+				{
+					lowMinField.set(value, (Float) minSlider.getValue());
+					
+					if (!minSlider.isVisible())
+						lowMaxField.set(value, (Float) minSlider.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 
@@ -81,7 +100,14 @@ class RangedNumericPanel extends EditorPanel
 			@Override
 			public void stateChanged(ChangeEvent event)
 			{
-				value.setLowMax((Float) maxSlider.getValue());
+				try
+				{
+					lowMaxField.set(value, (Float) maxSlider.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 
@@ -96,7 +122,15 @@ class RangedNumericPanel extends EditorPanel
 				rangeButton.setText(visible ? "<" : ">");
 				
 				Slider slider = visible ? maxSlider : minSlider;
-				value.setLowMax((Float) slider.getValue());
+				
+				try
+				{
+					lowMaxField.set(value, (Float) slider.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 

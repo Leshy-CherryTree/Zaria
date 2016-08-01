@@ -19,6 +19,8 @@ import javax.swing.event.ChangeListener;
 
 import eu.cherrytree.gdx.particles.NumericValue;
 
+import java.lang.reflect.Field;
+
 
 /**
  * 
@@ -28,26 +30,30 @@ class NumericPanel extends EditorPanel
 {
 	//--------------------------------------------------------------------------
 
+	private Field valueField;
 	private NumericValue value;
+	
 	private JSpinner valueSpinner;
 	
 	//--------------------------------------------------------------------------
 
-	public NumericPanel(final NumericValue value, String name, String description)
+	public NumericPanel(final NumericValue value, String name, String description) throws SecurityException, NoSuchFieldException
 	{
 		super(value, name, description);
+		
 		this.value = value;
+		this.valueField = NumericValue.class.getDeclaredField("value");
+		
+		valueField.setAccessible(true);
 
 		JPanel contentPanel = getContentPanel();
 		{
 			JLabel label = new JLabel("Value:");
-			contentPanel.add(label, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE,
-			new Insets(0, 0, 0, 6), 0, 0));
+			contentPanel.add(label, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 6), 0, 0));
 		}
 		{
 			valueSpinner = new JSpinner(new SpinnerNumberModel(new Float(0), new Float(-99999), new Float(99999), new Float(0.1f)));
-			contentPanel.add(valueSpinner, new GridBagConstraints(1, 1, 1, 1, 1, 0, GridBagConstraints.WEST,
-			GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			contentPanel.add(valueSpinner, new GridBagConstraints(1, 1, 1, 1, 1, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 		}
 
 		valueSpinner.setValue(value.getValue());
@@ -57,7 +63,14 @@ class NumericPanel extends EditorPanel
 			@Override
 			public void stateChanged(ChangeEvent event)
 			{
-				value.setValue((Float) valueSpinner.getValue());
+				try
+				{
+					valueField.set(value, (Float) valueSpinner.getValue());
+				}
+				catch (IllegalArgumentException | IllegalAccessException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 	}

@@ -16,6 +16,9 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Field;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
@@ -28,7 +31,7 @@ import javax.swing.JPanel;
  * 
  * Branched from Particle Editor of libGDX in gdx-tools.
  */
-class SpawnPanel extends EditorPanel
+class SpawnPanel extends EditorPanel implements ActionListener
 {
 	//--------------------------------------------------------------------------
 
@@ -38,96 +41,30 @@ class SpawnPanel extends EditorPanel
 	private JComboBox sideCombo;
 	private JLabel sideLabel;
 	
+	private ParticleEditor editor;
+	private SpawnShapeValue spawnShapeValue;
+	
+	private Field shapeField;
+	private Field edgesField;
+	private Field sideField;
+	
 	//--------------------------------------------------------------------------
 
-	public SpawnPanel(final ParticleEditor editor, final SpawnShapeValue spawnShapeValue, String name, String description)
+	public SpawnPanel(ParticleEditor editor, SpawnShapeValue spawnShapeValue, String name, String description) throws SecurityException, NoSuchFieldException
 	{
 		super(null, name, description);
 
-		initializeComponents();
-
-		edgesCheckbox.setSelected(spawnShapeValue.isEdges());
-		sideCombo.setSelectedItem(spawnShapeValue.getShape());
-
-		shapeCombo.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				SpawnShape shape = (SpawnShape) shapeCombo.getSelectedItem();
-				spawnShapeValue.setShape(shape);
-				switch (shape)
-				{
-					case Line:
-					case Square:
-						setEdgesVisible(false);
-						editor.setVisible("Spawn Width", true);
-						editor.setVisible("Spawn Height", true);
-						break;
-						
-					case Ellipse:
-						setEdgesVisible(true);
-						editor.setVisible("Spawn Width", true);
-						editor.setVisible("Spawn Height", true);
-						break;
-						
-					case Point:
-						setEdgesVisible(false);
-						editor.setVisible("Spawn Width", false);
-						editor.setVisible("Spawn Height", false);
-						break;
-				}
-			}
-		});
-
-		edgesCheckbox.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				spawnShapeValue.setEdges(edgesCheckbox.isSelected());
-				setEdgesVisible(true);
-			}
-		});
-
-		sideCombo.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				SpawnEllipseSide side = (SpawnEllipseSide) sideCombo.getSelectedItem();
-				spawnShapeValue.setSide(side);
-			}
-		});
-
-		shapeCombo.setSelectedItem(spawnShapeValue.getShape());
-	}
-	
-	//--------------------------------------------------------------------------
-
-	@Override
-	public void update(ParticleEditor editor)
-	{
-		shapeCombo.setSelectedItem(editor.getEmitter().getDefinition().getSpawnShapeValue().getShape());
-	}
-	
-	//--------------------------------------------------------------------------
-
-	private void setEdgesVisible(boolean visible)
-	{
-		edgesCheckbox.setVisible(visible);
-		edgesLabel.setVisible(visible);
+		this.editor = editor;
+		this.spawnShapeValue = spawnShapeValue;
 		
-		visible = visible && edgesCheckbox.isSelected();
+		shapeField = SpawnShapeValue.class.getField("shape");
+		edgesField = SpawnShapeValue.class.getField("edges");
+		sideField = SpawnShapeValue.class.getField("side");
 		
-		sideCombo.setVisible(visible);
-		sideLabel.setVisible(visible);
-	}
-	
-	//--------------------------------------------------------------------------
-
-	private void initializeComponents()
-	{
+		shapeField.setAccessible(true);
+		edgesField.setAccessible(true);
+		sideField.setAccessible(true);
+		
 		JPanel contentPanel = getContentPanel();
 		{
 			JLabel label = new JLabel("Shape:");
@@ -160,6 +97,97 @@ class SpawnPanel extends EditorPanel
 			spacer.setPreferredSize(new Dimension());
 			contentPanel.add(spacer, new GridBagConstraints(6, 0, 1, 1, 1, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 		}
+
+		edgesCheckbox.setSelected(spawnShapeValue.isEdges());
+		sideCombo.setSelectedItem(spawnShapeValue.getShape());
+
+		shapeCombo.addActionListener(this);
+		edgesCheckbox.addActionListener(this);
+		sideCombo.addActionListener(this);
+
+		shapeCombo.setSelectedItem(spawnShapeValue.getShape());
+	}
+	
+	//--------------------------------------------------------------------------
+
+	@Override
+	public void actionPerformed(ActionEvent event)
+	{
+		try
+		{
+			if (event.getSource() == shapeCombo)
+			{
+				SpawnShape shape = (SpawnShape) shapeCombo.getSelectedItem();
+
+				shapeField.set(spawnShapeValue, shape);
+
+				switch (shape)
+				{
+					case Line:
+					case Square:
+
+						setEdgesVisible(false);
+
+						editor.setVisible("Spawn Width", true);
+						editor.setVisible("Spawn Height", true);
+
+						break;
+
+					case Ellipse:
+
+						setEdgesVisible(true);
+
+						editor.setVisible("Spawn Width", true);
+						editor.setVisible("Spawn Height", true);
+
+						break;
+
+					case Point:
+
+						setEdgesVisible(false);
+
+						editor.setVisible("Spawn Width", false);
+						editor.setVisible("Spawn Height", false);
+
+						break;			
+				}
+			}
+			else if (event.getSource() == edgesCheckbox)
+			{
+				edgesField.set(spawnShapeValue, edgesCheckbox.isSelected());
+				setEdgesVisible(true);
+			}
+			else if (event.getSource() == shapeCombo)
+			{
+				SpawnEllipseSide side = (SpawnEllipseSide) sideCombo.getSelectedItem();				
+				sideField.set(spawnShapeValue, side);
+			}
+		}
+		catch (IllegalArgumentException | IllegalAccessException ex)
+		{
+			ex.printStackTrace();
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+
+	@Override
+	public void update(ParticleEditor editor)
+	{
+		shapeCombo.setSelectedItem(editor.getEmitter().getDefinition().getSpawnShapeValue().getShape());
+	}
+	
+	//--------------------------------------------------------------------------
+
+	private void setEdgesVisible(boolean visible)
+	{
+		edgesCheckbox.setVisible(visible);
+		edgesLabel.setVisible(visible);
+		
+		visible = visible && edgesCheckbox.isSelected();
+		
+		sideCombo.setVisible(visible);
+		sideLabel.setVisible(visible);
 	}
 	
 	//--------------------------------------------------------------------------
