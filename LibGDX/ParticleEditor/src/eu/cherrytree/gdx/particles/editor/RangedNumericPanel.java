@@ -48,8 +48,8 @@ class RangedNumericPanel extends EditorPanel
 		
 		this.value = value;
 		
-		lowMinField = RangedNumericValue.class.getField("lowMin");
-		lowMaxField = RangedNumericValue.class.getField("lowMax");
+		lowMinField = RangedNumericValue.class.getDeclaredField("lowMin");
+		lowMaxField = RangedNumericValue.class.getDeclaredField("lowMax");
 		
 		lowMinField.setAccessible(true);
 		lowMaxField.setAccessible(true);

@@ -57,9 +57,9 @@ class SpawnPanel extends EditorPanel implements ActionListener
 		this.editor = editor;
 		this.spawnShapeValue = spawnShapeValue;
 		
-		shapeField = SpawnShapeValue.class.getField("shape");
-		edgesField = SpawnShapeValue.class.getField("edges");
-		sideField = SpawnShapeValue.class.getField("side");
+		shapeField = SpawnShapeValue.class.getDeclaredField("shape");
+		edgesField = SpawnShapeValue.class.getDeclaredField("edges");
+		sideField = SpawnShapeValue.class.getDeclaredField("side");
 		
 		shapeField.setAccessible(true);
 		edgesField.setAccessible(true);

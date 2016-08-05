@@ -43,8 +43,8 @@ class CountPanel extends EditorPanel
 		
 		this.editor = editor;
 		
-		maxParticleCountField = ParticleEmitterDefinition.class.getField("maxParticleCount");
-		minParticleCountField = ParticleEmitterDefinition.class.getField("minParticleCount");
+		maxParticleCountField = ParticleEmitterDefinition.class.getDeclaredField("maxParticleCount");
+		minParticleCountField = ParticleEmitterDefinition.class.getDeclaredField("minParticleCount");
 		
 		maxParticleCountField.setAccessible(true);
 		minParticleCountField.setAccessible(true);

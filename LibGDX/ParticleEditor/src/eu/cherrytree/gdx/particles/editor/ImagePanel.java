@@ -7,19 +7,17 @@
 
 package eu.cherrytree.gdx.particles.editor;
 
-import java.awt.FileDialog;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import eu.cherrytree.gdx.particles.ParticleEmitter;
+import eu.cherrytree.zaria.texture.TextureArea;
 
 
 /**
@@ -33,7 +31,6 @@ class ImagePanel extends EditorPanel
 	private JLabel imageLabel;
 	private JLabel widthLabel;
 	private JLabel heightLabel;
-	private String lastDir;
 	
 	//--------------------------------------------------------------------------
 
@@ -43,35 +40,18 @@ class ImagePanel extends EditorPanel
 		JPanel contentPanel = getContentPanel();
 		{
 			JButton openButton = new JButton("Open");
-			contentPanel.add(openButton, new GridBagConstraints(2, 1, 1, 1, 0, 0, GridBagConstraints.NORTHWEST,
-			GridBagConstraints.NONE, new Insets(0, 0, 0, 6), 0, 0));
+			contentPanel.add(openButton, new GridBagConstraints(2, 1, 1, 1, 0, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 6), 0, 0));
+			
 			openButton.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent event)
 				{
-					FileDialog dialog = new FileDialog(editor, "Open Image", FileDialog.LOAD);
-					if (lastDir != null)
-						dialog.setDirectory(lastDir);
-					dialog.setVisible(true);
-					final String file = dialog.getFile();
-					final String dir = dialog.getDirectory();
-					if (dir == null || file == null || file.trim().length() == 0)
-						return;
-					lastDir = dir;
-					try
-					{
-						ImageIcon icon = new ImageIcon(new File(dir, file).toURI().toURL());
-						final ParticleEmitter emitter = editor.getEmitter();
-						editor.setIcon(emitter, icon);
-						updateIconInfo(icon);
-						emitter.setImagePath(new File(dir, file).getAbsolutePath());
-						emitter.setSprite(null);
-					}
-					catch (Exception ex)
-					{
-						ex.printStackTrace();
-					}
+					GetDefinitionDialog<TextureArea> def_dialog = new GetDefinitionDialog(editor, TextureArea.class);
+					def_dialog.setVisible(true);
+					
+					ParticleEffectZoneContainer.setTexture(editor.getEmitter(), def_dialog.getDefinition());				
+					updateIconInfo(editor.getIcon(editor.getEmitter()));
 				}
 			});
 		}
@@ -87,7 +67,6 @@ class ImagePanel extends EditorPanel
 			imageLabel = new JLabel();
 			contentPanel.add(imageLabel, new GridBagConstraints(3, 1, 1, 3, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(0, 6, 0, 0), 0, 0));
 		}
-		updateIconInfo(editor.getIcon(editor.getEmitter()));
 	}
 	
 	//--------------------------------------------------------------------------
@@ -106,6 +85,7 @@ class ImagePanel extends EditorPanel
 			widthLabel.setText("");
 			heightLabel.setText("");
 		}
+		
 		revalidate();
 	}
 	

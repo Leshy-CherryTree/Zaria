@@ -42,14 +42,17 @@ public class EffectPanel extends JPanel
 	private JTable emitterTable;
 	private DefaultTableModel emitterTableModel;
 	private int editIndex;
-	private String lastDir;
-	
+
 	//--------------------------------------------------------------------------
 
 	public EffectPanel(ParticleEditor editor)
 	{
 		this.editor = editor;
 		initializeComponents();
+		
+		ParticleEmitter emitter = ParticleEffectZoneContainer.getEmitter(0);
+
+		addEmitter(emitter.getDefinition().getID(), emitter);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -61,18 +64,20 @@ public class EffectPanel extends JPanel
 	
 	//--------------------------------------------------------------------------
 
-	public ParticleEmitter createNewEmitter(String name, boolean select)
+	public ParticleEmitter createNewEmitter()
 	{
 		ParticleEmitter emitter = ParticleEffectZoneContainer.addParticleEmitter();
 
-		addEmitter(name, select, emitter);
+		addEmitter(emitter.getDefinition().getID(), emitter);
 		return emitter;
 	}
 	
 	//--------------------------------------------------------------------------
 
-	private void addEmitter(String name, boolean select, final ParticleEmitter emitter)
+	private void addEmitter(String name, ParticleEmitter emitter)
 	{
+		assert emitter != null;
+		
 		ArrayList<ParticleEmitter> emitters = ParticleEffectZoneContainer.getEffect().getEmitters();
 		
 		if (emitters.isEmpty())
@@ -84,18 +89,13 @@ public class EffectPanel extends JPanel
 			ParticleEmitter p = emitters.get(0);
 			emitter.setPosition(p.getX(), p.getY());
 		}
-		emitters.add(emitter);
 
-		emitterTableModel.addRow(new Object[]
-		{
-			name, true
-		});
-		if (select)
-		{
-			editor.reloadRows();
-			int row = emitterTableModel.getRowCount() - 1;
-			emitterTable.getSelectionModel().setSelectionInterval(row, row);
-		}
+		emitterTableModel.addRow(new Object[] { name, true });
+		
+		editor.reloadRows();
+		
+		int row = emitterTableModel.getRowCount() - 1;
+		emitterTable.getSelectionModel().setSelectionInterval(row, row);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -103,130 +103,38 @@ public class EffectPanel extends JPanel
 	private void emitterSelected()
 	{
 		int row = emitterTable.getSelectedRow();
+		
 		if (row == -1)
 		{
 			row = editIndex;
 			emitterTable.getSelectionModel().setSelectionInterval(row, row);
 		}
+		
 		if (row == editIndex)
 			return;
+		
 		editIndex = row;
 		editor.reloadRows();
 	}
 	
 	//--------------------------------------------------------------------------
 
-	private void openEffect(boolean mergeIntoCurrent)
+	private void openEffect()
 	{
-//		FileDialog dialog = new FileDialog(editor, "Open Effect", FileDialog.LOAD);
-//		if (lastDir != null)
-//			dialog.setDirectory(lastDir);
-//		dialog.setVisible(true);
-//		final String file = dialog.getFile();
-//		final String dir = dialog.getDirectory();
-//		if (dir == null || file == null || file.trim().length() == 0)
-//			return;
-//		lastDir = dir;
-//		ParticleEffect effect = new ParticleEffect();
-//		try
-//		{
-//			File effectFile = new File(dir, file);
-//			effect.loadEmitters(Gdx.files.absolute(effectFile.getAbsolutePath()));
-//			if (mergeIntoCurrent)
-//			{
-//				for (ParticleEmitter emitter : effect.getEmitters())
-//				{
-//					addEmitter(emitter.getName(), false, emitter);
-//				}
-//			}
-//			else
-//			{
-//				editor.effect = effect;
-//				editor.effectFile = effectFile;
-//			}
-//			emitterTableModel.getDataVector().removeAllElements();
-//			editor.particleData.clear();
-//		}
-//		catch (Exception ex)
-//		{
-//			System.out.println("Error loading effect: " + new File(dir, file).getAbsolutePath());
-//			ex.printStackTrace();
-//			JOptionPane.showMessageDialog(editor, "Error opening effect.");
-//			return;
-//		}
-//		for (ParticleEmitter emitter : editor.effect.getEmitters())
-//		{
-//			emitter.setPosition(editor.worldCamera.viewportWidth / 2, editor.worldCamera.viewportHeight / 2);
-//			emitterTableModel.addRow(new Object[]
-//			{
-//				emitter.getName(), true
-//			});
-//		}
-//		editIndex = 0;
-//		emitterTable.getSelectionModel().setSelectionInterval(editIndex, editIndex);
-//		editor.reloadRows();
-	}
-	
-	//--------------------------------------------------------------------------
-
-	private void saveEffect()
-	{
-//		FileDialog dialog = new FileDialog(editor, "Save Effect", FileDialog.SAVE);
-//		if (lastDir != null)
-//			dialog.setDirectory(lastDir);
-//		dialog.setVisible(true);
-//		String file = dialog.getFile();
-//		String dir = dialog.getDirectory();
-//		if (dir == null || file == null || file.trim().length() == 0)
-//			return;
-//		lastDir = dir;
-//		int index = 0;
-//		File effectFile = new File(dir, file);
-//
-//		// save each image path as relative path to effect file directory
-//		URI effectDirUri = effectFile.getParentFile().toURI();
-//		for (ParticleEmitter emitter : editor.effect.getEmitters())
-//		{
-//			emitter.setName((String) emitterTableModel.getValueAt(index++, 0));
-//			String imagePath = emitter.getImagePath();
-//			if ((imagePath.contains("/") || imagePath.contains("\\")) && !imagePath.contains(".."))
-//			{
-//				// it's absolute, make it relative:
-//				URI imageUri = new File(emitter.getImagePath()).toURI();
-//				emitter.setImagePath(effectDirUri.relativize(imageUri).getPath());
-//			}
-//		}
-//
-//		File outputFile = new File(dir, file);
-//		Writer fileWriter = null;
-//		try
-//		{
-//			fileWriter = new FileWriter(outputFile);
-//			editor.effect.save(fileWriter);
-//		}
-//		catch (Exception ex)
-//		{
-//			System.out.println("Error saving effect: " + outputFile.getAbsolutePath());
-//			ex.printStackTrace();
-//			JOptionPane.showMessageDialog(editor, "Error saving effect.");
-//		}
-//		finally
-//		{
-//			StreamUtils.closeQuietly(fileWriter);
-//		}
-	}
-	
-	//--------------------------------------------------------------------------
-
-	private void duplicateEmitter()
-	{
-//		int row = emitterTable.getSelectedRow();
-//		if (row == -1)
-//			return;
-//
-//		String name = (String) emitterTableModel.getValueAt(row, 0);
-//
-//		addEmitter(name, true, new ParticleEmitter(ParticleEffectZoneContainer.getEffect().getEmitters().get(row)));
+		ParticleEffectZoneContainer.openEffect(editor);
+		
+		for (int i = emitterTableModel.getRowCount() - 1 ; i >= 0 ; i--)
+			emitterTableModel.removeRow(i);
+		
+		for (ParticleEmitter emitter : ParticleEffectZoneContainer.getEffect().getEmitters())
+		{
+			emitter.setPosition(editor.getRenderer().getWorldCamera().viewportWidth / 2, editor.getRenderer().getWorldCamera().viewportHeight / 2);
+			emitterTableModel.addRow(new Object[] { emitter.getName(), true });
+		}
+		
+		editIndex = 0;
+		emitterTable.getSelectionModel().setSelectionInterval(editIndex, editIndex);
+		editor.reloadRows();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -307,20 +215,7 @@ public class EffectPanel extends JPanel
 					@Override
 					public void actionPerformed(ActionEvent event)
 					{
-						createNewEmitter("Untitled", true);
-					}
-				});
-			}
-			{
-				JButton newButton = new JButton("Duplicate");
-				sideButtons.add(newButton, new GridBagConstraints(0, -1, 1, 1, 0, 0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 6, 0), 0, 0));
-				newButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent event)
-					{
-						duplicateEmitter();
+						createNewEmitter();
 					}
 				});
 			}
@@ -350,7 +245,7 @@ public class EffectPanel extends JPanel
 					@Override
 					public void actionPerformed(ActionEvent event)
 					{
-						saveEffect();
+						ParticleEffectZoneContainer.save(editor);
 					}
 				});
 			}
@@ -363,20 +258,7 @@ public class EffectPanel extends JPanel
 					@Override
 					public void actionPerformed(ActionEvent event)
 					{
-						openEffect(false);
-					}
-				});
-			}
-			{
-				JButton mergeButton = new JButton("Merge");
-				sideButtons.add(mergeButton, new GridBagConstraints(0, -1, 1, 1, 0, 0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 6, 0), 0, 0));
-				mergeButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent event)
-					{
-						openEffect(true);
+						openEffect();
 					}
 				});
 			}
@@ -423,10 +305,7 @@ public class EffectPanel extends JPanel
 				emitterTable.getTableHeader().setReorderingAllowed(false);
 				emitterTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				scroll.setViewportView(emitterTable);
-				emitterTableModel = new DefaultTableModel(new String[0][0], new String[]
-				{
-					"Emitter", ""
-				});
+				emitterTableModel = new DefaultTableModel(new String[0][0], new String[] { "Emitter", "" });
 				emitterTable.setModel(emitterTableModel);
 				emitterTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
 				{
@@ -435,6 +314,7 @@ public class EffectPanel extends JPanel
 					{
 						if (event.getValueIsAdjusting())
 							return;
+						
 						emitterSelected();
 					}
 				});
