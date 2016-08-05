@@ -10,10 +10,7 @@ package eu.cherrytree.gdx.particles.editor;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
-import java.util.Properties;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -21,6 +18,9 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 import javax.swing.border.CompoundBorder;
 import javax.swing.BorderFactory;
@@ -29,18 +29,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
-import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 
-import eu.cherrytree.gdx.particles.ParticleEffect;
 import eu.cherrytree.gdx.particles.ParticleEmitter;
-
 import eu.cherrytree.zaria.utilities.Random;
 
 /**
@@ -237,25 +232,28 @@ public class ParticleEditor extends JFrame
 		if (data == null)
 			particleData.put(emitter, data = new ParticleData());
 		
-		String imagePath = emitter.getImagePath();
+		if (emitter.getDefinition().getTexture() == null)
+			return null;
+		
+		String imagePath = ParticleEffectZoneContainer.getAssetPath() + emitter.getDefinition().getTexture().getTexture();
 		
 		if (data.icon == null && imagePath != null)
 		{
 			try
 			{
-				URL url;
-				File file = new File(imagePath);
-				if (file.exists())
-					url = file.toURI().toURL();
-				else
-				{
-					url = ParticleEditor.class.getResource(imagePath);
-					if (url == null)
-						return null;
-				}
-				data.icon = new ImageIcon(url);
+				BufferedImage image = ImageIO.read(new File(imagePath));
+				BufferedImage icon = new BufferedImage(emitter.getDefinition().getTexture().getW()+2, emitter.getDefinition().getTexture().getH()+2, image.getType());
+				
+				Graphics2D g = icon.createGraphics();
+				
+				g.drawImage(image, -emitter.getDefinition().getTexture().getX()+1, -emitter.getDefinition().getTexture().getY()+1, null);
+				g.setColor(Color.BLACK);
+				g.drawRect(0, 0, icon.getWidth()-1, icon.getHeight()-1);
+				
+				data.icon = new ImageIcon(icon);
+				
 			}
-			catch (MalformedURLException ex)
+			catch (IOException ex)
 			{
 				ex.printStackTrace();
 			}
@@ -301,51 +299,5 @@ public class ParticleEditor extends JFrame
 		return data.enabled;
 	}
 
-	//--------------------------------------------------------------------------
-	
-	public static void main(String[] args)
-	{
-		Properties props = new Properties();
-
-		props.put("controlTextFont", "Dialog " + 13);
-		props.put("systemTextFont", "Dialog " + 13);
-		props.put("userTextFont", "Dialog " + 13);
-		props.put("menuTextFont", "Dialog " + 13);
-		props.put("windowTitleFont", "Dialog bold " + 13);
-		props.put("subTextFont", "Dialog " + 10);
-
-		props.put("logoString", "Zone Editor");
-
-		props.put("backgroundColorLight", "32 32 32");
-		props.put("backgroundColor", "32 32 32");
-		props.put("backgroundColorDark", "32 32 32");
-
-		props.put("foregroundColor", "192 192 192");
-		props.put("inputForegroundColor", "192 192 192");
-		props.put("buttonForegroundColor", "192 192 192");
-		props.put("controlForegroundColor", "192 192 192");
-		props.put("menuForegroundColor", "192 192 192");
-		props.put("windowTitleForegroundColor", "192 192 192");
-
-		try
-		{
-			HiFiLookAndFeel.setTheme(props);
-			UIManager.setLookAndFeel("com.jtattoo.plaf.hifi.HiFiLookAndFeel");
-		}
-		catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException ex)
-		{
-			ex.printStackTrace();
-		}
-
-		EventQueue.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				new ParticleEditor();
-			}
-		});
-	}
-	
 	//--------------------------------------------------------------------------
 }

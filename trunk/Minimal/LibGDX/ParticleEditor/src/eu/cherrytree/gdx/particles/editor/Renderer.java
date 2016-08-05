@@ -1,5 +1,5 @@
 /****************************************/
-/* Renderer.java						*/
+/* Renderer.java							*/
 /* Created on: 27-Jul-2016				*/
 /* Copyright Cherry Tree Studio 2016	*/
 /* Released under EUPL v1.1				*/
@@ -63,8 +63,6 @@ public class Renderer implements ApplicationListener, InputProcessor
 
 		font = new BitmapFont(Gdx.files.getFileHandle("eu/cherrytree/gdx/particles/editor/res/default.fnt", Files.FileType.Internal),Gdx.files.getFileHandle("eu/cherrytree/gdx/particles/editor/res/default.png", Files.FileType.Internal), true);
 
-		ParticleEffectZoneContainer.addParticleEmitter();
-
 		Gdx.input.setInputProcessor(this);
 	}
 	
@@ -118,12 +116,9 @@ public class Renderer implements ApplicationListener, InputProcessor
 
 		activeCount = 0;
 		boolean complete = true;
-		
+
 		for (ParticleEmitter emitter : ParticleEffectZoneContainer.getEffect().getEmitters())
 		{
-			if (emitter.getSprite() == null && emitter.getImagePath() != null)
-				loadImage(emitter);
-			
 			boolean enabled = editor.isEnabled(emitter);
 			
 			if (enabled)
@@ -143,6 +138,7 @@ public class Renderer implements ApplicationListener, InputProcessor
 
 		maxActive = Math.max(maxActive, activeCount);
 		maxActiveTimer += delta;
+		
 		if (maxActiveTimer > 3)
 		{
 			maxActiveTimer = 0;
@@ -158,50 +154,6 @@ public class Renderer implements ApplicationListener, InputProcessor
 		font.draw(spriteBatch, (int) (editor.getEmitter().getPercentComplete() * 100) + "%", 5, 75);
 
 		spriteBatch.end();
-	}
-	
-	//--------------------------------------------------------------------------
-
-	private void loadImage(ParticleEmitter emitter)
-	{
-//		final String imagePath = emitter.getImagePath();
-//		String imageName = new File(imagePath.replace('\\', '/')).getName();
-//		try
-//		{
-//			FileHandle file;
-//			if ((imagePath.contains("/") || imagePath.contains("\\")) && !imageName.contains(".."))
-//			{
-//				file = Gdx.files.absolute(imagePath);
-//				if (!file.exists())
-//				{
-//					// try to use image in editor.getEffect() directory
-//					file = Gdx.files.absolute(new File(editor.getEffectFile().getParentFile(), imageName).getAbsolutePath());
-//				}
-//			}
-//			else
-//			{
-//				file = Gdx.files.absolute(new File(editor.getEffectFile().getParentFile(), imagePath).getAbsolutePath());
-//			}
-//			emitter.setSprite(new Sprite(new Texture(file)));
-//			if (editor.getEffectFile() != null)
-//			{
-//				URI relativeUri = editor.getEffectFile().getParentFile().toURI().relativize(file.file().toURI());
-//				emitter.setImagePath(relativeUri.getPath());
-//			}
-//		}
-//		catch (GdxRuntimeException ex)
-//		{
-//			ex.printStackTrace();
-//			EventQueue.invokeLater(new Runnable()
-//			{
-//				@Override
-//				public void run()
-//				{
-//					JOptionPane.showMessageDialog(editor, "Error loading image:\n" + imagePath);
-//				}
-//			});
-//			emitter.setImagePath(null);
-//		}
 	}
 	
 	//--------------------------------------------------------------------------

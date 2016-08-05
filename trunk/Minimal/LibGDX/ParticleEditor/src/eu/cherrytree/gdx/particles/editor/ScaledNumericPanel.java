@@ -61,13 +61,13 @@ public class ScaledNumericPanel extends EditorPanel
 		super(scaledNumericValue, name, description);
 		this.value = scaledNumericValue;
 		
-		scalingField = ScaledNumericValue.class.getField("scaling");
-		timelineField = ScaledNumericValue.class.getField("timeline");
-		highMinField = ScaledNumericValue.class.getField("highMin");
-		highMaxField = ScaledNumericValue.class.getField("highMax");
-		lowMinField = RangedNumericValue.class.getField("lowMin");
-		lowMaxField = RangedNumericValue.class.getField("lowMax");
-		relativeField = ScaledNumericValue.class.getField("relative");
+		scalingField = ScaledNumericValue.class.getDeclaredField("scaling");
+		timelineField = ScaledNumericValue.class.getDeclaredField("timeline");
+		highMinField = ScaledNumericValue.class.getDeclaredField("highMin");
+		highMaxField = ScaledNumericValue.class.getDeclaredField("highMax");
+		lowMinField = RangedNumericValue.class.getDeclaredField("lowMin");
+		lowMaxField = RangedNumericValue.class.getDeclaredField("lowMax");
+		relativeField = ScaledNumericValue.class.getDeclaredField("relative");
 		
 		scalingField.setAccessible(true);
 		timelineField.setAccessible(true);
