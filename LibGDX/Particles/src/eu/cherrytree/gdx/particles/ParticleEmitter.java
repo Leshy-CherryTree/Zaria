@@ -8,10 +8,12 @@
 package eu.cherrytree.gdx.particles;
 
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -21,6 +23,7 @@ import eu.cherrytree.zaria.game.messages.Message;
 import eu.cherrytree.zaria.serialization.LoadCapsule;
 import eu.cherrytree.zaria.serialization.SaveCapsule;
 import eu.cherrytree.zaria.serialization.ValueAlreadySetException;
+import eu.cherrytree.zaria.texture.TextureArea;
 import eu.cherrytree.zaria.utilities.Random;
 
 /**
@@ -46,7 +49,6 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	private Particle[] particles;
 	
 	private float x, y;
-	private String imagePath;
 	private int activeCount;
 	private boolean[] active;
 	private boolean firstUpdate;
@@ -745,26 +747,31 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	
 	//--------------------------------------------------------------------------
 
-	public void setSprite(Sprite sprite)
+	public void loadAssets(AssetManager assetManager)
 	{
-		this.sprite = sprite;
-			
-		if (sprite == null)
-			return;
+		TextureArea area = getDefinition().getTexture();
 		
-		float originX = sprite.getOriginX();
-		float originY = sprite.getOriginY();
-		Texture texture = sprite.getTexture();
-		
-		for (int i = 0, n = particles.length; i < n; i++)
-		{
-			Particle particle = particles[i];
-			
-			if (particle == null)
-				break;
-			
-			particle.setTexture(texture);
-			particle.setOrigin(originX, originY);
+		if (area != null)
+		{		
+			Texture texture = assetManager.get(area.getTexture());
+			TextureRegion region = new TextureRegion(texture);
+			region.setRegion(area.getX(), area.getY(), area.getW(), area.getH());
+
+			sprite = new Sprite(region);
+
+			float originX = sprite.getOriginX();
+			float originY = sprite.getOriginY();
+
+			for (int i = 0, n = particles.length; i < n; i++)
+			{
+				Particle particle = particles[i];
+
+				if (particle == null)
+					break;
+
+				particle.setTexture(texture);
+				particle.setOrigin(originX, originY);
+			}
 		}
 	}
 	
@@ -860,18 +867,6 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	public int getActiveCount()
 	{
 		return activeCount;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public String getImagePath()
-	{
-		return imagePath;
-	}
-
-	public void setImagePath(String imagePath)
-	{
-		this.imagePath = imagePath;
 	}
 	
 	//--------------------------------------------------------------------------

@@ -8,14 +8,7 @@
 package eu.cherrytree.gdx.particles;
 
 import com.badlogic.gdx.assets.AssetManager;
-import java.io.File;
-import java.util.HashMap;
-
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.collision.BoundingBox;
 
 import eu.cherrytree.zaria.game.GameObject;
@@ -42,9 +35,11 @@ public class ParticleEffect extends GameObject<ParticleEffectDefinition>
 	public ParticleEffect(ParticleEffectDefinition definition, String name)
 	{
 		super(definition, name);
-		
+
 		for (ParticleEmitterDefinition emitter_def : definition.getEmitters())
 			emitters.add(emitter_def.create());
+		
+		assert definition.getEmitters().size() == emitters.size();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -130,77 +125,14 @@ public class ParticleEffect extends GameObject<ParticleEffectDefinition>
 	{
 		return emitters;
 	}
-
-	//--------------------------------------------------------------------------
-	
-	/**
-	 * Returns the emitter with the specified name, or null.
-	 */
-	public ParticleEmitter findEmitter(String name)
-	{
-		for (ParticleEmitter emitter : emitters)
-		{
-			if (emitter.getName().equals(name))
-				return emitter;
-		}
-		
-		return null;
-	}
 	
 	//--------------------------------------------------------------------------
 	
 	public void loadAssets(AssetManager assetManager)
 	{
-		// TODO
-		// This should work properly even if the emitters are already running.
+		for (ParticleEmitter emitter : emitters)
+			emitter.loadAssets(assetManager);
 	}
-	
-	//--------------------------------------------------------------------------
-
-//	public void loadEmitterImages(TextureAtlas atlas, String atlasPrefix)
-//	{
-//		for (ParticleEmitter emitter : emitters)
-//		{
-//			String imagePath = emitter.getImagePath();
-//			if (imagePath == null)
-//				continue;
-//			String imageName = new File(imagePath.replace('\\', '/')).getName();
-//			int lastDotIndex = imageName.lastIndexOf('.');
-//			if (lastDotIndex != -1)
-//				imageName = imageName.substring(0, lastDotIndex);
-//			if (atlasPrefix != null)
-//				imageName = atlasPrefix + imageName;
-//			Sprite sprite = atlas.createSprite(imageName);
-//			if (sprite == null)
-//				throw new IllegalArgumentException("SpriteSheet missing image: " + imageName);
-//			emitter.setSprite(sprite);
-//		}
-//	}
-//
-//	public void loadEmitterImages(FileHandle imagesDir)
-//	{
-//		HashMap<String, Sprite> loadedSprites = new HashMap<>(emitters.size());
-//		
-//		for (ParticleEmitter emitter : emitters)
-//		{
-//			String imagePath = emitter.getImagePath();
-//			if (imagePath == null)
-//				continue;
-//			String imageName = new File(imagePath.replace('\\', '/')).getName();
-//			Sprite sprite = loadedSprites.get(imageName);
-//			if (sprite == null)
-//			{
-//				sprite = new Sprite(loadTexture(imagesDir.child(imageName)));
-//				loadedSprites.put(imageName, sprite);
-//			}
-//			emitter.setSprite(sprite);
-//		}
-//	}
-//
-//	protected Texture loadTexture(FileHandle file)
-//	{
-//		return new Texture(file, false);
-//	}
 
 	//--------------------------------------------------------------------------
 
