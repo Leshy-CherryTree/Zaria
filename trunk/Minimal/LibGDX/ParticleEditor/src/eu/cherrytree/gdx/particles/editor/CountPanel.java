@@ -76,7 +76,7 @@ class CountPanel extends EditorPanel
 			{
 				try
 				{
-					maxParticleCountField.set(editor.getEmitter(), (int) maxSlider.getValue());
+					maxParticleCountField.set(editor.getEmitter().getDefinition(), (int) maxSlider.getValue());
 				}
 				catch (IllegalArgumentException | IllegalAccessException ex)
 				{
@@ -93,7 +93,7 @@ class CountPanel extends EditorPanel
 			{
 				try
 				{
-					minParticleCountField.set(editor.getEmitter(), (int) minSlider.getValue());
+					minParticleCountField.set(editor.getEmitter().getDefinition(), (int) minSlider.getValue());
 				}
 				catch (IllegalArgumentException | IllegalAccessException ex)
 				{
