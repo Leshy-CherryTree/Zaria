@@ -1,7 +1,7 @@
 /****************************************/
-/* Link.java							*/
+/* Link.java								*/
 /* Created on: 20-May-2013				*/
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -31,7 +31,7 @@ public final class Link<Definition extends ZariaObjectDefinition> implements Ser
 	
 	//--------------------------------------------------------------------------
 
-	 void load(ZariaObjectDefinitionLibrary library) throws CantResolveLinkException
+	void load(ZariaObjectDefinitionLibrary library) throws CantResolveLinkException
 	{
 		assert library != null;
 		

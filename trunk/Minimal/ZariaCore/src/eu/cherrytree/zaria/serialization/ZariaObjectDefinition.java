@@ -1,7 +1,7 @@
 /****************************************/
 /* ZariaObjectDefinition.java			*/
 /* Created on: 16-Mar-2013				*/
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -364,6 +364,14 @@ public abstract class ZariaObjectDefinition
 		}
 		
 		onPreLoad();
+	}
+	
+	//--------------------------------------------------------------------------
+
+	@Override
+	public String toString()
+	{
+		return getID() + " [" + getClass().getSimpleName() + "]";
 	}
 	
 	//--------------------------------------------------------------------------
