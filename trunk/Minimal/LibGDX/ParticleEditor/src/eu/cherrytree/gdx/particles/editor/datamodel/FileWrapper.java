@@ -11,6 +11,9 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  *
@@ -20,8 +23,20 @@ public class FileWrapper
 {
 	//--------------------------------------------------------------------------
 	
+	private class FileComparator implements Comparator<File>
+	{
+		@Override
+		public int compare(File f1, File f2)
+		{
+			return f1.getName().compareToIgnoreCase(f2.getName());
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	private File file;
 	private ArrayList<File> children = new ArrayList<>();
+	private FileComparator comparator = new FileComparator();
 
 	//--------------------------------------------------------------------------
 	
@@ -43,10 +58,20 @@ public class FileWrapper
 			File[] files = file.listFiles(new ZoneFileFilter());
 
 			if (dirs.length > 0)
-				children.addAll(Arrays.asList(dirs));
-
+			{
+				List<File> dir_list = Arrays.asList(dirs);
+				Collections.sort(dir_list, comparator);
+				
+				children.addAll(dir_list);
+			}
+			
 			if (files.length > 0)
-				children.addAll(Arrays.asList(files));
+			{
+				List<File> file_list = Arrays.asList(files);
+				Collections.sort(file_list, comparator);
+				
+				children.addAll(file_list);
+			}
 		}
 	}
 	

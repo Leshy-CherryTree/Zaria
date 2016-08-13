@@ -37,12 +37,22 @@ import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
 
 import eu.cherrytree.gdx.particles.ParticleEmitter;
 import eu.cherrytree.zaria.utilities.Random;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
 
 /**
  * 
  * Branched from Particle Editor of libGDX in gdx-tools.
  */
-public class ParticleEditor extends JFrame
+public class ParticleEditor extends JFrame implements ActionListener
 {
 	//--------------------------------------------------------------------------
 	
@@ -52,13 +62,21 @@ public class ParticleEditor extends JFrame
 	private EffectPanel effectPanel;
 	private JSplitPane splitPane;
 	
+	private JMenuBar menuBar = new JMenuBar();
+	private JMenu fileMenu = new JMenu();
+	private JMenuItem newMenuItem;
+	private JMenuItem openMenuItem;
+	private JMenuItem saveMenuItem;
+	private JMenuItem saveAsMenuItem;
+	private JMenuItem exitMenuItem;
+	
 	private HashMap<ParticleEmitter, ParticleData> particleData = new HashMap();
 	
 	//--------------------------------------------------------------------------
 
 	public ParticleEditor()
 	{
-		super("Zaria Particle Editor for libGDX");
+		super("Zaria Particle Editor for libGDX - ParticleEffect");
 		
 		try
 		{
@@ -91,13 +109,10 @@ public class ParticleEditor extends JFrame
 		{
 			JPanel propertiesPanel = new JPanel(new GridBagLayout());
 			splitPane.add(propertiesPanel, JSplitPane.RIGHT);
-			propertiesPanel.setBorder(new CompoundBorder(BorderFactory.createEmptyBorder(3, 0, 6, 6), BorderFactory
-			.createTitledBorder("Emitter Properties")));
 			{
 				JScrollPane scroll = new JScrollPane();
 				propertiesPanel.add(scroll, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 				scroll.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-				
 				{
 					rowsPanel = new JPanel(new GridBagLayout());
 					scroll.setViewportView(rowsPanel);
@@ -131,7 +146,25 @@ public class ParticleEditor extends JFrame
 		}
 		
 		splitPane.setDividerLocation(325);
+		
+		// Initialzing the menu elements.
+		fileMenu.setText("File");
+		fileMenu.setMnemonic('f');
+		
+		newMenuItem = initMenuItem("New", KeyEvent.VK_N, fileMenu);
+		openMenuItem = initMenuItem("Open", KeyEvent.VK_O, fileMenu);
+		
+		fileMenu.add(new JPopupMenu.Separator());
+		
+		saveMenuItem = initMenuItem("Save", KeyEvent.VK_S, fileMenu);
+		saveAsMenuItem = initMenuItem("Save As", KeyEvent.VK_A, fileMenu);
+		
+		fileMenu.add(new JPopupMenu.Separator());
+		
+		exitMenuItem = initMenuItem("Exit", KeyEvent.VK_X, fileMenu);
 
+		menuBar.add(fileMenu);
+		
 		setSize(1150, 700);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -139,7 +172,72 @@ public class ParticleEditor extends JFrame
 	}
 	
 	//--------------------------------------------------------------------------
+	
+	private JMenuItem initMenuItem(String text, int keyStroke, JMenu menu)
+	{
+		JMenuItem item = new JMenuItem();
+		
+		item.setAccelerator(KeyStroke.getKeyStroke(keyStroke, getToolkit().getMenuShortcutKeyMask()));
+		item.setText(text);
+		item.addActionListener(this);
+		
+		menu.add(item);
+		
+		return item;
+	}
 
+	//--------------------------------------------------------------------------
+
+	@Override
+	public void actionPerformed(ActionEvent evt)
+	{
+		if (evt.getSource() == newMenuItem)
+		{
+			int choice = JOptionPane.showConfirmDialog(this, "Do you want to save " + ParticleEffectZoneContainer.getEffect().getDefinition().getID() + " ?", "Save effect?", 
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+			
+			if (choice == JOptionPane.YES_OPTION)
+				ParticleEffectZoneContainer.save(this, false);
+			
+			if (choice != JOptionPane.CANCEL_OPTION)
+				ParticleEffectZoneContainer.createNew();
+		}
+		else if (evt.getSource() == openMenuItem)
+		{
+			int choice = JOptionPane.showConfirmDialog(this, "Do you want to save " + ParticleEffectZoneContainer.getEffect().getDefinition().getID() + " ?", "Save effect?",
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+			if (choice == JOptionPane.YES_OPTION)
+				ParticleEffectZoneContainer.save(this, false);
+
+			if (choice != JOptionPane.CANCEL_OPTION)
+				effectPanel.openEffect();
+		}
+		else if (evt.getSource() == saveMenuItem)
+		{
+			ParticleEffectZoneContainer.save(this, false);
+		}
+		else if (evt.getSource() == saveAsMenuItem)
+		{
+			ParticleEffectZoneContainer.save(this, true);
+		}
+		else if (evt.getSource() == exitMenuItem)
+		{
+			int choice = JOptionPane.showConfirmDialog(this, "Do you want to save " + ParticleEffectZoneContainer.getEffect().getDefinition().getID() + " ?", "Save effect?",
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+			if (choice == JOptionPane.YES_OPTION)
+				ParticleEffectZoneContainer.save(this, false);
+
+			if (choice != JOptionPane.CANCEL_OPTION)
+				dispose();
+		}
+		
+		setTitle("Zaria Particle Editor for libGDX - " + ParticleEffectZoneContainer.getEffect().getDefinition().getID());
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	public void reloadRows()
 	{
 		EventQueue.invokeLater(new Runnable()
@@ -152,6 +250,7 @@ public class ParticleEditor extends JFrame
 					rowsPanel.removeAll();
 					ParticleEmitter emitter = getEmitter();
 					
+					addRow(menuBar);
 					addRow(new ImagePanel(ParticleEditor.this, "Image", ""));
 					addRow(new CountPanel(ParticleEditor.this, "Count", "Min number of particles at all times, max number of particles allowed."));
 					addRow(new RangedNumericPanel(emitter.getDefinition().getDelayValue(), "Delay", "Time from beginning of effect to emission start, in milliseconds."));
@@ -206,7 +305,7 @@ public class ParticleEditor extends JFrame
 	
 	//--------------------------------------------------------------------------
 
-	private void addRow(JPanel row)
+	private void addRow(JComponent row)
 	{
 		row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, java.awt.Color.black));
 		rowsPanel.add(row, new GridBagConstraints(0, -1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));

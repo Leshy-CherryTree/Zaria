@@ -42,6 +42,7 @@ import java.util.Locale;
 import java.util.UUID;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -49,6 +50,17 @@ import javax.swing.JFrame;
  */
 public class ParticleEffectZoneContainer
 {
+	//--------------------------------------------------------------------------
+	
+	private static class AssetFileFilter implements FileFilter
+	{
+		@Override
+		public boolean accept(File file)
+		{
+			return file.isDirectory() || file.getName().toLowerCase().endsWith(".zone");
+		}
+	}
+	
 	//--------------------------------------------------------------------------
 	
 	private static AssetManager assetManager;
@@ -193,11 +205,11 @@ public class ParticleEffectZoneContainer
 	
 	//--------------------------------------------------------------------------
 	
-	public static void save(JFrame editor)
+	public static void save(JFrame editor, boolean saveAs)
 	{
 		File file;
 		
-		if (path == null)
+		if (path == null || saveAs)
 		{
 			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.setCurrentDirectory(new File(assetPath));
@@ -228,6 +240,22 @@ public class ParticleEffectZoneContainer
 			else
 			{
 				return;
+			}
+			
+			String id = (String) JOptionPane.showInputDialog(editor, "Choose Particle Effect name", "Set name", JOptionPane.QUESTION_MESSAGE, null, null, particleEffectDefinition.getID());
+			
+			if (id != null && !id.isEmpty())
+			{
+				try
+				{
+					Field id_field = ZariaObjectDefinition.class.getDeclaredField("id");
+					id_field.setAccessible(true);
+					id_field.set(particleEffectDefinition, id);
+				}
+				catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		}
 
@@ -276,7 +304,7 @@ public class ParticleEffectZoneContainer
 			particleEffectDefinition = createNewDefinition(ParticleEffectDefinition.class, "ParticleEffect");
 			new_defs.add(particleEffectDefinition);
 			
-			ParticleEmitterDefinition emitter_def = createNewDefinition(ParticleEmitterDefinition.class, "Emitter");
+			ParticleEmitterDefinition emitter_def = createNewDefinition(ParticleEmitterDefinition.class, "Emitter_00");
 			emitterDefinitions.add(emitter_def);
 			new_defs.add(emitter_def);
 			
@@ -297,6 +325,10 @@ public class ParticleEffectZoneContainer
 	
 	private static void findTextures(File file, FileFilter filter, ArrayList<TextureArea> textures, HashSet<UUID> uuids)
 	{
+		assert !uuids.isEmpty();
+		
+		System.out.println("Looking in: " + file.getPath());
+		
 		File[] files = file.listFiles(filter);
 		
 		for (File f : files)
@@ -318,7 +350,10 @@ public class ParticleEffectZoneContainer
 					for (ZariaObjectDefinition def : definitions)
 					{
 						if (uuids.contains(def.getUUID()))
+						{
 							textures.add((TextureArea) def);
+							System.out.println("FOUND: " + def.getID());
+						}
 					}
 				}
 				catch(IOException ex)
@@ -394,7 +429,7 @@ public class ParticleEffectZoneContainer
 			}
 			
 			ArrayList<TextureArea> texture_areas = new ArrayList<>();
-			findTextures(new File(assetPath), new ZoneFileFilter(), texture_areas, texture_uuids);
+			findTextures(new File(assetPath), new AssetFileFilter(), texture_areas, texture_uuids);
 			
 			new_defs.addAll(texture_areas);
 			
@@ -445,7 +480,45 @@ public class ParticleEffectZoneContainer
 	
 	public static void removeEmitter(int index)
 	{
+		assert index >= 0;
+		assert particleEffectDefinition.getEmitters().size() > index;
 		
+		try
+		{
+			emitterDefinitions.remove(index);
+			emitters.remove(index);
+			
+			// Creating new array of uuids.
+			UUID[] uuids = new UUID[particleEffectDefinition.getEmitters().size() - 1];
+
+			for (int i = 0, j = 0 ; i < particleEffectDefinition.getEmitters().size() && j < uuids.length ; i++)
+			{
+				uuids[j] = particleEffectDefinition.getEmitters().getUUID(i);
+
+				if (i != index)
+					j++;
+			}		
+
+			// Creating new link array with those uuids.
+			LinkArray link_array = new LinkArray();
+			Field id_field = LinkArray.class.getDeclaredField("uuids");
+			id_field.setAccessible(true);
+			id_field.set(link_array, uuids);
+
+			// Overwriting emitter link array.
+			Field emitters_field = ParticleEffectDefinition.class.getDeclaredField("emitters");
+			emitters_field.setAccessible(true);
+
+			emitters_field.set(particleEffectDefinition, link_array);
+			
+			particleEffectDefinition.preLoad(library);
+			particleEffect = particleEffectDefinition.create();
+			particleEffect.loadAssets(assetManager);
+		}
+		catch (SecurityException | NoSuchFieldException | IllegalArgumentException | IllegalAccessException ex)
+		{
+			ex.printStackTrace();
+		}
 	}
 	
 	//--------------------------------------------------------------------------
@@ -456,7 +529,7 @@ public class ParticleEffectZoneContainer
 		{
 			ArrayList<ZariaObjectDefinition> new_defs = new ArrayList<>();
 			
-			ParticleEmitterDefinition emitter_def = createNewDefinition(ParticleEmitterDefinition.class, "Emitter");
+			ParticleEmitterDefinition emitter_def = createNewDefinition(ParticleEmitterDefinition.class, "Emitter_" + String.format("%02d", emitterDefinitions.size()));
 			new_defs.add(emitter_def);
 			
 			addEmitterToEffect(emitter_def);
@@ -495,6 +568,8 @@ public class ParticleEffectZoneContainer
 	
 	public static ParticleEmitter getEmitter(int index)
 	{
+		assert emitters.size() == particleEffect.getEmitters().size();
+		
 		return emitters.get(index);
 	}
 	

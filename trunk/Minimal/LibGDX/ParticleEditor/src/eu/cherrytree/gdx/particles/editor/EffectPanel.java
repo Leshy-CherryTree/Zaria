@@ -17,24 +17,26 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.ArrayList;
+
 import eu.cherrytree.gdx.particles.ParticleEmitter;
+import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
+import java.lang.reflect.Field;
 
 
 /**
  * 
  * Branched from Particle Editor of libGDX in gdx-tools.
  */
-public class EffectPanel extends JPanel
+public class EffectPanel extends JPanel implements TableModelListener, ListSelectionListener
 {
 	//--------------------------------------------------------------------------
 
@@ -48,7 +50,88 @@ public class EffectPanel extends JPanel
 	public EffectPanel(ParticleEditor editor)
 	{
 		this.editor = editor;
-		initializeComponents();
+
+		setLayout(new GridBagLayout());
+		{
+			JPanel sideButtons = new JPanel(new GridBagLayout());
+			add(sideButtons, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+			new Insets(0, 0, 0, 0), 0, 0));
+			{
+				JButton newButton = new JButton("New");
+				sideButtons.add(newButton, new GridBagConstraints(0, -1, 1, 1, 0, 0, GridBagConstraints.CENTER,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 6, 0), 0, 0));
+				newButton.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent event)
+					{
+						createNewEmitter();
+					}
+				});
+			}
+			{
+				JButton deleteButton = new JButton("Delete");
+				sideButtons.add(deleteButton, new GridBagConstraints(0, -1, 1, 1, 0, 0, GridBagConstraints.CENTER,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 6, 0), 0, 0));
+				deleteButton.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent event)
+					{
+						deleteEmitter();
+					}
+				});
+			}
+			{
+				JButton upButton = new JButton("Up");
+				sideButtons.add(upButton, new GridBagConstraints(0, -1, 1, 1, 0, 1, GridBagConstraints.SOUTH,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 6, 0), 0, 0));
+				upButton.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent event)
+					{
+						move(-1);
+					}
+				});
+			}
+			{
+				JButton downButton = new JButton("Down");
+				sideButtons.add(downButton, new GridBagConstraints(0, -1, 1, 1, 0, 0, GridBagConstraints.CENTER,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+				downButton.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent event)
+					{
+						move(1);
+					}
+				});
+			}
+		}
+		{
+			JScrollPane scroll = new JScrollPane();
+			add(scroll, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,
+			0, 0, 6), 0, 0));
+			{
+				emitterTable = new JTable()
+				{
+					@Override
+					public Class getColumnClass(int column)
+					{
+						return column == 1 ? Boolean.class : super.getColumnClass(column);
+					}
+				};
+				emitterTable.getTableHeader().setReorderingAllowed(false);
+				emitterTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				scroll.setViewportView(emitterTable);
+				emitterTableModel = new DefaultTableModel(new String[0][0], new String[] { "Name" , "Visible" });
+				emitterTable.setModel(emitterTableModel);
+				
+				emitterTable.getSelectionModel().addListSelectionListener(this);
+				emitterTableModel.addTableModelListener(this);
+			}
+		}
 		
 		ParticleEmitter emitter = ParticleEffectZoneContainer.getEmitter(0);
 
@@ -119,7 +202,7 @@ public class EffectPanel extends JPanel
 	
 	//--------------------------------------------------------------------------
 
-	private void openEffect()
+	public void openEffect()
 	{
 		ParticleEffectZoneContainer.openEffect(editor);
 		
@@ -129,12 +212,14 @@ public class EffectPanel extends JPanel
 		for (ParticleEmitter emitter : ParticleEffectZoneContainer.getEffect().getEmitters())
 		{
 			emitter.setPosition(editor.getRenderer().getWorldCamera().viewportWidth / 2, editor.getRenderer().getWorldCamera().viewportHeight / 2);
-			emitterTableModel.addRow(new Object[] { emitter.getName(), true });
+			emitterTableModel.addRow(new Object[] { emitter.getDefinition().getID(), true });
 		}
 		
 		editIndex = 0;
 		emitterTable.getSelectionModel().setSelectionInterval(editIndex, editIndex);
 		editor.reloadRows();
+		
+		ParticleEffectZoneContainer.getEffect().start();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -157,7 +242,6 @@ public class EffectPanel extends JPanel
 				editor.reloadRows();
 		}
 		
-		//ParticleEffectZoneContainer.getEffect().getEmitters().remove(row);
 		ParticleEffectZoneContainer.removeEmitter(row);
 		
 		emitterTableModel.removeRow(row);
@@ -199,137 +283,37 @@ public class EffectPanel extends JPanel
 	
 	//--------------------------------------------------------------------------
 
-	private void initializeComponents()
+	@Override
+	public void tableChanged(TableModelEvent event)
 	{
-		setLayout(new GridBagLayout());
+		if (event.getColumn() == 0)
 		{
-			JPanel sideButtons = new JPanel(new GridBagLayout());
-			add(sideButtons, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-			new Insets(0, 0, 0, 0), 0, 0));
+			try
 			{
-				JButton newButton = new JButton("New");
-				sideButtons.add(newButton, new GridBagConstraints(0, -1, 1, 1, 0, 0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 6, 0), 0, 0));
-				newButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent event)
-					{
-						createNewEmitter();
-					}
-				});
+				Field id_field = ZariaObjectDefinition.class.getDeclaredField("id");
+				id_field.setAccessible(true);
+				id_field.set(editor.getEmitter().getDefinition(), (String) emitterTable.getValueAt(event.getFirstRow(), 0));
 			}
+			catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex)
 			{
-				JButton deleteButton = new JButton("Delete");
-				sideButtons.add(deleteButton, new GridBagConstraints(0, -1, 1, 1, 0, 0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 6, 0), 0, 0));
-				deleteButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent event)
-					{
-						deleteEmitter();
-					}
-				});
-			}
-			{
-				sideButtons.add(new JSeparator(JSeparator.HORIZONTAL), new GridBagConstraints(0, -1, 1, 1, 0, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 6, 0), 0, 0));
-			}
-			{
-				JButton saveButton = new JButton("Save");
-				sideButtons.add(saveButton, new GridBagConstraints(0, -1, 1, 1, 0, 0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 6, 0), 0, 0));
-				saveButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent event)
-					{
-						ParticleEffectZoneContainer.save(editor);
-					}
-				});
-			}
-			{
-				JButton openButton = new JButton("Open");
-				sideButtons.add(openButton, new GridBagConstraints(0, -1, 1, 1, 0, 0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 6, 0), 0, 0));
-				openButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent event)
-					{
-						openEffect();
-					}
-				});
-			}
-			{
-				JButton upButton = new JButton("Up");
-				sideButtons.add(upButton, new GridBagConstraints(0, -1, 1, 1, 0, 1, GridBagConstraints.SOUTH,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 6, 0), 0, 0));
-				upButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent event)
-					{
-						move(-1);
-					}
-				});
-			}
-			{
-				JButton downButton = new JButton("Down");
-				sideButtons.add(downButton, new GridBagConstraints(0, -1, 1, 1, 0, 0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-				downButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent event)
-					{
-						move(1);
-					}
-				});
+				ex.printStackTrace();
 			}
 		}
+		else if (event.getColumn() == 1)
 		{
-			JScrollPane scroll = new JScrollPane();
-			add(scroll, new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,
-			0, 0, 6), 0, 0));
-			{
-				emitterTable = new JTable()
-				{
-					@Override
-					public Class getColumnClass(int column)
-					{
-						return column == 1 ? Boolean.class : super.getColumnClass(column);
-					}
-				};
-				emitterTable.getTableHeader().setReorderingAllowed(false);
-				emitterTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-				scroll.setViewportView(emitterTable);
-				emitterTableModel = new DefaultTableModel(new String[0][0], new String[] { "Emitter", "" });
-				emitterTable.setModel(emitterTableModel);
-				emitterTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-				{
-					@Override
-					public void valueChanged(ListSelectionEvent event)
-					{
-						if (event.getValueIsAdjusting())
-							return;
-						
-						emitterSelected();
-					}
-				});
-				emitterTableModel.addTableModelListener(new TableModelListener()
-				{
-					@Override
-					public void tableChanged(TableModelEvent event)
-					{
-						if (event.getColumn() != 1)
-							return;
-						emitterChecked(event.getFirstRow(), (Boolean) emitterTable.getValueAt(event.getFirstRow(), 1));
-					}
-				});
-			}
+			emitterChecked(event.getFirstRow(), (Boolean) emitterTable.getValueAt(event.getFirstRow(), 1));
 		}
+	}
+	
+	//--------------------------------------------------------------------------
+
+	@Override
+	public void valueChanged(ListSelectionEvent event)
+	{
+		if (event.getValueIsAdjusting())
+			return;
+
+		emitterSelected();
 	}
 	
 	//--------------------------------------------------------------------------
