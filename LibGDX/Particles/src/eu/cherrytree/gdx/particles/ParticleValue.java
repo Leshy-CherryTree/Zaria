@@ -7,25 +7,22 @@
 
 package eu.cherrytree.gdx.particles;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Serializable;
-import java.io.Writer;
 
 /**
  * 
  * Branched from libGDX particle system.
  */
-public class ParticleValue implements Serializable
+public abstract class ParticleValue implements Serializable
 {
 	//--------------------------------------------------------------------------
 
 	protected boolean active;
-	protected boolean alwaysActive;
-	
-	//--------------------------------------------------------------------------
+	private final boolean alwaysActive;
 
-	public void setAlwaysActive(boolean alwaysActive)
+	//--------------------------------------------------------------------------
+	
+	public ParticleValue(boolean alwaysActive)
 	{
 		this.alwaysActive = alwaysActive;
 	}
@@ -42,13 +39,6 @@ public class ParticleValue implements Serializable
 	public boolean isActive()
 	{
 		return alwaysActive || active;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public void setActive(boolean active)
-	{
-		this.active = active;
 	}
 	
 	//--------------------------------------------------------------------------

@@ -8,37 +8,42 @@
 package eu.cherrytree.gdx.particles;
 
 import eu.cherrytree.zaria.game.GameObjectDefinition;
+import eu.cherrytree.zaria.serialization.ColorName;
 import eu.cherrytree.zaria.serialization.DefinitionValidation;
 import eu.cherrytree.zaria.serialization.Link;
+import eu.cherrytree.zaria.serialization.annotations.DefinitionCategory;
+import eu.cherrytree.zaria.serialization.annotations.DefinitionColor;
 import eu.cherrytree.zaria.texture.TextureArea;
 
 /**
  *
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
+@DefinitionCategory("Particles")
+@DefinitionColor(ColorName.LavenderBlush)
 public class ParticleEmitterDefinition extends GameObjectDefinition<ParticleEmitter>
 {
 	//--------------------------------------------------------------------------
 	
 	private Link<TextureArea> texture = new Link<>();
 	
-	private RangedNumericValue delayValue = new RangedNumericValue(0.0f, 0.0f);
-	private ScaledNumericValue lifeOffsetValue = new ScaledNumericValue(0.0f, 0.0f, 0.0f, 0.0f);
-	private RangedNumericValue durationValue = new RangedNumericValue(2500, 1500);
-	private ScaledNumericValue lifeValue = new ScaledNumericValue(2000, 2000, 1000, 1000);
-	private ScaledNumericValue emissionValue = new ScaledNumericValue(100, 100, 50, 50);
-	private ScaledNumericValue scaleValue = new ScaledNumericValue(32, 32, 16, 16);
-	private ScaledNumericValue rotationValue = new ScaledNumericValue(0, 0, 0, 0);
-	private ScaledNumericValue velocityValue = new ScaledNumericValue(0, 0, 0, 0);
-	private ScaledNumericValue angleValue = new ScaledNumericValue(0, 0, 0, 0);
-	private ScaledNumericValue windValue = new ScaledNumericValue(0, 0, 0, 0);
-	private ScaledNumericValue gravityValue = new ScaledNumericValue(10, 10, 10, 10);
-	private ScaledNumericValue transparencyValue = new ScaledNumericValue(1, 1, 0, 0);
+	private RangedNumericValue delayValue = new RangedNumericValue(0.0f, 0.0f, false);
+	private ScaledNumericValue lifeOffsetValue = new ScaledNumericValue(0.0f, 0.0f, 0.0f, 0.0f, false);
+	private RangedNumericValue durationValue = new RangedNumericValue(2500, 1500, true);
+	private ScaledNumericValue lifeValue = new ScaledNumericValue(2000, 2000, 1000, 1000, true);
+	private ScaledNumericValue emissionValue = new ScaledNumericValue(10, 10, 5, 5, true);
+	private ScaledNumericValue scaleValue = new ScaledNumericValue(32, 32, 16, 16, false);
+	private ScaledNumericValue rotationValue = new ScaledNumericValue(0, 0, 0, 0, false);
+	private ScaledNumericValue velocityValue = new ScaledNumericValue(0, 0, 0, 0, false);
+	private ScaledNumericValue angleValue = new ScaledNumericValue(0, 0, 0, 0, false);
+	private ScaledNumericValue windValue = new ScaledNumericValue(0, 0, 0, 0, false);
+	private ScaledNumericValue gravityValue = new ScaledNumericValue(10, 10, 10, 10, false);
+	private ScaledNumericValue transparencyValue = new ScaledNumericValue(1, 1, 0, 0, false);
 	private GradientColorValue tintValue = new GradientColorValue(new float[]{1.0f, 0.12156863f, 0.047058824f});
-	private RangedNumericValue xOffsetValue = new ScaledNumericValue(0 , 0, 0, 0);
-	private RangedNumericValue yOffsetValue = new ScaledNumericValue(0, 0, 0, 0);
-	private ScaledNumericValue spawnWidthValue = new ScaledNumericValue(1, 1, 1, 1);
-	private ScaledNumericValue spawnHeightValue = new ScaledNumericValue(1, 1, 1, 1);
+	private RangedNumericValue xOffsetValue = new ScaledNumericValue(0 , 0, 0, 0, false);
+	private RangedNumericValue yOffsetValue = new ScaledNumericValue(0, 0, 0, 0, false);
+	private ScaledNumericValue spawnWidthValue = new ScaledNumericValue(1, 1, 1, 1, false);
+	private ScaledNumericValue spawnHeightValue = new ScaledNumericValue(1, 1, 1, 1, false);
 	private SpawnShapeValue spawnShapeValue = new SpawnShapeValue();
 	
 	private boolean attached = false;
@@ -49,7 +54,7 @@ public class ParticleEmitterDefinition extends GameObjectDefinition<ParticleEmit
 	private boolean premultipliedAlpha = false;
 	
 	private int minParticleCount = 0;
-	private int maxParticleCount = 25;
+	private int maxParticleCount = 50;
 
 	//--------------------------------------------------------------------------
 	

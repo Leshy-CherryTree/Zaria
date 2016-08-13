@@ -8,13 +8,18 @@
 package eu.cherrytree.gdx.particles;
 
 import eu.cherrytree.zaria.game.GameObjectDefinition;
+import eu.cherrytree.zaria.serialization.ColorName;
 import eu.cherrytree.zaria.serialization.DefinitionValidation;
 import eu.cherrytree.zaria.serialization.LinkArray;
+import eu.cherrytree.zaria.serialization.annotations.DefinitionCategory;
+import eu.cherrytree.zaria.serialization.annotations.DefinitionColor;
 
 /**
  *
  * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
+@DefinitionCategory("Particles")
+@DefinitionColor(ColorName.Lavender)
 public class ParticleEffectDefinition extends GameObjectDefinition<ParticleEffect>
 {
 	//--------------------------------------------------------------------------
