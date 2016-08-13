@@ -7,8 +7,15 @@
 
 package eu.cherrytree.gdx.particles;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+
 import eu.cherrytree.zaria.utilities.Random;
 	
+@JsonAutoDetect(	fieldVisibility=JsonAutoDetect.Visibility.ANY, 
+					getterVisibility=JsonAutoDetect.Visibility.NONE, 
+					isGetterVisibility=JsonAutoDetect.Visibility.NONE, 
+					setterVisibility=JsonAutoDetect.Visibility.NONE, 
+					creatorVisibility=JsonAutoDetect.Visibility.NONE	)
 
 /**
  * 
@@ -26,9 +33,16 @@ public class ScaledNumericValue extends RangedNumericValue
 	
 	//--------------------------------------------------------------------------
 
-	public ScaledNumericValue(float highMin, float highMax, float lowMin, float lowMax)
+	public ScaledNumericValue()
 	{
-		super(lowMin, lowMax);
+		// For serialization only.
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public ScaledNumericValue(float highMin, float highMax, float lowMin, float lowMax, boolean alwaysActive)
+	{
+		super(lowMin, lowMax, alwaysActive);
 		
 		this.highMin = highMin;
 		this.highMax = highMax;

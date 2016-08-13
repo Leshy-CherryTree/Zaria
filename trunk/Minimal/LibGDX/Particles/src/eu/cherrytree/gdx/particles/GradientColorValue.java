@@ -7,6 +7,14 @@
 
 package eu.cherrytree.gdx.particles;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+
+@JsonAutoDetect(		fieldVisibility=JsonAutoDetect.Visibility.ANY, 
+					getterVisibility=JsonAutoDetect.Visibility.NONE, 
+					isGetterVisibility=JsonAutoDetect.Visibility.NONE, 
+					setterVisibility=JsonAutoDetect.Visibility.NONE, 
+					creatorVisibility=JsonAutoDetect.Visibility.NONE	)
+
 /**
  * 
  * Branched from libGDX particle system.
@@ -24,10 +32,20 @@ public class GradientColorValue extends ParticleValue
 	
 	//--------------------------------------------------------------------------
 
+	public GradientColorValue()
+	{
+		super(false);
+		
+		// For serializatio only.
+	}
+	
+	//--------------------------------------------------------------------------
+
 	public GradientColorValue(float[] colors)
 	{
+		super(true);
+		
 		this.colors = colors;
-		this.alwaysActive = true;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -39,29 +57,12 @@ public class GradientColorValue extends ParticleValue
 	
 	//--------------------------------------------------------------------------
 
-	public void setTimeline(float[] timeline)
-	{
-		this.timeline = timeline;
-	}
-	
-	//--------------------------------------------------------------------------
-
 	/**
 	 * @return the r, g and b values for every timeline position
 	 */
 	public float[] getColors()
 	{
 		return colors;
-	}
-	//--------------------------------------------------------------------------
-	
-
-	/**
-	 * @param colors the r, g and b values for every timeline position
-	 */
-	public void setColors(float[] colors)
-	{
-		this.colors = colors;
 	}
 	
 	//--------------------------------------------------------------------------

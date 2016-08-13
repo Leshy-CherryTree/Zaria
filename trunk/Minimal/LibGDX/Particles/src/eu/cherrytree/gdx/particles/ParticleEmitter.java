@@ -240,7 +240,7 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	 * {@link #draw(Batch)} separately.
 	 */
 	public void draw(Batch batch, float delta)
-	{
+	{		
 		accumulator += delta * 1000;
 		if (accumulator < 1)
 		{
@@ -842,9 +842,10 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	//--------------------------------------------------------------------------
 	
 	public float getPercentComplete()
-	{
+	{		
 		if (delayTimer < delay)
 			return 0;
+		
 		return Math.min(1, durationTimer / (float) duration);
 	}
 	
