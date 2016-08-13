@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.lang.reflect.Field;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -92,7 +93,9 @@ public abstract class EditorPanel extends JPanel
 			{
 				if (!activeButton.isVisible())
 					return;
+				
 				activeButton.setSelected(!activeButton.isSelected());
+				
 				updateActive();
 			}
 		});
@@ -121,10 +124,12 @@ public abstract class EditorPanel extends JPanel
 
 		boolean alwaysActive = value == null ? true : value.isAlwaysActive();
 		activeButton.setVisible(!alwaysActive);
-		if (alwaysActive)
+		
+		if (value == null || value.isActive())
 			contentPanel.setVisible(true);
-		if (alwaysActive)
-			titlePanel.setCursor(null);
+		
+//		if (alwaysActive)
+//			titlePanel.setCursor(null);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -135,8 +140,21 @@ public abstract class EditorPanel extends JPanel
 		advancedPanel.setVisible(activeButton.isSelected() && advancedButton.isSelected());
 		advancedButton.setVisible(activeButton.isSelected() && hasAdvanced);
 		descriptionLabel.setText(activeButton.isSelected() ? description : "");
+		
 		if (value != null)
-			value.setActive(activeButton.isSelected());
+		{
+			try
+			{
+				Field active_field = ParticleValue.class.getDeclaredField("active");
+				active_field.setAccessible(true);
+				
+				active_field.set(value, activeButton.isSelected());
+			}
+			catch(NoSuchFieldException | SecurityException  | IllegalAccessException | IllegalArgumentException ex)
+			{
+				ex.printStackTrace();
+			}
+		}
 	}
 	
 	//--------------------------------------------------------------------------

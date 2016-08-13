@@ -50,8 +50,11 @@ class ImagePanel extends EditorPanel
 					GetDefinitionDialog<TextureArea> def_dialog = new GetDefinitionDialog(editor, TextureArea.class);
 					def_dialog.setVisible(true);
 					
-					ParticleEffectZoneContainer.setTexture(editor.getEmitter(), def_dialog.getDefinition());				
-					updateIconInfo(editor.getIcon(editor.getEmitter()));
+					if (def_dialog.getDefinition() != null)
+					{
+						ParticleEffectZoneContainer.setTexture(editor.getEmitter(), def_dialog.getDefinition());				
+						updateIconInfo(editor.getIcon(editor.getEmitter()));
+					}
 				}
 			});
 		}
@@ -67,6 +70,8 @@ class ImagePanel extends EditorPanel
 			imageLabel = new JLabel();
 			contentPanel.add(imageLabel, new GridBagConstraints(3, 1, 1, 3, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(0, 6, 0, 0), 0, 0));
 		}
+		
+		updateIconInfo(editor.getIcon(editor.getEmitter()));
 	}
 	
 	//--------------------------------------------------------------------------

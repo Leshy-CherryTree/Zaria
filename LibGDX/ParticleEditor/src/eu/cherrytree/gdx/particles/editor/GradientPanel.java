@@ -19,6 +19,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JPanel;
 
 import eu.cherrytree.gdx.particles.GradientColorValue;
+import java.lang.reflect.Field;
 
 /**
  * 
@@ -196,9 +197,21 @@ public class GradientPanel extends EditorPanel
 		
 		for (Float percent : gradientEditor.getPercentages())
 			percentages[i++] = percent;
+		try
+		{
+			Field colors_field = GradientColorValue.class.getDeclaredField("colors");
+			Field timeline_field = GradientColorValue.class.getDeclaredField("timeline");
 		
-		value.setColors(colors);
-		value.setTimeline(percentages);
+			colors_field.setAccessible(true);
+			timeline_field.setAccessible(true);
+			
+			colors_field.set(value, colors);
+			timeline_field.set(value, percentages);
+		}
+		catch(NoSuchFieldException | SecurityException  | IllegalAccessException | IllegalArgumentException ex)
+		{
+			ex.printStackTrace();
+		}
 	}
 	
 	//--------------------------------------------------------------------------

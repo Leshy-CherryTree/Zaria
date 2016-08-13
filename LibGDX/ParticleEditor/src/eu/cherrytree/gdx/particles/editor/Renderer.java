@@ -97,7 +97,7 @@ public class Renderer implements ApplicationListener, InputProcessor
 		int viewWidth = Gdx.graphics.getWidth();
 		int viewHeight = Gdx.graphics.getHeight();
 
-		float delta = Math.max(0, Gdx.graphics.getDeltaTime());
+		float delta = Math.min(1.0f / 30.0f, Math.max(0, Gdx.graphics.getDeltaTime()));
 
 		Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
