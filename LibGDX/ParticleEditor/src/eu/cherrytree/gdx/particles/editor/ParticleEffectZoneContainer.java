@@ -16,15 +16,14 @@ import eu.cherrytree.gdx.particles.ParticleEffectDefinition;
 import eu.cherrytree.gdx.particles.ParticleEmitter;
 import eu.cherrytree.gdx.particles.ParticleEmitterDefinition;
 import eu.cherrytree.gdx.particles.editor.assets.AssetResolver;
-import eu.cherrytree.gdx.particles.editor.datamodel.ZoneFileFilter;
+
 import eu.cherrytree.zaria.serialization.Link;
 import eu.cherrytree.zaria.serialization.LinkArray;
-
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinitionLibrary;
 import eu.cherrytree.zaria.texture.TextureArea;
-import java.io.BufferedWriter;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -40,6 +39,7 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.UUID;
+
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -350,10 +350,7 @@ public class ParticleEffectZoneContainer
 					for (ZariaObjectDefinition def : definitions)
 					{
 						if (uuids.contains(def.getUUID()))
-						{
 							textures.add((TextureArea) def);
-							System.out.println("FOUND: " + def.getID());
-						}
 					}
 				}
 				catch(IOException ex)
