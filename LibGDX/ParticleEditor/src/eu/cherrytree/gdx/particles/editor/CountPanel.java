@@ -27,8 +27,6 @@ class CountPanel extends EditorPanel
 {
 	//--------------------------------------------------------------------------
 
-	private ParticleEditor editor;
-	
 	private Slider maxSlider;
 	private Slider minSlider;
 	
@@ -40,8 +38,6 @@ class CountPanel extends EditorPanel
 	public CountPanel(ParticleEditor editor, String name, String description) throws SecurityException, NoSuchFieldException
 	{
 		super(null, name, description);
-		
-		this.editor = editor;
 		
 		maxParticleCountField = ParticleEmitterDefinition.class.getDeclaredField("maxParticleCount");
 		minParticleCountField = ParticleEmitterDefinition.class.getDeclaredField("minParticleCount");

@@ -19,17 +19,16 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
+import java.lang.reflect.Field;
 
 import eu.cherrytree.gdx.particles.ParticleEmitter;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
-import java.lang.reflect.Field;
 
 
 /**

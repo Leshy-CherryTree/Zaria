@@ -37,6 +37,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
 
 import eu.cherrytree.gdx.particles.ParticleEmitter;
 import eu.cherrytree.zaria.utilities.Random;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
