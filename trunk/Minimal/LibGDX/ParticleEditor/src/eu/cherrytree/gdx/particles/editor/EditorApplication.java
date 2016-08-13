@@ -180,7 +180,7 @@ public class EditorApplication
 	{
 		if (args.length != 1)
 		{
-			System.err.println("Must input path to assets.");
+			System.err.println("Must input path to config file.");
 			return;
 		}
 		
