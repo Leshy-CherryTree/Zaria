@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<config>
+	<assets>/media/leshy/DATA/workspace/TilesetMap/assets</assets>
+	<jar>/media/leshy/DATA/workspace/TilesetMap/core/build/libs/core-1.0.jar</jar>
+	<jar>/media/leshy/DATA/workspace/TilesetMap/editor/etc/gdx-ai-1.7.0.jar</jar>
+	<jar>/media/leshy/DATA/workspace/TilesetMap/editor/etc/rlforj.0.2.jar</jar>
+</config>
+
