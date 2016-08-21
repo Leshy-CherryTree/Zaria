@@ -33,6 +33,7 @@ public class Particle extends Sprite
 	public Particle(Sprite sprite)
 	{
 		super(sprite);
+		setOrigin(0.0f, 0.0f);
 	}
 	
 	//--------------------------------------------------------------------------

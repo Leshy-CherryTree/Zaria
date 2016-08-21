@@ -251,6 +251,7 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 		{
 			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		}
+		
 		Particle[] particles = this.particles;
 		boolean[] active = this.active;
 
@@ -460,6 +461,15 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 		if (getDefinition().getYOffsetValue().active)
 			y += getDefinition().getYOffsetValue().newLowValue();
 		
+		if (transformPostion)
+		{
+			float t_x = (transformX.x * x + transformY.x * y);
+			float t_y = (transformX.y * x + transformY.y * y);
+			
+			x = t_x;
+			y = t_y;
+		}
+		
 		switch (getDefinition().getSpawnShapeValue().getShape())
 		{
 			case Square:
@@ -552,15 +562,6 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 
 		float spriteHeight = sprite.getHeight();
 		
-		if (transformPostion)
-		{
-			float t_x = (transformX.x * x + transformY.x * y);
-			float t_y = (transformX.y * x + transformY.y * y);
-			
-			x = t_x;
-			y = t_y;
-		}
-		
 		particle.setBounds(x - (spriteHeight / 2) * unitScale, y - (spriteHeight / 2) * unitScale, spriteWidth * unitScale, spriteHeight * unitScale);
 
 		int offsetTime = (int) (lifeOffset + lifeOffsetDiff * getDefinition().getLifeOffsetValue().getScale(percent));
@@ -633,15 +634,6 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 
 			if ((updateFlags & UPDATE_GRAVITY) != 0)
 				velocityY += (particle.gravity + particle.gravityDiff * getDefinition().getGravityValue().getScale(percent)) * delta;
-
-			if (transformPostion)
-			{
-				float t_x = (transformX.x * velocityX + transformY.x * velocityY);
-				float t_y = (transformX.y * velocityX + transformY.y * velocityY);
-
-				velocityX = t_x;
-				velocityY = t_y;
-			}
 			
 			particle.translate(velocityX  * unitScale, velocityY * unitScale);
 		}
@@ -718,18 +710,12 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 
 			sprite = new Sprite(region);
 
-			float originX = sprite.getOriginX();
-			float originY = sprite.getOriginY();
-
-			for (int i = 0, n = particles.length; i < n; i++)
+			for (Particle particle : particles)
 			{
-				Particle particle = particles[i];
-
 				if (particle == null)
 					break;
 
-				particle.setTexture(texture);
-				particle.setOrigin(originX, originY);
+				particle.setTexture(texture);	
 			}
 		}
 	}
