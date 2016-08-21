@@ -1,7 +1,7 @@
 /****************************************/
-/* ZoneProperty.java					*/
+/* ZoneProperty.java						*/
 /* Created on: 20-May-2013				*/
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -12,7 +12,6 @@ import eu.cherrytree.zaria.editor.document.ZoneDocument;
 import eu.cherrytree.zaria.serialization.Link;
 import eu.cherrytree.zaria.serialization.LinkArray;
 
-import eu.cherrytree.zaria.serialization.ResourceType;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 import eu.cherrytree.zaria.serialization.annotations.CustomResource;
 import eu.cherrytree.zaria.serialization.annotations.FieldDescription;
@@ -394,7 +393,7 @@ public class ZoneProperty extends Property
 		
 		for(Field field : cls.getDeclaredFields())
 		{						
-			if(!Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(field.getModifiers()))
+			if(!Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
 			{
 				fields.add(index, field);
 				index++;

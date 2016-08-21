@@ -1,7 +1,7 @@
 /****************************************/
 /* EditorApplication.java				*/
 /* Created on: 02-May-2013				*/
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -11,7 +11,6 @@ import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 import eu.cherrytree.zaria.editor.components.ButtonTabComponent;
 import eu.cherrytree.zaria.editor.database.DataBase;
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
-import eu.cherrytree.zaria.editor.document.DocumentManager;
 import eu.cherrytree.zaria.editor.serialization.Serializer;
 
 import java.awt.Color;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.logging.Level;
 
 import javax.swing.ImageIcon;
@@ -80,7 +78,6 @@ public class EditorApplication
 										};
 	
 	private static EditorFrame frame;
-	private static DocumentManager documentManager;
 	private static DebugConsole debugConsole;
 	
 	private static String assetsLocation = null;
@@ -97,7 +94,7 @@ public class EditorApplication
 	
 	//--------------------------------------------------------------------------
 
-	public static void main(String args[])
+	public static void main(final String args[])
 	{			
 		try
 		{
@@ -171,10 +168,20 @@ public class EditorApplication
 				{
 					frame.setVisible(true);
 					debugConsole.addLine("Editor started.");
+					
+					String arg_str = "";
+					
+					for (String arg : args)
+						arg_str += arg + " ";
+						
+					debugConsole.addLine("Args: " + arg_str);
 					debugConsole.addLine("Assets directory: " + assetsLocation);
 					debugConsole.addLine("Work files directory: " + workFilesLocation);
 					debugConsole.addLine("Data base directory: " + dataBaseLocation);
 					debugConsole.addLine("Editor scrtips directory: " + editorScriptsLocation);
+					
+					for (int i = 1 ; i < args.length ; i++)
+						frame.getDocumentManager().openDocument(new File(args[i]));
 				}
 			});
 		}
@@ -346,13 +353,6 @@ public class EditorApplication
 		{
 			 DebugConsole.logger.log(java.util.logging.Level.SEVERE, null, ex);
 		}
-	}
-			
-	//--------------------------------------------------------------------------
-
-	public static DocumentManager getDocumentManager()
-	{
-		return documentManager;
 	}
 
 	//--------------------------------------------------------------------------

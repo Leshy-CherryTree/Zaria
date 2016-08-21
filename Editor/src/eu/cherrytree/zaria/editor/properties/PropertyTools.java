@@ -15,7 +15,6 @@ import eu.cherrytree.zaria.game.GameObject;
 import eu.cherrytree.zaria.game.GameObjectDefinition;
 import eu.cherrytree.zaria.serialization.Link;
 import eu.cherrytree.zaria.serialization.LinkArray;
-import eu.cherrytree.zaria.serialization.ResourceType;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 import eu.cherrytree.zaria.serialization.annotations.CustomResource;
 import eu.cherrytree.zaria.serialization.annotations.FieldDescription;
@@ -117,7 +116,7 @@ public class PropertyTools
 		
 		for (Field field : zoneClass.getDeclaredFields())
 		{									
-			if (!Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(field.getModifiers()))
+			if (!Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
 			{																
 				FieldDescription description = field.getAnnotation(FieldDescription.class);
 			

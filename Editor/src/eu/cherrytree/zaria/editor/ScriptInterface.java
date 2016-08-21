@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaObject;

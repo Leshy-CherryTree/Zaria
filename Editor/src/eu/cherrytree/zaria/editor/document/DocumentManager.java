@@ -1,7 +1,7 @@
 /****************************************/
 /* DocumentManager.java					*/
 /* Created on: 04-May-2013				*/
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -113,6 +113,15 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	public void openDocument(File file)
 	{
+		EditorApplication.getDebugConsole().addLine("Opening: " + file.getAbsolutePath());
+		
+		// Checking if file exists.
+		if (!file.exists())
+		{
+			JOptionPane.showMessageDialog(editorFrame, "File " + file.getPath() + " does not exist!", "File not found!", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
 		// Checking if the file is not too big.
 		if (file.length() > 1024 * 1024 * maxSize)
 		{
@@ -607,7 +616,9 @@ public class DocumentManager implements ChangeListener, CaretListener
 			editorFrame.onDocumentSwitched(currentDocument);
 		}
 		else
+		{
 			currentDocument = null;
+		}
 	}
 	
 	//--------------------------------------------------------------------------
