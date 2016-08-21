@@ -88,14 +88,14 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	
 	//--------------------------------------------------------------------------
 
-	public void setUnitScale(float unitScale)
+	void setUnitScale(float unitScale)
 	{
 		this.unitScale = unitScale;
 	}
 	
 	//--------------------------------------------------------------------------
 	
-	public void setTransformVectors(Vector2 transformX, Vector2 transformY)
+	void setTransformVectors(Vector2 transformX, Vector2 transformY)
 	{
 		transformPostion = true;
 		
@@ -105,7 +105,7 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	
 	//--------------------------------------------------------------------------
 
-	public void addParticle()
+	private void addParticle()
 	{
 		int active_count = this.activeCount;
 		if (active_count == getDefinition().getMaxParticleCount())
@@ -127,8 +127,15 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	}
 	
 	//--------------------------------------------------------------------------
+	
+	public int getActiveCount()
+	{
+		return activeCount;
+	}
 
-	public void addParticles(int count)
+	//--------------------------------------------------------------------------
+	
+	private void addParticles(int count)
 	{
 		count = Math.min(count, getDefinition().getMaxParticleCount() - activeCount);
 		
@@ -255,103 +262,6 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 
 		if (cleansUpBlendFunction && (getDefinition().isAdditive() || getDefinition().isPremultipliedAlpha()))
 			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-	}
-	
-	//--------------------------------------------------------------------------
-
-	/**
-	 * Updates and draws the particles. This is slightly more efficient than calling {@link #update(float)} and
-	 * {@link #draw(Batch)} separately.
-	 */
-	public void draw(Batch batch, float delta)
-	{		
-		accumulator += delta * 1000;
-		if (accumulator < 1)
-		{
-			draw(batch);
-			return;
-		}
-		
-		int deltaMillis = (int) accumulator;
-		accumulator -= deltaMillis;
-
-		if (getDefinition().isPremultipliedAlpha())
-			batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		else if (getDefinition().isAdditive())
-			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
-		else
-			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-		Particle[] particles = this.particles;
-		boolean[] active = this.active;
-		int activeCount = this.activeCount;
-		
-		for (int i = 0, n = active.length; i < n; i++)
-		{
-			if (active[i])
-			{
-				Particle particle = particles[i];
-				
-				if (updateParticle(particle, delta, deltaMillis))
-				{
-					particle.draw(batch);
-				}
-				else
-				{
-					active[i] = false;
-					activeCount--;
-				}
-			}
-		}
-		
-		this.activeCount = activeCount;
-
-		if (cleansUpBlendFunction && (getDefinition().isAdditive() || getDefinition().isPremultipliedAlpha()))
-			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-		if (delayTimer < delay)
-		{
-			delayTimer += deltaMillis;
-			return;
-		}
-
-		if (firstUpdate)
-		{
-			firstUpdate = false;
-			addParticle();
-		}
-
-		if (durationTimer < duration)
-		{
-			durationTimer += deltaMillis;
-		}
-		else
-		{
-			if (!getDefinition().isContinuous() || allowCompletion)
-				return;
-
-			restart();
-		}
-
-		emissionDelta += deltaMillis;
-		float emissionTime = emission + emissionDiff * getDefinition().getEmissionValue().getScale(durationTimer / (float) duration);
-		
-		if (emissionTime > 0)
-		{
-			emissionTime = 1000 / emissionTime;
-			
-			if (emissionDelta >= emissionTime)
-			{
-				int emitCount = (int) (emissionDelta / emissionTime);
-				emitCount = Math.min(emitCount, getDefinition().getMaxParticleCount() - activeCount);
-				emissionDelta -= emitCount * emissionTime;
-				emissionDelta %= emissionTime;
-				addParticles(emitCount);
-			}
-		}
-		
-		if (activeCount < getDefinition().getMinParticleCount())
-			addParticles(getDefinition().getMinParticleCount() - activeCount);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -763,7 +673,7 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	
 	//--------------------------------------------------------------------------
 
-	public void setPosition(float x, float y)
+	void setPosition(float x, float y)
 	{
 		if (getDefinition().isAttached())
 		{
