@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.collision.BoundingBox;
 
 import eu.cherrytree.zaria.game.GameObject;
@@ -67,6 +68,12 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 
 	private boolean cleansUpBlendFunction = true;
 	
+	private float unitScale = 1.0f;
+	
+	private boolean transformPostion;
+	private Vector2 transformX;
+	private Vector2 transformY;
+	
 	//--------------------------------------------------------------------------
 	
 
@@ -77,6 +84,23 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 		active = new boolean[getDefinition().getMaxParticleCount()];
 		activeCount = 0;
 		particles = new Particle[getDefinition().getMaxParticleCount()];
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public void setUnitScale(float unitScale)
+	{
+		this.unitScale = unitScale;
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public void setTransformVectors(Vector2 transformX, Vector2 transformY)
+	{
+		transformPostion = true;
+		
+		this.transformX = transformX;
+		this.transformY = transformY;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -417,14 +441,7 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 		if (getDefinition().getTintValue().getTimeline().length > 1)
 			updateFlags |= UPDATE_TINT;
 	}
-	
-	//--------------------------------------------------------------------------
 
-	protected Particle createNewParticle(Sprite sprite)
-	{
-		return new Particle(sprite);
-	}
-	
 	//--------------------------------------------------------------------------
 
 	private void activateParticle(int index)
@@ -433,7 +450,7 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 
 		if (particle == null)
 		{
-			particles[index] = particle = createNewParticle(sprite);
+			particles[index] = particle = new Particle(sprite);
 			particle.flip(flipX, flipY);
 		}
 
@@ -624,7 +641,17 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 		}
 
 		float spriteHeight = sprite.getHeight();
-		particle.setBounds(x - spriteWidth / 2, y - spriteHeight / 2, spriteWidth, spriteHeight);
+		
+		if (transformPostion)
+		{
+			float t_x = (transformX.x * x + transformY.x * y);
+			float t_y = (transformX.y * x + transformY.y * y);
+			
+			x = t_x;
+			y = t_y;
+		}
+		
+		particle.setBounds(x - (spriteHeight / 2) * unitScale, y - (spriteHeight / 2) * unitScale, spriteWidth * unitScale, spriteHeight * unitScale);
 
 		int offsetTime = (int) (lifeOffset + lifeOffsetDiff * getDefinition().getLifeOffsetValue().getScale(percent));
 		
@@ -697,7 +724,16 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 			if ((updateFlags & UPDATE_GRAVITY) != 0)
 				velocityY += (particle.gravity + particle.gravityDiff * getDefinition().getGravityValue().getScale(percent)) * delta;
 
-			particle.translate(velocityX, velocityY);
+			if (transformPostion)
+			{
+				float t_x = (transformX.x * velocityX + transformY.x * velocityY);
+				float t_y = (transformX.y * velocityX + transformY.y * velocityY);
+
+				velocityX = t_x;
+				velocityY = t_y;
+			}
+			
+			particle.translate(velocityX  * unitScale, velocityY * unitScale);
 		}
 		else if ((updateFlags & UPDATE_ROTATION) != 0)
 		{
@@ -737,8 +773,21 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 			boolean[] active = this.active;
 			
 			for (int i = 0, n = active.length; i < n; i++)
+			{
 				if (active[i])
+				{
+					if (transformPostion)
+					{
+						float t_x = (transformX.x * xAmount + transformY.x * yAmount);
+						float t_y = (transformX.y * xAmount + transformY.y * yAmount);
+
+						xAmount = t_x;
+						yAmount = t_y;
+					}
+					
 					particles[i].translate(xAmount, yAmount);
+				}
+			}
 		}
 		
 		this.x = x;
@@ -847,27 +896,6 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 			return 0;
 		
 		return Math.min(1, durationTimer / (float) duration);
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public float getX()
-	{
-		return x;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public float getY()
-	{
-		return y;
-	}
-	
-	//--------------------------------------------------------------------------
-
-	public int getActiveCount()
-	{
-		return activeCount;
 	}
 	
 	//--------------------------------------------------------------------------
