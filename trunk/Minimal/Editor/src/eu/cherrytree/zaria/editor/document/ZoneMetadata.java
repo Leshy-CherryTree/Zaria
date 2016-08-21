@@ -1,13 +1,12 @@
 /****************************************/
-/* NodeMetadata.java					*/
+/* NodeMetadata.java						*/
 /* Created on: 07-Jul-2013				*/
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
 package eu.cherrytree.zaria.editor.document;
 
-import eu.cherrytree.zaria.editor.document.annotations.VisibleForClass;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

@@ -1,7 +1,7 @@
 /****************************************/
 /* DirectoryTreeModel.java              */
 /* Created on: 03-May-2013				*/
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 

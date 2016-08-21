@@ -673,7 +673,17 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 			}
 		});
 		
+		setLeftDivider();
+		setRightDivider();
+		
 		pack();
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public DocumentManager getDocumentManager()
+	{
+		return documentManager;
 	}
 	
 	//--------------------------------------------------------------------------

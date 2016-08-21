@@ -1,7 +1,7 @@
 /****************************************/
 /* Serializer.java						*/
 /* Created on: 01-Dec-2013				*/
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -122,7 +122,7 @@ public class Serializer
 			
 			return mapper;
 		}
-		catch(Exception ex)
+		catch (Exception ex)
 		{
 			DebugConsole.logger.log(Level.SEVERE, null, ex);
 		}
