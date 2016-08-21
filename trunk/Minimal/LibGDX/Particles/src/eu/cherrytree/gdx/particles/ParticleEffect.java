@@ -9,6 +9,7 @@ package eu.cherrytree.gdx.particles;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.collision.BoundingBox;
 
 import eu.cherrytree.zaria.game.GameObject;
@@ -101,6 +102,22 @@ public class ParticleEffect extends GameObject<ParticleEffectDefinition>
 		}
 		
 		return true;
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public void setTransformVectors(Vector2 transformX, Vector2 transformY)
+	{
+		for (ParticleEmitter emitter : emitters)
+			emitter.setTransformVectors(transformX, transformY);
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public void setUnitScale(float unitScale)
+	{
+		for (ParticleEmitter emitter : emitters)
+			emitter.setUnitScale(unitScale);
 	}
 	
 	//--------------------------------------------------------------------------
