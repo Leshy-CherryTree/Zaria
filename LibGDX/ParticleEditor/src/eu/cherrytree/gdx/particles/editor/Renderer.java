@@ -124,7 +124,10 @@ public class Renderer implements ApplicationListener, InputProcessor
 			if (enabled)
 			{
 				if (emitter.getSprite() != null)
-					emitter.draw(spriteBatch, delta);
+				{
+					emitter.update(delta);
+					emitter.draw(spriteBatch);
+				}
 				
 				activeCount += emitter.getActiveCount();
 		

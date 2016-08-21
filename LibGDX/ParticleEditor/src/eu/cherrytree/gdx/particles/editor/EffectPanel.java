@@ -133,7 +133,6 @@ public class EffectPanel extends JPanel implements TableModelListener, ListSelec
 		}
 		
 		ParticleEmitter emitter = ParticleEffectZoneContainer.getEmitter(0);
-
 		addEmitter(emitter.getDefinition().getID(), emitter);
 	}
 	
@@ -160,18 +159,6 @@ public class EffectPanel extends JPanel implements TableModelListener, ListSelec
 	{
 		assert emitter != null;
 		
-		ArrayList<ParticleEmitter> emitters = ParticleEffectZoneContainer.getEffect().getEmitters();
-		
-		if (emitters.isEmpty())
-		{
-			emitter.setPosition(editor.getRenderer().getWorldCamera().viewportWidth / 2, editor.getRenderer().getWorldCamera().viewportHeight / 2);
-		}
-		else
-		{
-			ParticleEmitter p = emitters.get(0);
-			emitter.setPosition(p.getX(), p.getY());
-		}
-
 		emitterTableModel.addRow(new Object[] { name, true });
 		
 		editor.reloadRows();
@@ -209,15 +196,13 @@ public class EffectPanel extends JPanel implements TableModelListener, ListSelec
 			emitterTableModel.removeRow(i);
 		
 		for (ParticleEmitter emitter : ParticleEffectZoneContainer.getEffect().getEmitters())
-		{
-			emitter.setPosition(editor.getRenderer().getWorldCamera().viewportWidth / 2, editor.getRenderer().getWorldCamera().viewportHeight / 2);
 			emitterTableModel.addRow(new Object[] { emitter.getDefinition().getID(), true });
-		}
 		
 		editIndex = 0;
 		emitterTable.getSelectionModel().setSelectionInterval(editIndex, editIndex);
 		editor.reloadRows();
 		
+		ParticleEffectZoneContainer.getEffect().setPosition(editor.getRenderer().getWorldCamera().viewportWidth / 2, editor.getRenderer().getWorldCamera().viewportHeight / 2);		
 		ParticleEffectZoneContainer.getEffect().start();
 	}
 	

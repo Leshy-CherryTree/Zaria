@@ -77,14 +77,6 @@ public class ParticleEffect extends GameObject<ParticleEffectDefinition>
 	
 	//--------------------------------------------------------------------------
 
-	public void draw(Batch spriteBatch, float delta)
-	{
-		for (ParticleEmitter emitter : emitters)
-			emitter.draw(spriteBatch, delta);
-	}
-	
-	//--------------------------------------------------------------------------
-
 	public void allowCompletion()
 	{
 		for (ParticleEmitter emitter : emitters)
