@@ -98,6 +98,24 @@ public class ParticleEffect extends GameObject<ParticleEffectDefinition>
 	
 	//--------------------------------------------------------------------------
 	
+	public float getPercentComplete()
+	{
+		float complete = 1.0f;
+		
+		for (ParticleEmitter emitter : emitters)
+		{
+			float emitter_complete = emitter.getPercentComplete();
+			
+			if (emitter_complete < complete)
+				complete = emitter_complete;
+					
+		}
+		
+		return complete;
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	public void setTransformVectors(Vector2 transformX, Vector2 transformY)
 	{
 		for (ParticleEmitter emitter : emitters)
@@ -114,6 +132,14 @@ public class ParticleEffect extends GameObject<ParticleEffectDefinition>
 	
 	//--------------------------------------------------------------------------
 
+	public void setOffset(float x, float y)
+	{
+		for (ParticleEmitter emitter : emitters)
+			emitter.setOffset(x, y);
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	public void setPosition(float x, float y)
 	{
 		for (ParticleEmitter emitter : emitters)
