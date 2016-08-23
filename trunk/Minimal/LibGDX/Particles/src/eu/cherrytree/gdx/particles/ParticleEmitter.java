@@ -57,6 +57,8 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	private int updateFlags;
 	private boolean allowCompletion;
 	private BoundingBox bounds;
+	
+	private float offsetX, offsetY;
 
 	private int emission, emissionDiff, emissionDelta;
 	private int lifeOffset, lifeOffsetDiff;
@@ -104,7 +106,15 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	}
 	
 	//--------------------------------------------------------------------------
-
+	
+	void setOffset(float x, float y)
+	{
+		offsetX = x;
+		offsetY = y;
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	private void addParticle()
 	{
 		int active_count = this.activeCount;
@@ -363,6 +373,8 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 		{
 			particles[index] = particle = new Particle(sprite);
 			particle.flip(flipX, flipY);
+			
+			particle.setOrigin(particle.getOriginX() * unitScale, particle.getOriginY() * unitScale);
 		}
 
 		float percent = durationTimer / (float) duration;
@@ -466,8 +478,8 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 			float t_x = (transformX.x * x + transformY.x * y);
 			float t_y = (transformX.y * x + transformY.y * y);
 			
-			x = t_x;
-			y = t_y;
+			x = t_x + offsetX;
+			y = t_y + offsetY;
 		}
 		
 		switch (getDefinition().getSpawnShapeValue().getShape())
