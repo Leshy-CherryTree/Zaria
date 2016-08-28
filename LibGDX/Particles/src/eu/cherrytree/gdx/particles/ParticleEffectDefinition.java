@@ -27,10 +27,21 @@ public class ParticleEffectDefinition extends GameObjectDefinition<ParticleEffec
 	private LinkArray<ParticleEmitterDefinition> emitters = new LinkArray<>();
 
 	//--------------------------------------------------------------------------
+		
+	private transient boolean continuous;
+
+	//--------------------------------------------------------------------------
 	
 	public LinkArray<ParticleEmitterDefinition> getEmitters()
 	{
 		return emitters;
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public boolean isContinuous()
+	{
+		return continuous;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -46,7 +57,16 @@ public class ParticleEffectDefinition extends GameObjectDefinition<ParticleEffec
 	@Override
 	public void onPreLoad()
 	{
-		// Intentionally empty.
+		continuous = true;
+		
+		for (ParticleEmitterDefinition def : emitters)
+		{
+			if (!def.isContinuous())
+			{
+				continuous = false;
+				break;
+			}
+		}
 	}
 	
 	//--------------------------------------------------------------------------

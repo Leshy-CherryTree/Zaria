@@ -808,6 +808,13 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 	
 	//--------------------------------------------------------------------------
 
+	public float getDuration()
+	{
+		return duration;
+	}
+	
+	//--------------------------------------------------------------------------
+
 	public void setFlip(boolean flipX, boolean flipY)
 	{
 		this.flipX = flipX;
