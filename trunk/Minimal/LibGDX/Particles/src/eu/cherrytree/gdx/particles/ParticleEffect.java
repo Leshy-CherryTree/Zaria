@@ -100,18 +100,22 @@ public class ParticleEffect extends GameObject<ParticleEffectDefinition>
 	
 	public float getPercentComplete()
 	{
-		float complete = 1.0f;
+		// We're looking for the emitter with the longest duration.
+		float duration = 0.0f;
+		ParticleEmitter found_emitter = null;
 		
 		for (ParticleEmitter emitter : emitters)
 		{
-			float emitter_complete = emitter.getPercentComplete();
+			float emitter_duration = emitter.getDuration();
 			
-			if (emitter_complete < complete)
-				complete = emitter_complete;
-					
+			if (emitter_duration > duration)
+			{
+				duration = emitter_duration;
+				found_emitter = emitter;
+			}		
 		}
 		
-		return complete;
+		return found_emitter.getPercentComplete();
 	}
 	
 	//--------------------------------------------------------------------------
