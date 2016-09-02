@@ -684,23 +684,21 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 			float xAmount = x - this.x;
 			float yAmount = y - this.y;
 			
+			if (transformPostion)
+			{
+				float t_x = (transformX.x * xAmount + transformY.x * yAmount);
+				float t_y = (transformX.y * xAmount + transformY.y * yAmount);
+
+				xAmount = t_x;
+				yAmount = t_y;
+			}
+			
 			boolean[] active = this.active;
 			
 			for (int i = 0, n = active.length; i < n; i++)
 			{
 				if (active[i])
-				{
-					if (transformPostion)
-					{
-						float t_x = (transformX.x * xAmount + transformY.x * yAmount);
-						float t_y = (transformX.y * xAmount + transformY.y * yAmount);
-
-						xAmount = t_x;
-						yAmount = t_y;
-					}
-					
 					particles[i].translate(xAmount, yAmount);
-				}
 			}
 		}
 		
