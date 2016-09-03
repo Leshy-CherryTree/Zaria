@@ -486,8 +486,8 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 		{
 			case Square:
 			{
-				float width = spawnWidth + (spawnWidthDiff * getDefinition().getSpawnWidthValue().getScale(percent));
-				float height = spawnHeight + (spawnHeightDiff * getDefinition().getSpawnHeightValue().getScale(percent));
+				float width = (spawnWidth + (spawnWidthDiff * getDefinition().getSpawnWidthValue().getScale(percent))) * unitScale;
+				float height = (spawnHeight + (spawnHeightDiff * getDefinition().getSpawnHeightValue().getScale(percent))) * unitScale;
 				x += MathUtils.random(width) - width / 2;
 				y += MathUtils.random(height) - height / 2;
 				break;
@@ -495,8 +495,8 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 			
 			case Ellipse:
 			{
-				float width = spawnWidth + (spawnWidthDiff * getDefinition().getSpawnWidthValue().getScale(percent));
-				float height = spawnHeight + (spawnHeightDiff * getDefinition().getSpawnHeightValue().getScale(percent));
+				float width = (spawnWidth + (spawnWidthDiff * getDefinition().getSpawnWidthValue().getScale(percent))) * unitScale;
+				float height = (spawnHeight + (spawnHeightDiff * getDefinition().getSpawnHeightValue().getScale(percent))) * unitScale;
 				float radiusX = width / 2;
 				float radiusY = height / 2;
 				
@@ -554,8 +554,8 @@ public class ParticleEmitter extends GameObject<ParticleEmitterDefinition>
 			
 			case Line:
 			{
-				float width = spawnWidth + (spawnWidthDiff * getDefinition().getSpawnWidthValue().getScale(percent));
-				float height = spawnHeight + (spawnHeightDiff * getDefinition().getSpawnHeightValue().getScale(percent));
+				float width = (spawnWidth + (spawnWidthDiff * getDefinition().getSpawnWidthValue().getScale(percent))) * unitScale;
+				float height = (spawnHeight + (spawnHeightDiff * getDefinition().getSpawnHeightValue().getScale(percent))) * unitScale;
 				
 				if (width != 0)
 				{
