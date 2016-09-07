@@ -1,14 +1,14 @@
 /********************************************/
-/* ZariaObjectDefinitionLibrary.java		*/
+/* ZariaObjectDefinitionLibrary.java			*/
 /* Created on: 16-Mar-2013					*/
-/* Copyright Cherry Tree Studio 2013		*/
+/* Copyright Cherry Tree Studio 2013			*/
 /* Released under EUPL v1.1					*/
 /********************************************/
 
 package eu.cherrytree.zaria.serialization;
 
-import eu.cherrytree.zaria.base.ApplicationInstance;
 import eu.cherrytree.zaria.debug.DebugManager;
+
 import java.io.IOException;
 
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		
 		ZariaObjectDefinition objdef = objectDefinitions.get(uuid);
 		
-		if(objdef == null)
+		if (objdef == null)
 		{
 			DebugManager.alert("Object definition not found", "Couldn't find object definition " + uuid + " in library " + getUUID());
 			DebugManager.traceStack(DebugManager.TraceLevel.ERROR);
@@ -79,7 +79,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	{
 		ArrayList<DefClass> ret = new ArrayList<>();
 		
-		for(ZariaObjectDefinition definition : objectDefinitions.values())
+		for (ZariaObjectDefinition definition : objectDefinitions.values())
 		{
 			if (cls.isAssignableFrom(definition.getClass()))
 				ret.add((DefClass) definition);
@@ -93,23 +93,23 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	public synchronized <DefClass extends ZariaObjectDefinition> DefClass getDefinitionByID(Class<DefClass> cls, String id)
 	{
 		// If running debug we want to have info if the object is unique, and if not alert about duplicates.
-		if(DebugManager.isActive())
+		if (DebugManager.isActive())
 		{
 			ArrayList<DefClass> ret = new ArrayList<>();
 		
-			for(ZariaObjectDefinition definition : objectDefinitions.values())
+			for (ZariaObjectDefinition definition : objectDefinitions.values())
 			{
 				if (cls.isAssignableFrom(definition.getClass()) && definition.getID().equals(id))
 					ret.add((DefClass) definition);
 			}
 			
-			if(!ret.isEmpty())
+			if (!ret.isEmpty())
 			{
-				if(ret.size() > 1)
+				if (ret.size() > 1)
 				{
 					String list = "";
 					
-					for(DefClass def : ret)
+					for (DefClass def : ret)
 						list += def.getID() + " of type " + def.getClass().getCanonicalName() + " in " + def.getFile() + "\n";
 					
 					DebugManager.alert("Duplicate objects found", 
@@ -122,7 +122,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		}
 		else
 		{
-			for(ZariaObjectDefinition definition : objectDefinitions.values())
+			for (ZariaObjectDefinition definition : objectDefinitions.values())
 			{
 				if (cls.isAssignableFrom(definition.getClass()) && definition.getID().equals(id))
 					return (DefClass) definition;
@@ -138,33 +138,24 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	
 	public synchronized void addDefinition(ZariaObjectDefinition definition) throws CantAddDefinitionException
 	{
-		if(objectDefinitions.containsKey(definition.getUUID()))
-			throw new CantAddDefinitionException(definition, "Object with such ID alrady exists!");
-		
-		if(objectDefinitions.containsValue(definition))
-			throw new CantAddDefinitionException(definition, "Object is already in library!");
-		
-		addDefinitionToMap(definition, "");
-		
-		definition.preLoad(this);
+		if (!objectDefinitions.containsKey(definition.getUUID()))
+		{
+			addDefinitionToMap(definition, "");
+			definition.preLoad(this);
+		}
 	}
 			
 	//--------------------------------------------------------------------------
 	
 	public synchronized void addDefinitions(ArrayList<ZariaObjectDefinition> definitions) throws CantAddDefinitionException
 	{
-		for(ZariaObjectDefinition def : definitions)
+		for (ZariaObjectDefinition def : definitions)
 		{
-			if(objectDefinitions.containsKey(def.getUUID()))
-				throw new CantAddDefinitionException(def, "Object with such ID alrady exists!");
-
-			if(objectDefinitions.containsValue(def))
-				throw new CantAddDefinitionException(def, "Object is already in library!");
-
-			addDefinitionToMap(def, "");
+			if (!objectDefinitions.containsKey(def.getUUID()))
+				addDefinitionToMap(def, "");
 		}
 		
-		for(ZariaObjectDefinition def : definitions)
+		for (ZariaObjectDefinition def : definitions)
 			def.preLoad(this);
 	}	
 		
@@ -172,7 +163,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	
 	private void addDefinitionToMap(ZariaObjectDefinition definition, String file)
 	{
-		if(DebugManager.isActive())
+		if (DebugManager.isActive())
 			definition.setFile(file);
 		
 		objectDefinitions.put(definition.getUUID(), definition);
@@ -182,9 +173,9 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	
 	private ValidationException findValidationException(Throwable throwable)
 	{
-		if(ValidationException.class.isAssignableFrom(throwable.getClass()))
+		if (ValidationException.class.isAssignableFrom(throwable.getClass()))
 			return (ValidationException) throwable;
-		else if(throwable.getCause() != null)
+		else if (throwable.getCause() != null)
 			return findValidationException(throwable.getCause());
 		else
 			return null;			
@@ -211,9 +202,9 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		{
 			ValidationException valex = findValidationException(ex);
 			
-			if(valex != null)
+			if (valex != null)
 			{
-				for(DefinitionValidation val : valex.getValidation())
+				for (DefinitionValidation val : valex.getValidation())
 					validations.add(val);
 				
 				return "Validation of " + file + " failed."; 
@@ -226,19 +217,13 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		
 		ArrayList<UUID> ids = new ArrayList<>();
 		
-		for(ZariaObjectDefinition obj : objects)
+		for (ZariaObjectDefinition obj : objects)
 		{
-			if(!ids.contains(obj.getUUID()) && !objectDefinitions.containsKey(obj.getUUID()))
-			{
-				ids.add(obj.getUUID());
-			}
-			else
-			{			
-				return "Object Definition " + obj.getUUID() + " from " + file + " is either aleready added or duplicates name of another object definition!";
-			}				
+			if (!ids.contains(obj.getUUID()) && !objectDefinitions.containsKey(obj.getUUID()))
+				ids.add(obj.getUUID());			
 		}
 		
-		for(ZariaObjectDefinition obj : objects)
+		for (ZariaObjectDefinition obj : objects)
 			addDefinitionToMap(obj, file);
 		
 		return "";
@@ -267,7 +252,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 			
 			if (valex != null)
 			{
-				for(DefinitionValidation val : valex.getValidation())
+				for (DefinitionValidation val : valex.getValidation())
 					validations.add(val);
 				
 				return "Validation of " + file + " failed."; 
@@ -280,16 +265,10 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		
 		ArrayList<UUID> ids = new ArrayList<>();
 		
-		for(ZariaObjectDefinition obj : library.objectDefinitions.values())
+		for (ZariaObjectDefinition obj : library.objectDefinitions.values())
 		{
-			if(!ids.contains(obj.getUUID()) && !objectDefinitions.containsKey(obj.getUUID()))
-			{
-				ids.add(obj.getUUID());
-			}
-			else
-			{			
-				return "Object Definition " + obj.getUUID() + " from sublibrary " + file + " is either aleready added or duplicates name of another object definition!";
-			}				
+			if (!ids.contains(obj.getUUID()) && !objectDefinitions.containsKey(obj.getUUID()))
+				ids.add(obj.getUUID());		
 		}
 		
 		objectDefinitions.putAll(library.objectDefinitions);
@@ -301,7 +280,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	
 	private String serializeAndValidate(String file, ArrayList<DefinitionValidation> validations)
 	{
-		if(file.endsWith("zonelib"))
+		if (file.endsWith("zonelib"))
 			return addLibrary(file, validations);
 		else
 			return addDefinitionsFromFile(file, validations);
@@ -312,7 +291,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	@Override
 	public void onPreLoad()
 	{			
-		for(ZariaObjectDefinition objdef : objectDefinitions.values())
+		for (ZariaObjectDefinition objdef : objectDefinitions.values())
 			objdef.preLoad(this);
 	}
 
@@ -321,7 +300,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	@Override
 	public void onValidate(DefinitionValidation val)
 	{	
-		for(String file : zoneFiles)
+		for (String file : zoneFiles)
 		{							
 			ArrayList<DefinitionValidation> validations = new ArrayList<>();
 			
@@ -338,7 +317,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 				val.addException(ex);
 			}
 			
-			for(DefinitionValidation subval: validations)
+			for (DefinitionValidation subval: validations)
 				val.addSubValidation(subval);
 		}
 	}
