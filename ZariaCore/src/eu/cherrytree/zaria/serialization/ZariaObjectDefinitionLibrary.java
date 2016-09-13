@@ -278,6 +278,23 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	
 	//--------------------------------------------------------------------------
 	
+	public void addSubLibrary(String path) throws IOException, ValidationException
+	{
+		ZariaObjectDefinitionLibrary library = ZoneDeserializer.loadLibrary(path);
+		
+		ArrayList<UUID> ids = new ArrayList<>();
+		
+		for (ZariaObjectDefinition obj : library.objectDefinitions.values())
+		{
+			if (!ids.contains(obj.getUUID()) && !objectDefinitions.containsKey(obj.getUUID()))
+				ids.add(obj.getUUID());		
+		}
+		
+		objectDefinitions.putAll(library.objectDefinitions);
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	private String serializeAndValidate(String file, ArrayList<DefinitionValidation> validations)
 	{
 		if (file.endsWith("zonelib"))
