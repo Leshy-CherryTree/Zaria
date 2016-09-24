@@ -27,7 +27,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	{
 		public CantAddDefinitionException(ZariaObjectDefinition definition, String message)
 		{
-			super("Can't add object " + definition.getUUID() + " to library " + getUUID() + "! " + message);
+			super("Can't add object " + definition.getUUID() + " to library " + getID() + "\n[" + getFile() + "]" + "! " + message);
 		}		
 	}
 	
@@ -38,15 +38,6 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	//--------------------------------------------------------------------------
 	
 	private transient HashMap<UUID,ZariaObjectDefinition> objectDefinitions = new HashMap<>();
-	
-	//--------------------------------------------------------------------------
-	
-	public void setLibraryFile(String file)	
-	{
-		assert getFile() == null;
-		
-		setFile(file);
-	}
 	
 	//--------------------------------------------------------------------------
 			
@@ -65,7 +56,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		
 		if (objdef == null)
 		{
-			DebugManager.alert("Object definition not found", "Couldn't find object definition " + uuid + " in library " + getUUID());
+			DebugManager.alert("Object definition not found", "Couldn't find object definition " + uuid + " in library " + getID() + "\n[" + getFile() + "]!");
 			DebugManager.traceStack(DebugManager.TraceLevel.ERROR);
 		}
 		
@@ -140,7 +131,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	{
 		if (!objectDefinitions.containsKey(definition.getUUID()))
 		{
-			addDefinitionToMap(definition, "");
+			objectDefinitions.put(definition.getUUID(), definition);
 			definition.preLoad(this);
 		}
 	}
@@ -152,22 +143,12 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 		for (ZariaObjectDefinition def : definitions)
 		{
 			if (!objectDefinitions.containsKey(def.getUUID()))
-				addDefinitionToMap(def, "");
+				objectDefinitions.put(def.getUUID(), def);
 		}
 		
 		for (ZariaObjectDefinition def : definitions)
 			def.preLoad(this);
 	}	
-		
-	//--------------------------------------------------------------------------
-	
-	private void addDefinitionToMap(ZariaObjectDefinition definition, String file)
-	{
-		if (DebugManager.isActive())
-			definition.setFile(file);
-		
-		objectDefinitions.put(definition.getUUID(), definition);
-	}
 	
 	//--------------------------------------------------------------------------
 	
@@ -187,11 +168,11 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 	{
 		DebugManager.trace("Loading " + file + " into library " + getUUID());		
 		
-		ZariaObjectDefinition[] objects;
+		ZariaObjectDefinition[] definitions;
 		
 		try
 		{
-			objects = ZoneDeserializer.loadDefinitions(file);
+			definitions = ZoneDeserializer.loadDefinitions(file);
 		}
 		catch(IOException ex)
 		{
@@ -215,16 +196,19 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 			}	
 		}
 		
-		ArrayList<UUID> ids = new ArrayList<>();
+		ArrayList<UUID> to_add = new ArrayList<>();
 		
-		for (ZariaObjectDefinition obj : objects)
+		for (ZariaObjectDefinition obj : definitions)
 		{
-			if (!ids.contains(obj.getUUID()) && !objectDefinitions.containsKey(obj.getUUID()))
-				ids.add(obj.getUUID());			
+			if (!to_add.contains(obj.getUUID()) && !objectDefinitions.containsKey(obj.getUUID()))
+				to_add.add(obj.getUUID());			
 		}
 		
-		for (ZariaObjectDefinition obj : objects)
-			addDefinitionToMap(obj, file);
+		for (ZariaObjectDefinition definition : definitions)
+		{
+			if (to_add.contains(definition.getUUID()))
+				objectDefinitions.put(definition.getUUID(), definition);
+		}
 		
 		return "";
 	}
@@ -325,7 +309,7 @@ public final class ZariaObjectDefinitionLibrary extends ZariaObjectDefinition
 			{			
 				String err = serializeAndValidate(file, validations);
 			
-				assert !err.isEmpty() || validations.isEmpty() : "Validation of library " + getUUID() + " returned no errors but validations are of length " + validations.size();
+				assert !err.isEmpty() || validations.isEmpty() : "Validation of library " + getID() + " returned no errors but validations are of length " + validations.size();
 			
 				val.addError(!err.isEmpty(), "library " + getUUID(), file, err);
 			}
