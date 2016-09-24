@@ -33,7 +33,15 @@ public class ZoneDeserializer
 		if (!path.startsWith("/"))
 			path = "/" + path;
 		
-		return loadDefinitions(ZoneDeserializer.class.getResourceAsStream(path));
+		ZariaObjectDefinition[] definitions = loadDefinitions(ZoneDeserializer.class.getResourceAsStream(path));
+		
+		if (definitions != null)
+		{
+			for (ZariaObjectDefinition def : definitions)
+				def.setFile(path);
+		}
+		
+		return definitions;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -43,7 +51,11 @@ public class ZoneDeserializer
 		if (!path.startsWith("/"))
 			path = "/" + path;
 			
-		return loadLibrary(ZoneDeserializer.class.getResourceAsStream(path));
+		ZariaObjectDefinitionLibrary library = loadLibrary(ZoneDeserializer.class.getResourceAsStream(path));
+		
+		library.setFile(path);
+		
+		return library;
 	}
 	
     //--------------------------------------------------------------------------
