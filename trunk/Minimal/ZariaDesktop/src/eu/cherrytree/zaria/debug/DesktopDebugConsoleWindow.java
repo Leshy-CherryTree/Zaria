@@ -49,8 +49,6 @@ import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
@@ -328,9 +326,7 @@ public class DesktopDebugConsoleWindow extends JFrame implements ActionListener,
 		loggerStyle = loggerTextPane.addStyle("Logger Style", null);
 		StyleConstants.setForeground(loggerStyle, Color.black);
 		
-		preferences = Preferences.userNodeForPackage(ApplicationInstance.class);
-		
-		pack();
+		preferences = Preferences.userNodeForPackage(ApplicationInstance.class);				
 	}
 	
 	//--------------------------------------------------------------------------
@@ -338,6 +334,8 @@ public class DesktopDebugConsoleWindow extends JFrame implements ActionListener,
 	@Override
 	public void init()		
 	{
+		pack();
+		
 		Rectangle bounds = new Rectangle();
 
 		bounds.x = preferences.getInt("debug console posx", 0);
@@ -347,7 +345,9 @@ public class DesktopDebugConsoleWindow extends JFrame implements ActionListener,
 		
 		currentLevel = DebugManager.TraceLevel.valueOf(preferences.get("trace level", DebugManager.TraceLevel.INFO.name()));
 		
-		setVisible(true);
+		setBounds(bounds);
+		
+		setVisible(true);				
 	}
 	
 	//--------------------------------------------------------------------------
