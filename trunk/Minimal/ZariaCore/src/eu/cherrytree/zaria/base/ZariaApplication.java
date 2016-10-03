@@ -18,6 +18,7 @@ import eu.cherrytree.zaria.console.commands.NoCrashConsoleCommand;
 import eu.cherrytree.zaria.console.commands.ShowMemoryConsoleCommand;
 import eu.cherrytree.zaria.debug.DebugManager;
 import eu.cherrytree.zaria.debug.DebugUI;
+import eu.cherrytree.zaria.debug.EditorSyncManager;
 import eu.cherrytree.zaria.game.GameObject;
 import eu.cherrytree.zaria.scripting.ScriptEngine;
 import eu.cherrytree.zaria.serialization.Capsule;
@@ -45,20 +46,17 @@ public abstract class ZariaApplication<States extends Enum>
 	//--------------------------------------------------------------------------
 
     private static class Arguments
-    {
-        public boolean fullscreen;
-        public boolean windowed;
-        public boolean resetSettings;
+	{
+		public boolean resetSettings;
         public boolean noSound;
         public boolean flushConsole;
         public boolean enableConsole;
+		public boolean enableSync;
 
         public String argumentString;
 
         Arguments()
         {
-            fullscreen = false;
-            windowed = false;
             resetSettings = false;
             noSound = false;
             flushConsole = false;
@@ -82,33 +80,26 @@ public abstract class ZariaApplication<States extends Enum>
 				argumentString += arg;
 				switch (arg)
 				{
-					case "-force_fullscreen":
-						fullscreen = true;
-						break;
-					case "-force_windowed":
-						windowed = true;
-						break;
 					case "-reset_settings":
 						resetSettings = true;
 						break;
+						
 					case "-no_sound":
 						noSound = true;
 						break;
+						
 					case "-flush_console":
 						flushConsole = true;
 						break;
+						
 					case "-enable_console":
 						enableConsole = true;
 						break;
+						
+					case "-enable_editor_sync":
+						enableSync = true;
+						break;
 				}
-			}
-			
-			// Validating arguments.
-			if (fullscreen && windowed)
-			{
-				System.err.println("Can't force use [-force_fullscreen] and [-force_windowed] at the same time. Disabling both.");
-				fullscreen = false;
-				windowed = false;				
 			}
         }
     }
@@ -130,7 +121,7 @@ public abstract class ZariaApplication<States extends Enum>
 	
     //--------------------------------------------------------------------------
 
-	public ZariaApplication(String[] args, States initialState, ApplicationStateParams initialParams, Console console, ErrorUI errorUI, DebugUI debugUI)
+	public ZariaApplication(String[] args, States initialState, ApplicationStateParams initialParams, Console console, ErrorUI errorUI, DebugUI debugUI, EditorSyncManager syncManager)
 	{				
 		try
 		{				
@@ -153,7 +144,10 @@ public abstract class ZariaApplication<States extends Enum>
 			// Initializing debug ui.
 			if (DebugManager.isActive() && debugUI != null)
 			{
-				DebugManager.init(debugUI);
+				DebugManager.init(debugUI, syncManager);
+				
+				if (arguments.enableSync && syncManager != null)
+					DebugManager.enableEditorSync();
 
 				if (!arguments.argumentString.isEmpty())
 					DebugManager.trace("Arguments: " + arguments.argumentString);
@@ -304,6 +298,9 @@ public abstract class ZariaApplication<States extends Enum>
 	{
 		try
 		{
+			if (DebugManager.isActive())
+				DebugManager.updateSync();
+			
 			if (!paused)
 				executeMachineState();
 		}

@@ -101,6 +101,49 @@ public class ZoneDeserializer
 		return data;
     }
 
+    //--------------------------------------------------------------------------
+
+    public static ZariaObjectDefinition[] parse(String text) throws IOException, ValidationException
+    {
+		assert text != null;
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+		mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+		mapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
+		mapper.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE);
+		mapper.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.NONE);
+		
+		mapper.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+		mapper.configure(MapperFeature.AUTO_DETECT_CREATORS, false);
+		mapper.configure(MapperFeature.AUTO_DETECT_SETTERS, false);
+		mapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
+		mapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
+		mapper.configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
+		mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+		mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+		
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+		ZariaObjectDefinition[] data = mapper.readValue(text, ZariaObjectDefinition[].class);
+		
+		ArrayList<DefinitionValidation> errors = new ArrayList<>();
+		
+		for(ZariaObjectDefinition def : data)
+		{
+			DefinitionValidation val = def.validate();
+			
+			if(val.hasErrors())
+				errors.add(val);
+		}
+		
+		if(!errors.isEmpty())
+			throw new ValidationException("Couldn't validate definition file.", errors);
+
+		return data;
+    }
+
 	//--------------------------------------------------------------------------
 
 	public static ZariaObjectDefinitionLibrary loadLibrary(InputStream inputStream) throws IOException, ValidationException

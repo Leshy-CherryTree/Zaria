@@ -1,7 +1,7 @@
 /****************************************/
 /* DebugManager.java                    */
 /* Created on: Jan 26, 2013             */
-/* Copyright Cherry Tree Studio 2013	*/
+/* Copyright Cherry Tree Studio 2013		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -9,21 +9,20 @@ package eu.cherrytree.zaria.debug;
 
 import eu.cherrytree.zaria.base.ApplicationInstance;
 import eu.cherrytree.zaria.base.ApplicationRuntimeError;
-import eu.cherrytree.zaria.base.SystemProperties;
-import eu.cherrytree.zaria.base.ZariaApplication;
 import eu.cherrytree.zaria.serialization.DefinitionValidation;
 import eu.cherrytree.zaria.serialization.ValidationException;
+import eu.cherrytree.zaria.serialization.ZariaObjectDefinitionLibrary;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Date;
-import java.util.prefs.Preferences;
 import java.text.SimpleDateFormat;
+
 
 /**
  *
@@ -54,6 +53,8 @@ public class DebugManager extends SecurityManager
     private boolean textPaused = false;
 
     private DebugUI debugUI;
+	private EditorSyncManager syncManager;
+	private boolean syncOn;
 
     private SimpleDateFormat dateFormat;
 			
@@ -61,7 +62,7 @@ public class DebugManager extends SecurityManager
 
     //--------------------------------------------------------------------------
 
-    public static synchronized void init(DebugUI debugUI)
+    public static synchronized void init(DebugUI debugUI, EditorSyncManager syncManager)
     {
 		assert active;
 
@@ -71,6 +72,8 @@ public class DebugManager extends SecurityManager
 									
             instance = new DebugManager();
 
+			instance.syncManager = syncManager;
+			
             instance.debugUI = debugUI;	
 			
             instance.dateFormat = new SimpleDateFormat ("HH:mm:ss");            
@@ -99,16 +102,57 @@ public class DebugManager extends SecurityManager
     {
         if (instance != null)
         {
+			if (instance.syncOn)
+				instance.syncManager.deinit();
+			
 			instance.debugUI.deinit();
 
             instance.debugUI = null;           
-            instance.dateFormat = null;
-
+            instance.dateFormat = null;		
+			
             instance = null;
         }
     }
 
     //--------------------------------------------------------------------------
+	
+	public static synchronized void enableEditorSync()
+	{
+		if (instance != null)
+		{
+			assert instance.syncManager != null;
+			assert instance.syncOn == false;
+			
+			instance.syncManager.init();
+			instance.syncOn = true;
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static synchronized void enableEditorSync(ZariaObjectDefinitionLibrary library)
+	{
+		if (instance != null && instance.syncOn)
+			instance.syncManager.addLibrary(library);
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static synchronized void disableEditorSync(ZariaObjectDefinitionLibrary library)
+	{
+		if (instance != null && instance.syncOn)
+			instance.syncManager.addLibrary(library);
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static synchronized void updateSync()
+	{
+		if (instance != null && instance.syncOn)
+			instance.syncManager.update();
+	}
+	
+	//--------------------------------------------------------------------------
 
     public static synchronized boolean isActive()
     {
