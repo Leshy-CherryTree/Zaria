@@ -53,13 +53,13 @@ public class ZoneFileListModel extends FileListModel
 		filesStore.clear();
 		File[] file_array = file.listFiles(filter);
 		
-		if(file_array == null)
+		if (file_array == null)
 		{
 			files = null;
 		}
 		else
 		{
-			for(File f : file_array)
+			for (File f : file_array)
 			{
 				try
 				{
@@ -67,9 +67,9 @@ public class ZoneFileListModel extends FileListModel
 					{
 						ZariaObjectDefinition[] defs = mapper.readValue(f, ZariaObjectDefinition[].class);
 
-						for(ZariaObjectDefinition def : defs)
+						for (ZariaObjectDefinition def : defs)
 						{
-							if(zoneClass.isAssignableFrom(def.getClass()))
+							if (zoneClass.isAssignableFrom(def.getClass()))
 							{
 								filesStore.add(f);
 								break;
@@ -87,7 +87,7 @@ public class ZoneFileListModel extends FileListModel
 			filesStore.toArray(files);
 		}
 		
-		if(files != null)
+		if (files != null)
 			Arrays.sort(files);
 		
 		fireContentsChanged(this,0,getSize());

@@ -10,6 +10,7 @@ package eu.cherrytree.zaria.editor.document;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.cherrytree.zaria.debug.SyncInterface;
 import eu.cherrytree.zaria.editor.EditorApplication;
 import eu.cherrytree.zaria.editor.classlist.ZoneClassList;
 import eu.cherrytree.zaria.editor.database.DataBase;
@@ -31,6 +32,10 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -136,7 +141,7 @@ public class ZoneDocument
 	{
 		path = path.toLowerCase();
 		
-		for(DocumentType type : DocumentType.values())
+		for (DocumentType type : DocumentType.values())
 		{
 			if (path.endsWith(type.getSuffix().toLowerCase()))
 				return type != DocumentType.ZONE_SCRIPT;
@@ -200,15 +205,15 @@ public class ZoneDocument
 			}
 		}
 		
-		createdDate = getCreationDate(text);
+		createdDate = getCreationDate(text);		
 		
 		switch(documentType)
 		{
 			case ZONE:
 				currentState = EditType.GRAPH_EDIT;
 			
-				states[EditType.TEXT_EDIT.ordinal()] = new TextEditorState(text, this, zoneClassList);
-				states[EditType.GRAPH_EDIT.ordinal()] = new GraphEditorState(text, this, propertySheetPanel, popupMenu, zoneClassList);
+				states[EditType.TEXT_EDIT.ordinal()] = new TextEditorState(this, zoneClassList);
+				states[EditType.GRAPH_EDIT.ordinal()] = new GraphEditorState(this, propertySheetPanel, popupMenu, zoneClassList);
 				
 				break;
 				
@@ -216,7 +221,7 @@ public class ZoneDocument
 			case ZONE_SCRIPT:
 				currentState = EditType.TEXT_EDIT;
 				
-				states[EditType.TEXT_EDIT.ordinal()] = new TextEditorState(text, this, zoneClassList);
+				states[EditType.TEXT_EDIT.ordinal()] = new TextEditorState(this, zoneClassList);
 				states[EditType.GRAPH_EDIT.ordinal()] = null;
 				
 				break;
@@ -229,10 +234,26 @@ public class ZoneDocument
 
 		if (file != null)
 			tabPane.setToolTipTextAt(tabPane.indexOfComponent(panel), file.getAbsolutePath());	
+				
+		boolean result = states[currentState.ordinal()].setText(text);
+		
+		// If we couldn't open the apprioprate editor, fall back to text editing.
+		if (!result)
+		{
+			currentState = EditType.TEXT_EDIT;
+			
+			for (EditType type : EditType.values())
+			{
+				if (type != EditType.TEXT_EDIT)
+					states[type.ordinal()] = null;
+			}
+			
+			states[currentState.ordinal()].setText(text);
+		}
+		
 		
 		states[currentState.ordinal()].attach(panel);
-		states[currentState.ordinal()].setText(text);
-		
+				
 		saved = true;
 	}
 	
@@ -403,14 +424,14 @@ public class ZoneDocument
 				ArrayList<UUID> removed = DataBase.save(states[currentState.ordinal()].getDefinitions(), file.getAbsolutePath());			
 				ArrayList<UUID> dangling_links = new ArrayList<>();
 
-				for(UUID uuid : removed)
+				for (UUID uuid : removed)
 					DataBase.checkLinks(uuid, dangling_links);
 
 				if (!dangling_links.isEmpty())
 				{
 					String info = "Saving of " + file.getName() + " resulted in the following definitons having invalid links:\n\n";
 
-					for(UUID uuid : dangling_links)
+					for (UUID uuid : dangling_links)
 						info += "\t" + DataBase.getID(uuid) + ":\t\t" + DataBase.getLocation(uuid) + "\n";
 
 					DocumentManager.showInfoDialog("Broken links detected", info);
@@ -616,7 +637,7 @@ public class ZoneDocument
 	{
 		unmark();
 				
-		for(EditorState state : states)
+		for (EditorState state : states)
 		{
 			if (state != null)
 				state.onFocusGained(panel);
@@ -627,7 +648,7 @@ public class ZoneDocument
 	
 	public void onFocusLost()
 	{
-		for(EditorState state : states)
+		for (EditorState state : states)
 		{
 			if (state != null)
 				state.onFocusLost(panel);
@@ -666,7 +687,7 @@ public class ZoneDocument
 	
 	public void updateSettings()
 	{
-		for(EditorState state : states)
+		for (EditorState state : states)
 		{
 			if (state != null)
 				state.updateSettings();
@@ -715,7 +736,7 @@ public class ZoneDocument
 			c = c.getSuperclass();
 		}
 		
-		for(Field f : fields_array)
+		for (Field f : fields_array)
 		{
 			if (f.getName().equals(name))
 				return f;
@@ -817,6 +838,16 @@ public class ZoneDocument
 	public void setEditingObjectEnabled(boolean enabled)
 	{
 		documentManager.setEditingObjectEnabled(enabled);
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public void syncWithGame() throws RemoteException, NotBoundException
+	{
+		Registry registry = LocateRegistry.getRegistry();
+		SyncInterface sync_manager = (SyncInterface) registry.lookup("SyncManager");
+
+		sync_manager.sync(states[currentState.ordinal()].getText());
 	}
 	
 	//--------------------------------------------------------------------------

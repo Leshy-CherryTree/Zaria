@@ -71,6 +71,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -314,23 +316,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	
 	//--------------------------------------------------------------------------
 	
-	private class CopyToClipBoardMenuItem extends JMenuItem
-	{
-		public CopyToClipBoardMenuItem(String title, final String textToCopy)
-		{
-			setAction(new AbstractAction(title)					
-			{
-				@Override
-				public void actionPerformed(ActionEvent e)
-				{
-					Toolkit.getDefaultToolkit ().getSystemClipboard().setContents(new StringSelection (textToCopy), null);
-				}
-			});
-		}	
-	}
-	
-	//--------------------------------------------------------------------------
-	
 	private ZoneClassList zoneClassList = new ZoneClassList();
 	
 	// Main areas
@@ -405,6 +390,8 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	private JMenuItem packageScriptsMenuItem;	
 	private JPopupMenu.Separator rebuildDataBaseMenuSeparator = new JPopupMenu.Separator();
 	private JMenuItem rebuildDataBaseMenuItem;
+	private JPopupMenu.Separator syncMenuSeparator = new JPopupMenu.Separator();
+	private JMenuItem syncMenuItem;
 	
 	// View menu
 	private JMenu viewMenu = new JMenu();
@@ -457,6 +444,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	private JButton editToolBarButton;
 	private JButton validateLibraryToolBarButton;
 	private JButton packageScriptsToolBarButton;
+	private JButton syncToolBarButton;
 	
 	// Dialogs
 	private AboutDialog aboutDialog;
@@ -901,6 +889,9 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		toolsMenu.add(rebuildDataBaseMenuSeparator);
 		rebuildDataBaseMenuItem = initMenuItem("Rebuild database", null, null, toolsMenu);
 		
+		toolsMenu.add(syncMenuSeparator);
+		syncMenuItem = initMenuItem("Sync with game", "sync.png", null, toolsMenu);
+		
 		menuBar.add(toolsMenu);
 	}
 		
@@ -1086,6 +1077,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		
 		validateLibraryToolBarButton = initToolBarButton("validate.png", "Validate library");
 		packageScriptsToolBarButton = initToolBarButton("application-x-jar.png", "Package scripts");
+		syncToolBarButton = initToolBarButton("sync.png", "Sync with game");
 	}
 	
 	//--------------------------------------------------------------------------
@@ -1430,6 +1422,20 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				}
 			});				
 		}
+		else if (event.getSource() == syncMenuItem || event.getSource() == syncToolBarButton)
+		{
+			try
+			{
+				if (documentManager.getCurrentDocument() != null)
+					documentManager.getCurrentDocument().syncWithGame();
+			}
+			catch (Exception ex)
+			{
+				JOptionPane.showMessageDialog(null,"Couldn't sync document " + documentManager.getCurrentDocument().getTitle() + ".\n" + ex,"Error!", JOptionPane.ERROR_MESSAGE);
+
+				DebugConsole.logger.log(Level.SEVERE, null, ex);
+			}
+		}
 		else if (event.getSource() == textSizeButton_8)
 		{
 			Settings.setEditorFontSize(8);
@@ -1561,6 +1567,10 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 							
 				textViewMenuItem.setEnabled(true);
 				graphViewMenuItem.setEnabled(true);
+				
+				syncMenuSeparator.setVisible(true);
+				syncMenuItem.setVisible(true);
+				syncToolBarButton.setVisible(true);
 					
 				libraryValidationMenuItem.setVisible(false);
 				validateLibraryToolBarButton.setVisible(false);
@@ -1576,6 +1586,10 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				textViewMenuItem.setEnabled(true);
 				graphViewMenuItem.setEnabled(false);
 	
+				syncMenuSeparator.setVisible(false);
+				syncMenuItem.setVisible(false);
+				syncToolBarButton.setVisible(false);
+				
 				libraryValidationMenuItem.setVisible(true);
 				validateLibraryToolBarButton.setVisible(true);
 				
@@ -1589,7 +1603,12 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				
 				textViewMenuItem.setEnabled(true);
 				graphViewMenuItem.setEnabled(false);
-					
+				
+				// TODO Have sync working for scripts as well.
+				syncMenuSeparator.setVisible(false);
+				syncMenuItem.setVisible(false);
+				syncToolBarButton.setVisible(false);
+				
 				libraryValidationMenuItem.setVisible(false);
 				validateLibraryToolBarButton.setVisible(false);
 				
@@ -1672,6 +1691,10 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		if (documentManager.getCurrentDocument() == null)
 		{
 			textViewMenuItem.setEnabled(false);
+			graphViewMenuItem.setEnabled(false);
+		}
+		else if (documentManager.getCurrentDocument().getEditorState(ZoneDocument.EditType.GRAPH_EDIT) == null)
+		{
 			graphViewMenuItem.setEnabled(false);
 		}
 	}

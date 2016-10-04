@@ -12,7 +12,7 @@ import eu.cherrytree.zaria.editor.components.ObjectDefinitionCellRenderer;
 import eu.cherrytree.zaria.editor.datamodels.definitions.ObjectDefinitionWrapper;
 import eu.cherrytree.zaria.editor.datamodels.definitions.ObjectDefinitonTreeModel;
 import eu.cherrytree.zaria.editor.datamodels.file.DirectoryFileFilter;
-import eu.cherrytree.zaria.editor.datamodels.file.DirectoryTreeModel;
+import eu.cherrytree.zaria.editor.datamodels.file.FileTreeModel;
 import eu.cherrytree.zaria.editor.datamodels.file.ZoneFileListModel;
 import eu.cherrytree.zaria.editor.datamodels.file.ZoneFileNameFilter;
 import eu.cherrytree.zaria.editor.listeners.FileListSelectionListener;
@@ -65,7 +65,7 @@ public class BrowseDefinitionsDialog extends JDialog implements ActionListener
 	
 	//--------------------------------------------------------------------------
 
-	public BrowseDefinitionsDialog(Frame parent, Class<? extends ZariaObjectDefinition> baseClass, String ... paths)
+	public BrowseDefinitionsDialog(Frame parent, Class<? extends ZariaObjectDefinition> baseClass, String path)
 	{
 		super(parent, true);
 
@@ -160,8 +160,8 @@ public class BrowseDefinitionsDialog extends JDialog implements ActionListener
 		ZoneFileNameFilter fileFilter = new ZoneFileNameFilter();
 		DirectoryFileFilter directoryFilter = new DirectoryFileFilter(false, fileFilter);
 		
-		directoryTree.setModel(new DirectoryTreeModel(directoryFilter, paths));
-		directoryTree.setRootVisible(false);
+		directoryTree.setModel(new FileTreeModel(directoryFilter, path));
+		directoryTree.setRootVisible(true);
 		
 		ZoneFileListModel fileListModel = new ZoneFileListModel(baseClass, fileFilter, false);
 		
@@ -183,7 +183,7 @@ public class BrowseDefinitionsDialog extends JDialog implements ActionListener
 			{
 				Object selected = objectTree.getLastSelectedPathComponent();
 				
-				if(selected != null && selected instanceof ObjectDefinitionWrapper)
+				if (selected != null && selected instanceof ObjectDefinitionWrapper)
 				{
 					ObjectDefinitionWrapper wrapper = (ObjectDefinitionWrapper) selected;
 					selectedID = wrapper.getUUID();
@@ -219,11 +219,11 @@ public class BrowseDefinitionsDialog extends JDialog implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent evt)
 	{
-		if(evt.getSource() == cancelButton)
+		if (evt.getSource() == cancelButton)
 		{
 			setVisible(false);
 		}
-		else if(evt.getSource() == chooseButton)
+		else if (evt.getSource() == chooseButton)
 		{
 			chosenID = selectedID;
 			setVisible(false);

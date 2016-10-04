@@ -28,7 +28,6 @@ public class LinkPropertyEditor extends DialogPropertyEditor
 	//--------------------------------------------------------------------------
 	
 	private UUID uuid = null;
-	private String[] allowedPaths;
 	private JLabel textField;
 	
 	private Class<? extends ZariaObjectDefinition> baseClass;
@@ -44,8 +43,6 @@ public class LinkPropertyEditor extends DialogPropertyEditor
 		textField = (JLabel) getComponent();
 		
 		textField.setBorder(UIUtils.EMPTY_BORDER);
-		
-		allowedPaths = isLibrary ? new String[]{EditorApplication.getAssetsLocation()} : new String[]{EditorApplication.getAssetsLocation()};
 	}
 
 	//--------------------------------------------------------------------------
@@ -109,7 +106,7 @@ public class LinkPropertyEditor extends DialogPropertyEditor
 	{
 		if(event.getSource() == button)
 		{
-			UUID new_uuid = DocumentManager.openBrowseDefinitionsDialog(baseClass, allowedPaths);
+			UUID new_uuid = DocumentManager.openBrowseDefinitionsDialog(baseClass, EditorApplication.getAssetsLocation());
 			
 			if(new_uuid != null)
 			{

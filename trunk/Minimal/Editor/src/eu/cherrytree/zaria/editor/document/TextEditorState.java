@@ -116,7 +116,7 @@ public class TextEditorState implements EditorState, DocumentListener, ScriptDoc
 	
 	//--------------------------------------------------------------------------
 
-	public TextEditorState(String text, ZoneDocument document, ZoneClassList classList)
+	public TextEditorState(ZoneDocument document, ZoneClassList classList)
 	{		
 		this.document = document;
 
@@ -592,7 +592,7 @@ public class TextEditorState implements EditorState, DocumentListener, ScriptDoc
 	//--------------------------------------------------------------------------
 			
 	@Override
-	public void setText(String text)
+	public boolean setText(String text)
 	{
 		textArea.setText(text);
 		
@@ -600,6 +600,8 @@ public class TextEditorState implements EditorState, DocumentListener, ScriptDoc
 		textArea.discardAllEdits();	
 		
 		updateSettings();
+		
+		return true;
 	}
 
 
