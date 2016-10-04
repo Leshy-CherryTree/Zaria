@@ -1,13 +1,13 @@
 /********************************************/
-/* Property.java							*/
+/* Property.java								*/
 /*											*/
 /* Initial version released by L2FProd.com	*/
-/* under the Apache License, Version 2.0	*/
+/* under the Apache License, Version 2.0		*/
 /*											*/
 /* Adapted, modified and released			*/
-/* by Cherry Tree Studio under EUPL v1.1	*/
+/* by Cherry Tree Studio under EUPL v1.1		*/
 /*											*/
-/* Copyright Cherry Tree Studio 2013		*/
+/* Copyright Cherry Tree Studio 2013			*/
 /********************************************/
 
 package eu.cherrytree.zaria.editor.properties;

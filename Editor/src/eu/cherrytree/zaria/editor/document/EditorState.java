@@ -52,7 +52,7 @@ public interface EditorState
 	
 	public ZariaObjectDefinition[] getDefinitions();
 	public String getText();
-	public void setText(String text);
+	public boolean setText(String text);
 	
 	public Object getSelected();
 	public void editSelected();

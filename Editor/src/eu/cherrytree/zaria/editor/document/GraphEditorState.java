@@ -152,7 +152,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	
 	private class BrowseMenuItem extends JMenuItem
 	{
-		public BrowseMenuItem(final ZoneGraphPort port, final String ... paths)
+		public BrowseMenuItem(final ZoneGraphPort port, final String path)
 		{
 			super("Browse...");
 					
@@ -161,7 +161,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					UUID uuid = DocumentManager.openBrowseDefinitionsDialog(port.getDefinitionClass(), paths);
+					UUID uuid = DocumentManager.openBrowseDefinitionsDialog(port.getDefinitionClass(), path);
 					
 					boolean found = false;
 							
@@ -378,7 +378,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	
 	//--------------------------------------------------------------------------
 	
-	public GraphEditorState(String text, ZoneDocument document, PropertySheetPanel propertySheetPanel, JPopupMenu popupMenu, ZoneClassList zoneClassList)
+	public GraphEditorState(ZoneDocument document, PropertySheetPanel propertySheetPanel, JPopupMenu popupMenu, ZoneClassList zoneClassList)
 	{
 		assert document.getDocumentType() == ZoneDocument.DocumentType.ZONE;
 		
@@ -708,7 +708,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	//--------------------------------------------------------------------------
 
 	@Override
-	public final void setText(String text)
+	public final boolean setText(String text)
 	{
 		ZariaObjectDefinition[] definitions;
 		
@@ -722,7 +722,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 			
 			JOptionPane.showMessageDialog(null, "Couldn't deserialize " + document.getTitle() +  ".\n" + ex, "Error!", JOptionPane.ERROR_MESSAGE);
 			
-			return;
+			return false;
 		}
 
 		graph = new ZoneGraph(document);
@@ -751,6 +751,8 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 		}
 		
 		setContent();
+		
+		return true;
 	}
 			
 	//--------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 /****************************************/
 /* MinMaxInfo.java						*/
 /* Created on: 06-Apr-2014				*/
-/* Copyright Cherry Tree Studio 2014	*/
+/* Copyright Cherry Tree Studio 2014		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 

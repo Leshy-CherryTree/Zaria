@@ -362,9 +362,9 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	//--------------------------------------------------------------------------
 	
-	public static UUID openBrowseDefinitionsDialog(Class<? extends ZariaObjectDefinition> baseClass, String ... paths)
+	public static UUID openBrowseDefinitionsDialog(Class<? extends ZariaObjectDefinition> baseClass, String path)
 	{
-		BrowseDefinitionsDialog dialog = new BrowseDefinitionsDialog(editorFrame, baseClass, paths);
+		BrowseDefinitionsDialog dialog = new BrowseDefinitionsDialog(editorFrame, baseClass, path);
 		
 		return dialog.getChosenID();
 	}

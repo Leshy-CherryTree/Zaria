@@ -9,7 +9,9 @@ package eu.cherrytree.zaria.editor.listeners;
 
 import eu.cherrytree.zaria.editor.datamodels.file.FileNameWrapper;
 import eu.cherrytree.zaria.editor.datamodels.file.FileListModel;
+import eu.cherrytree.zaria.editor.debug.DebugConsole;
 import java.io.File;
+import java.util.logging.Level;
 
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -37,8 +39,15 @@ public class FileViewController implements TreeSelectionListener
 	@Override
 	public void valueChanged(TreeSelectionEvent event)
 	{
-		File file = ((FileNameWrapper) event.getPath().getLastPathComponent()).getFile();		       
-		listModel.setDirectory(file);
+		try
+		{
+			File file = ((FileNameWrapper) event.getPath().getLastPathComponent()).getFile();		       
+			listModel.setDirectory(file);
+		}
+		catch (Exception ex)
+		{
+			DebugConsole.logger.log(Level.SEVERE, null, ex);
+		}
 	}
 
 	//--------------------------------------------------------------------------
