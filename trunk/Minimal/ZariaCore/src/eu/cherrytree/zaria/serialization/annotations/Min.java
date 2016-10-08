@@ -1,5 +1,5 @@
 /****************************************/
-/* MaxInt.java							*/
+/* Min.java							*/
 /* Created on: 06-Apr-2014				*/
 /* Copyright Cherry Tree Studio 2014	*/
 /* Released under EUPL v1.1				*/
@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MaxInt
+public @interface Min
 {
 	public int value();
 }

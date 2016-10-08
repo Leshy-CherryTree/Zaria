@@ -13,8 +13,8 @@ import eu.cherrytree.zaria.serialization.ResourceType;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 import eu.cherrytree.zaria.serialization.annotations.DefinitionCategory;
 import eu.cherrytree.zaria.serialization.annotations.DefinitionColor;
-import eu.cherrytree.zaria.serialization.annotations.MinInt;
 import eu.cherrytree.zaria.serialization.annotations.Resource;
+import eu.cherrytree.zaria.serialization.annotations.Min;
 
 /**
  *
@@ -29,16 +29,16 @@ public class TextureArea extends ZariaObjectDefinition
 	@Resource(ResourceType.TEXTURE)
 	private String texture  = "";
 
-	@MinInt(0)
+	@Min(0)
 	private int x;
 	
-	@MinInt(0)
+	@Min(0)
 	private int y;
 	
-	@MinInt(1)
+	@Min(1)
 	private int w;
 	
-	@MinInt(1)
+	@Min(1)
 	private int h;
 	
 	//--------------------------------------------------------------------------
