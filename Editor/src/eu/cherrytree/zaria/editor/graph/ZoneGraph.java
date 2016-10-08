@@ -30,6 +30,7 @@ public class ZoneGraph extends mxGraph
 	//--------------------------------------------------------------------------
 	
 	private static final String arrowStyle = "fontColor=#000000;edgeStyle=entityRelationEdgeStyle;labelBackgroundColor=#ffffff;shape=connector;rounded=true;strokeColor=#425f5f;";
+	public static final int gridSize = 15;
 			
 	//--------------------------------------------------------------------------
 	
@@ -49,7 +50,7 @@ public class ZoneGraph extends mxGraph
 		setCellsMovable(true);
 		setCellsResizable(false);
 		setGridEnabled(true);
-		setGridSize(20);
+		setGridSize(gridSize);
 		setKeepEdgesInBackground(true);	
 		setKeepEdgesInForeground(false);
 		setCellsEditable(false);

@@ -50,7 +50,7 @@ public abstract class ZoneGraphPort extends ZoneGraphElement
 	
 	private Class<? extends ZariaObjectDefinition> defintionClass;
 	private String name;
-	private String displayName;
+	protected String displayName;
 	
 	private ArrayList<LinkInfo> links;
 	
@@ -60,7 +60,7 @@ public abstract class ZoneGraphPort extends ZoneGraphElement
 	{
 		this.defintionClass = defintionClass;
 		this.name = name;
-		this.displayName = displayName;
+		this.displayName = getName(displayName);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -81,7 +81,7 @@ public abstract class ZoneGraphPort extends ZoneGraphElement
 	
 	//--------------------------------------------------------------------------	 
 	
-	public String getName()
+	public final String getName()
 	{
 		return name;
 	}

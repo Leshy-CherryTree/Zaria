@@ -124,19 +124,22 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 		
 		ports = new ZoneGraphPort[links.size()+1];
 		
-		float space = size * 2.5f;
-		float height = (ports.length == 1.0f ? size * 4.0f : size * 4.0f * (ports.length-1)) + space;
-		float shift = size * 3.0f + space;
-		float step = size * 4.0f;
-		float width = nodeMetrics.stringWidth(definition.getClass().getSimpleName()) + step + 2.0f;
+		float step = portMetrics.getHeight() + 2;
+		
+		float height = ports.length == 1 ? ZoneGraph.gridSize * 2 : ZoneGraph.gridSize + (ports.length-1) * step + 5;
+		
+		float width = nodeMetrics.stringWidth(getName(definition.getClass().getSimpleName())) + 6.0f;
 
 		for (int i = 0 ; i < ports.length-1 ; i++)
 		{
-			ports[i] = new ZoneGraphInputPort(links.get(i), names.get(i), display_names.get(i), arrays.get(i), (shift + step * i) / height);
-			width = (float) Math.ceil(Math.max(width, portMetrics.stringWidth(display_names.get(i) + ports[i].getGeometry().getWidth())));
+			ports[i] = new ZoneGraphInputPort(links.get(i), names.get(i), display_names.get(i), arrays.get(i), (ZoneGraph.gridSize + step * i) / height);
+			
+			width = (float) Math.ceil(Math.max(width, portMetrics.stringWidth(ports[i].getDisplayName()) + 5.0f + ports[i].getGeometry().getWidth()));
 		}
+		
+		width = (float) Math.ceil(width / (float) ZoneGraph.gridSize) * ZoneGraph.gridSize;
 				
-		ports[ports.length - 1] = new ZoneGraphOutputPort(definition.getClass(), width, size * 3.0f);
+		ports[ports.length - 1] = new ZoneGraphOutputPort(definition.getClass(), width, ZoneGraph.gridSize);
 		
 		validate();
 		
@@ -194,8 +197,8 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 			+	"verticalAlign=top;"
 			+	"strokeWidth=4;"
 			+	"strokeColor=#1f8eff;"
-			+	"fillColor=#ffffff;"
-			+	"gradientColor=" + getColorString(definition.getClass()) + ";";			
+			+	"fillColor=" + getColorString(definition.getClass(), 0.1f) + ";"
+			+	"gradientColor=" + getColorString(definition.getClass(), -0.1f) + ";";	
 	}
 	
 	//--------------------------------------------------------------------------
@@ -233,8 +236,8 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 			+	"verticalAlign=top;"
 			+	"strokeWidth=4;"
 			+	"strokeColor=#ff1f1f;"
-			+	"fillColor=#ffffff;"
-			+	"gradientColor=" + getColorString(definition.getClass()) + ";";	
+			+	"fillColor=" + getColorString(definition.getClass(), 0.1f) + ";"
+			+	"gradientColor=" + getColorString(definition.getClass(), -0.1f) + ";";	
 	}
 	
 	//--------------------------------------------------------------------------
@@ -247,8 +250,8 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 			+	"verticalAlign=top;"
 			+	"strokeWidth=1;"
 			+	"strokeColor=#707070;"
-			+	"fillColor=#ffffff;"
-			+	"gradientColor=" + getColorString(definition.getClass()) + ";";
+			+	"fillColor=" + getColorString(definition.getClass(), 0.1f) + ";"
+			+	"gradientColor=" + getColorString(definition.getClass(), -0.1f) + ";";	
 	}
 	
 	//--------------------------------------------------------------------------

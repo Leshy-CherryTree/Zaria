@@ -1,7 +1,7 @@
 /****************************************/
 /* ZoneGraphPort.java					*/
 /* Created on: 20-Apr-2014				*/
-/* Copyright Cherry Tree Studio 2014	*/
+/* Copyright Cherry Tree Studio 2014		*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -24,7 +24,7 @@ public class ZoneGraphInputPort extends ZoneGraphPort
 	//--------------------------------------------------------------------------
 	
 	private static final long serialVersionUID = 1L;	
-	private static final float radius = 4.5f;
+	private static final float size = 4.0f;
 	
 	//--------------------------------------------------------------------------
 	
@@ -34,12 +34,12 @@ public class ZoneGraphInputPort extends ZoneGraphPort
 
 		public ExternalMarker(Class<? extends ZariaObjectDefinition> defintionClass)
 		{
-			mxGeometry ex_geo = new mxGeometry(0.0f, 0.0f, radius*3.0f, radius*1.5f);
-			ex_geo.setOffset(new mxPoint(0.0f, radius*1.5f));
+			mxGeometry ex_geo = new mxGeometry(0.0f, 0.0f, size * 3.0f, size * 1.5f);
+			ex_geo.setOffset(new mxPoint(0.0f, size * 2.0f));
 			ex_geo.setRelative(true);
 
 			setGeometry(ex_geo);
-			setStyle("handleBorderColor=black;labelPosition=left;fontFamily=" + externalMetrics.getFont().getFamily() + ";" + "fontSize=" +  externalMetrics.getFont().getSize() + ";" + ";align=right;verticalAlign=top;fontColor=#000000;strokeColor=#777777;fillColor=#ffffff;gradientColor=" + getColorString(defintionClass, -0.3f));
+			setStyle("handleBorderColor=black;labelPosition=left;fontFamily=" + externalMetrics.getFont().getFamily() + ";" + "fontSize=" +  externalMetrics.getFont().getSize() + ";" + ";align=right;verticalAlign=top;fontColor=#000000;strokeColor=#777777;fillColor=" + getColorString(defintionClass, 0.1f) + ";gradientColor=" + getColorString(defintionClass, -0.3f));
 			setVertex(true);
 			setConnectable(false);
 		}
@@ -61,18 +61,19 @@ public class ZoneGraphInputPort extends ZoneGraphPort
 	public ZoneGraphInputPort(Class<? extends ZariaObjectDefinition> defintionClass, String name, String displayName, boolean array, float offset)
 	{
 		super(defintionClass, name, displayName);
+		this.displayName = this.displayName.toLowerCase();
 		
 		this.array = array;
 		
-		setValue(displayName);
+		setValue(this.displayName);
 		
-		mxGeometry geo = new mxGeometry(1.0f, offset, radius*3, radius*1.5);
-		geo.setOffset(new mxPoint(-radius*1.5, -radius));
+		mxGeometry geo = new mxGeometry(1.0f, offset, size * 3.0f, size * 2.0f);
+		geo.setOffset(new mxPoint(-size * 1.5f, 9.0f));
 		geo.setRelative(true);
 		
 		setGeometry(geo);		
 		
-		setStyle("handleBorderColor=black;labelPosition=left;fontFamily=" + portMetrics.getFont().getFamily() + ";" + "fontSize=" +  portMetrics.getFont().getSize() + ";" + ";align=right;verticalAlign=middle;fontColor=#000000;strokeColor=#777777;fillColor=#ffffff;gradientColor=" + getColorString(defintionClass));
+		setStyle("handleBorderColor=black;labelPosition=left;fontFamily=" + portMetrics.getFont().getFamily() + ";" + "fontSize=" +  portMetrics.getFont().getSize() + ";" + ";align=right;verticalAlign=middle;fontColor=#000000;strokeColor=#777777;fillColor=" + getColorString(defintionClass, 0.1f) + ";gradientColor=" + getColorString(defintionClass,-0.1f));
 					
 		setVertex(true);
 		
