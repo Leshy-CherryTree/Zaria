@@ -17,9 +17,7 @@ import eu.cherrytree.zaria.serialization.annotations.FieldDescription;
 import eu.cherrytree.zaria.serialization.annotations.GreaterThan;
 import eu.cherrytree.zaria.serialization.annotations.LessThan;
 import eu.cherrytree.zaria.serialization.annotations.MaxFloat;
-import eu.cherrytree.zaria.serialization.annotations.MaxInt;
 import eu.cherrytree.zaria.serialization.annotations.MinFloat;
-import eu.cherrytree.zaria.serialization.annotations.MinInt;
 import eu.cherrytree.zaria.serialization.annotations.ScriptLink;
 import eu.cherrytree.zaria.serialization.annotations.WeakLink;
 
@@ -27,6 +25,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.UUID;
+import eu.cherrytree.zaria.serialization.annotations.Max;
+import eu.cherrytree.zaria.serialization.annotations.Min;
 
 
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
@@ -112,7 +112,7 @@ public abstract class ZariaObjectDefinition
 			return val;
 		}	
 		
-		if(id != null)
+		if (id != null)
 			val.addError(!id.matches("[a-zA-Z0-9_-]*"), "id", id, "Object Defintion ID can contain only Latin alphanumeric charcacters, dashes and underscores.");
 		
 		onValidate(val);
@@ -124,28 +124,28 @@ public abstract class ZariaObjectDefinition
 	
 	private void validateFields(Class cls, DefinitionValidation validation) throws IllegalArgumentException, IllegalAccessException
 	{
-		for(Field field : cls.getDeclaredFields())
+		for (Field field : cls.getDeclaredFields())
 		{
 			field.setAccessible(true);
 			
 			ScriptLink scriptLink = field.getAnnotation(ScriptLink.class);
 			
-			if(scriptLink != null)
+			if (scriptLink != null)
 			{
 				validation.addError(	field.getType() != String.class, field.getName(), 
 										"", "ScriptLink is not if type String but " + field.getType().getCanonicalName() + ".");
 			}
 			
-			if(field.getType() == Link.class || field.getType() == LinkArray.class)
+			if (field.getType() == Link.class || field.getType() == LinkArray.class)
 				validation.addError(field.get(this) == null, field.getName(), "null", "Links cannot be null.");
 																					
 			FieldDescription fieldDescription = field.getAnnotation(FieldDescription.class);
 			
-			if(fieldDescription != null)
+			if (fieldDescription != null)
 			{								
-				if(field.getType() == Link.class)
+				if (field.getType() == Link.class)
 				{
-					if(field.get(this) != null)
+					if (field.get(this) != null)
 					{
 						Link link = (Link) field.get(this);
 						
@@ -153,9 +153,9 @@ public abstract class ZariaObjectDefinition
 												"null", "Link is marked as required but is empty.");
 					}
 				}
-				else if(field.getType() == LinkArray.class)
+				else if (field.getType() == LinkArray.class)
 				{
-					if(field.get(this) != null)
+					if (field.get(this) != null)
 					{
 						LinkArray linkArray = (LinkArray) field.get(this);
 						
@@ -163,9 +163,9 @@ public abstract class ZariaObjectDefinition
 												"null", "LinkArray is marked as required but is empty.");
 					}
 				}
-				else if(scriptLink != null)
+				else if (scriptLink != null)
 				{
-					if(field.getType() == String.class)
+					if (field.getType() == String.class)
 					{
 						String link_target = (String) field.get(this);
 
@@ -180,17 +180,17 @@ public abstract class ZariaObjectDefinition
 				}
 			}
 			
-			if(field.getType() == LinkArray.class)
+			if (field.getType() == LinkArray.class)
 			{
-				if(field.get(this) != null)
+				if (field.get(this) != null)
 				{
 					LinkArray linkArray = (LinkArray) field.get(this);
 					
 					boolean has_spaces = false;
 					
-					for(UUID uid : linkArray.getUUIDs())
+					for (UUID uid : linkArray.getUUIDs())
 					{
-						if(uid == null)
+						if (uid == null)
 						{
 							has_spaces = true;
 							break;
@@ -203,18 +203,18 @@ public abstract class ZariaObjectDefinition
 			
 			WeakLink weakLink = field.getAnnotation(WeakLink.class);
 			
-			if(weakLink != null)
+			if (weakLink != null)
 				validation.addError(field.getType() != UUID.class && field.getType() != UUID[].class, field.getName(), field.get(this).toString(), "WeakLinks must be represented as UUIDs.");
 
 			MaxFloat maxFloat = field.getAnnotation(MaxFloat.class);
 			
-			if(maxFloat != null)
+			if (maxFloat != null)
 			{
 				validation.addError(	field.getType() != float.class && field.getType() != Float.class, field.getName(), 
 										field.get(this) != null ? field.get(this).toString() : "null", 
 										"MaxFloat annotation used, but type is " + field.getType().getName());
 								
-				if((field.getType() == float.class || field.getType() == Float.class) && field.get(this) != null)
+				if ((field.getType() == float.class || field.getType() == Float.class) && field.get(this) != null)
 				{
 					float val = Float.parseFloat(field.get(this).toString());					
 					validation.addError(val > maxFloat.value(), field.getName(), field.get(this).toString(), "Value is greater than " + maxFloat.value());
@@ -223,13 +223,13 @@ public abstract class ZariaObjectDefinition
 			
 			MinFloat minFloat = field.getAnnotation(MinFloat.class);
 			
-			if(minFloat != null)
+			if (minFloat != null)
 			{
 				validation.addError(	field.getType() != float.class && field.getType() != Float.class, field.getName(), 
 										field.get(this) != null ? field.get(this).toString() : "null", 
 										"MinFloat annotation used, but type is " + field.getType().getName());
 								
-				if((field.getType() == float.class || field.getType() == Float.class) && field.get(this) != null)
+				if ((field.getType() == float.class || field.getType() == Float.class) && field.get(this) != null)
 				{
 					float val = Float.parseFloat(field.get(this).toString());					
 					validation.addError(val < minFloat.value(), field.getName(), field.get(this).toString(), "Value is less than " + minFloat.value());
@@ -238,13 +238,13 @@ public abstract class ZariaObjectDefinition
 			
 			LessThan lessThan = field.getAnnotation(LessThan.class);
 			
-			if(lessThan != null)
+			if (lessThan != null)
 			{
 				validation.addError(	field.getType() != float.class && field.getType() != Float.class, field.getName(), 
 										field.get(this) != null ? field.get(this).toString() : "null", 
 										"LessThan annotation used, but type is " + field.getType().getName() + " (should be float).");
 								
-				if((field.getType() == float.class || field.getType() == Float.class) && field.get(this) != null)
+				if ((field.getType() == float.class || field.getType() == Float.class) && field.get(this) != null)
 				{
 					float val = Float.parseFloat(field.get(this).toString());					
 					validation.addError(val >= lessThan.value(), field.getName(), field.get(this).toString(), "Value is not less than " + lessThan.value());
@@ -253,56 +253,64 @@ public abstract class ZariaObjectDefinition
 			
 			GreaterThan greaterThan = field.getAnnotation(GreaterThan.class);
 									
-			if(greaterThan != null)
+			if (greaterThan != null)
 			{
 				validation.addError(	field.getType() != float.class && field.getType() != Float.class, field.getName(), 
 										field.get(this) != null ? field.get(this).toString() : "null", 
 										"GreaterThan annotation used, but type is " + field.getType().getName() + " (should be float).");
 								
-				if((field.getType() == float.class || field.getType() == Float.class) && field.get(this) != null)
+				if ((field.getType() == float.class || field.getType() == Float.class) && field.get(this) != null)
 				{
 					float val = Float.parseFloat(field.get(this).toString());					
 					validation.addError(val <= greaterThan.value(), field.getName(), field.get(this).toString(), "Value is not greater than " + greaterThan.value());
 				}			
 			}
 			
-			MaxInt maxInt = field.getAnnotation(MaxInt.class);
+			Max max = field.getAnnotation(Max.class);
 			
-			if(maxInt != null)
+			if (max != null)
 			{
-				validation.addError(	field.getType() != int.class && field.getType() != Integer.class, field.getName(), 
+				validation.addError(	field.getType() != byte.class && field.getType() != Byte.class &&
+										field.getType() != short.class && field.getType() != Short.class &&
+										field.getType() != int.class && field.getType() != Integer.class &&
+										field.getType() != long.class && field.getType() != Long.class, 
+										field.getName(), 
 										field.get(this) != null ? field.get(this).toString() : "null", 
-										"MaxInt annotation used, but type is " + field.getType().getName());
+										"Max annotation used, but type is " + field.getType().getName());
 								
-				if((field.getType() == int.class || field.getType() == Integer.class) && field.get(this) != null)
+				if ((field.getType() == int.class || field.getType() == Integer.class) && field.get(this) != null)
 				{
 					float val = Integer.parseInt(field.get(this).toString());					
-					validation.addError(val > maxInt.value(), field.getName(), field.get(this).toString(), "Value is greater than " + maxInt.value());
+					validation.addError(val > max.value(), field.getName(), field.get(this).toString(), "Value is greater than " + max.value());
 				}			
 			}
 			
-			MinInt minInt = field.getAnnotation(MinInt.class);
+			Min min = field.getAnnotation(Min.class);
 			
-			if(minInt != null)
+			if (min != null)
 			{
-				validation.addError(	field.getType() != int.class && field.getType() != Integer.class, field.getName(), 
+				validation.addError(	field.getType() != byte.class && field.getType() != Byte.class &&
+										field.getType() != short.class && field.getType() != Short.class &&
+										field.getType() != int.class && field.getType() != Integer.class &&
+										field.getType() != long.class && field.getType() != Long.class, 
+										field.getName(), 
 										field.get(this) != null ? field.get(this).toString() : "null", 
-										"MaxInt annotation used, but type is " + field.getType().getName());
+										"Min annotation used, but type is " + field.getType().getName());
 								
-				if((field.getType() == int.class || field.getType() == Integer.class) && field.get(this) != null)
+				if ((field.getType() == int.class || field.getType() == Integer.class) && field.get(this) != null)
 				{
 					float val = Integer.parseInt(field.get(this).toString());					
-					validation.addError(val < minInt.value(), field.getName(), field.get(this).toString(), "Value is less than " + minInt.value());
+					validation.addError(val < min.value(), field.getName(), field.get(this).toString(), "Value is less than " + min.value());
 				}			
 			}
 			
-			if(Enum.class.isAssignableFrom(field.getType()))
+			if (Enum.class.isAssignableFrom(field.getType()))
 				validation.addError(field.get(this) == null, field.getName(), "null", "Enum fields cannot be null.");
 		}
 				
 		Class super_class = cls.getSuperclass();
 		
-		if(super_class != null && super_class != ZariaObjectDefinition.class)
+		if (super_class != null && super_class != ZariaObjectDefinition.class)
 			validateFields(super_class, validation);
 	}
 	
@@ -310,12 +318,12 @@ public abstract class ZariaObjectDefinition
 	
 	private <T> void getAllLinks(Class<T> type, Class<? extends ZariaObjectDefinition> cls, ArrayList<T> links) throws IllegalArgumentException, IllegalAccessException
 	{
-		for(Field field : cls.getDeclaredFields())
+		for (Field field : cls.getDeclaredFields())
 		{							
-			if(Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
+			if (Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
 				continue;						
 			
-			if(field.getType() == type)
+			if (field.getType() == type)
 			{				
 				field.setAccessible(true);
 				links.add((T) field.get(this));
@@ -324,7 +332,7 @@ public abstract class ZariaObjectDefinition
 		
 		Class super_class = cls.getSuperclass();
 		
-		if(super_class != null && super_class != ZariaObjectDefinition.class)
+		if (super_class != null && super_class != ZariaObjectDefinition.class)
 			getAllLinks(type, super_class, links);
 	}
 	
@@ -339,18 +347,18 @@ public abstract class ZariaObjectDefinition
 			ArrayList<Link> links = new ArrayList<>();
 			getAllLinks(Link.class, this.getClass(), links);
 			
-			for(Link link : links)
+			for (Link link : links)
 			{
-				if(link != null)
+				if (link != null)
 					link.load(library);
 			}
 			
 			ArrayList<LinkArray> link_arrays = new ArrayList<>();
 			getAllLinks(LinkArray.class, this.getClass(), link_arrays);
 			
-			for(LinkArray link_array : link_arrays)
+			for (LinkArray link_array : link_arrays)
 			{
-				if(link_array != null)
+				if (link_array != null)
 					link_array.load(library);	
 			}
 		}
