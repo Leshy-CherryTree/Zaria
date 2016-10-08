@@ -760,6 +760,9 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	@Override
 	public void addNode(ZoneGraphNode node, int x, int y)
 	{
+		x = (int) (Math.ceil((float) x / (float) ZoneGraph.gridSize) * ZoneGraph.gridSize);
+		y = (int) (Math.ceil((float) y / (float) ZoneGraph.gridSize) * ZoneGraph.gridSize);
+		
 		doAdd(node, x, y);
 		
 		undoStack.addUndoAction(new AddUndoAction(node), true);

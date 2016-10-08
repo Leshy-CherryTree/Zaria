@@ -31,14 +31,34 @@ public abstract class ZoneGraphElement extends mxCell
 {
 	//--------------------------------------------------------------------------
 	
-	protected final static FontMetrics nodeMetrics =  mxUtils.getFontMetrics(new Font("Monospaced", Font.PLAIN, Settings.getNodeFontSize()));
-	protected final static FontMetrics portMetrics =  mxUtils.getFontMetrics(new Font("Monospaced", Font.PLAIN, Settings.getNodePortFontSize()));
-	protected final static FontMetrics externalMetrics =  mxUtils.getFontMetrics(new Font("Monospaced", Font.PLAIN, Settings.getNodeOutsideFontSize()));
+	protected final static FontMetrics nodeMetrics =  mxUtils.getFontMetrics(new Font(Font.SANS_SERIF, Font.PLAIN, Settings.getNodeFontSize()));
+	protected final static FontMetrics portMetrics =  mxUtils.getFontMetrics(new Font(Font.SANS_SERIF, Font.PLAIN, Settings.getNodePortFontSize()));
+	protected final static FontMetrics externalMetrics =  mxUtils.getFontMetrics(new Font(Font.SANS_SERIF, Font.PLAIN, Settings.getNodeOutsideFontSize()));
 	
 	//--------------------------------------------------------------------------
 	
 	public abstract String getToolTip();
 	public abstract Class<? extends ZariaObjectDefinition> getDefinitionClass();
+	
+	//--------------------------------------------------------------------------
+	
+	protected static String getName(String text)
+	{
+		StringBuilder builder = new StringBuilder();
+	
+		
+		for (int i = 0 ; i < text.length() ; i++)
+		{
+			char c = text.charAt(i);
+			
+			if (Character.isUpperCase(c) && i > 0 && (Character.isLowerCase(text.charAt(i-1)) || (i != text.length()-1 && Character.isLowerCase(text.charAt(i+1)))))
+				builder.append(" ");
+			
+			builder.append(c);
+		}
+		
+		return builder.toString();
+	}
 	
 	//--------------------------------------------------------------------------
 	

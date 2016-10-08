@@ -7,7 +7,6 @@
 
 package eu.cherrytree.zaria.editor.graph;
 
-import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.util.mxPoint;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
@@ -33,7 +32,7 @@ public class ZoneGraphOutputPort extends ZoneGraphPort
 		geo.setRelative(true);
 
 		setGeometry(geo);
-		setValue(defintionClass.getSimpleName());
+		setValue(displayName);
 						
 		setStyle("fontFamily=" + nodeMetrics.getFont().getFamily() + ";" + "fontSize=" +  nodeMetrics.getFont().getSize() + ";" + "fontColor=#ffffff;verticalAlign=top;strokeWidth=1;strokeColor=#707070;fillColor=#000000");
 		setVertex(true);
