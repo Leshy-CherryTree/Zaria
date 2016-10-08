@@ -8,6 +8,7 @@
 package eu.cherrytree.zaria.editor.dialogs;
 
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
+import eu.cherrytree.zaria.editor.document.ZoneDocument;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 import eu.cherrytree.zaria.math.Curve;
 
@@ -49,7 +50,7 @@ public class EditorFactory
 	
 	//--------------------------------------------------------------------------
 	
-	public static EditorDialog getEditor(ZariaObjectDefinition definition, JFrame parentFrame)
+	public static EditorDialog getEditor(ZariaObjectDefinition definition, ZoneDocument document, JFrame parentFrame)
 	{
 		Class editor_class = null;
 		
@@ -63,7 +64,7 @@ public class EditorFactory
 		{
 			try
 			{
-				EditorDialog dialog = (EditorDialog) editor_class.getDeclaredConstructor(JFrame.class, ZariaObjectDefinition.class).newInstance(parentFrame, definition);
+				EditorDialog dialog = (EditorDialog) editor_class.getDeclaredConstructor(JFrame.class, ZoneDocument.class, ZariaObjectDefinition.class).newInstance(parentFrame, document, definition);
 
 				return dialog;
 			}

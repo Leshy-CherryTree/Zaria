@@ -724,13 +724,13 @@ public class DocumentManager implements ChangeListener, CaretListener
 	
 	//--------------------------------------------------------------------------
 	
-	public static void openEditorDialog(ZariaObjectDefinition definition)
+	public static void openEditorDialog(ZariaObjectDefinition definition, ZoneDocument document)
 	{
 		assert EditorFactory.hasEditor(definition.getClass());
 		
 		try
 		{
-			EditorDialog editor = EditorFactory.getEditor(definition, editorFrame);
+			EditorDialog editor = EditorFactory.getEditor(definition, document, editorFrame);
 			editor.setVisible(true);
 		}
 		catch(Exception ex)

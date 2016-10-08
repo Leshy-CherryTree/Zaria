@@ -21,9 +21,7 @@ import eu.cherrytree.zaria.serialization.annotations.FieldDescription;
 import eu.cherrytree.zaria.serialization.annotations.GreaterThan;
 import eu.cherrytree.zaria.serialization.annotations.LessThan;
 import eu.cherrytree.zaria.serialization.annotations.MaxFloat;
-import eu.cherrytree.zaria.serialization.annotations.MaxInt;
 import eu.cherrytree.zaria.serialization.annotations.MinFloat;
-import eu.cherrytree.zaria.serialization.annotations.MinInt;
 import eu.cherrytree.zaria.serialization.annotations.WeakLink;
 import eu.cherrytree.zaria.serialization.annotations.Resource;
 import eu.cherrytree.zaria.serialization.annotations.ScriptLink;
@@ -37,6 +35,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
+import eu.cherrytree.zaria.serialization.annotations.Max;
+import eu.cherrytree.zaria.serialization.annotations.Min;
 
 
 /**
@@ -173,8 +173,8 @@ public class PropertyTools
 	
 	public static MinMaxInfo getMinMax(Field field)
 	{		
-		MinInt min = field.getAnnotation(MinInt.class);
-		MaxInt max = field.getAnnotation(MaxInt.class);
+		Min min = field.getAnnotation(Min.class);
+		Max max = field.getAnnotation(Max.class);
 		
 		if (min != null && max != null)
 			return new MinMaxInfo(Integer.class, min.value(), max.value(), false, false);

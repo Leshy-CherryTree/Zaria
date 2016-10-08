@@ -10,6 +10,7 @@ package eu.cherrytree.zaria.editor.dialogs;
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
 import eu.cherrytree.zaria.editor.dialogs.curves.GraphPanel;
 import eu.cherrytree.zaria.editor.dialogs.curves.XYInputDialog;
+import eu.cherrytree.zaria.editor.document.ZoneDocument;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 import eu.cherrytree.zaria.math.Curve;
 
@@ -55,14 +56,16 @@ public class CurveEditingDialog extends EditorDialog implements ActionListener, 
 	
 	//--------------------------------------------------------------------------
 
-	public CurveEditingDialog(JFrame parent, ZariaObjectDefinition definition)
+	public CurveEditingDialog(JFrame parent, ZoneDocument document, ZariaObjectDefinition definition)
 	{
-		super(parent, definition);
+		super(parent, document, definition);
 
 		setTitle("Curve Editor - " + definition.getID());
 		
 		graphPanel.setListener(this);
-		graphPanel.init((Curve) definition);	
+		graphPanel.init((Curve) definition);
+		graphPanel.setFocusable(true);
+		graphPanel.setFocusCycleRoot(true);
 		
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -198,6 +201,7 @@ public class CurveEditingDialog extends EditorDialog implements ActionListener, 
 			try
 			{
 				graphPanel.save((Curve) definition);
+				document.setModified();
 			}
 			catch (SecurityException | IllegalArgumentException | NoSuchFieldException ex)
 			{
