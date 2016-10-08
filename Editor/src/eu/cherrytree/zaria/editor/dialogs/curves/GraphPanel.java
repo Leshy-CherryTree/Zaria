@@ -14,6 +14,7 @@ import eu.cherrytree.zaria.math.Curve;
 import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.lang.reflect.Field;
@@ -106,7 +107,11 @@ public class GraphPanel extends JPanel
 	
 	private PointListModel listModel;
 	
-	private float scale = 400.0f;
+	private float scaleX = 400.0f;
+	private float scaleY = 400.0f;
+	private boolean scaleWidth = true;
+	private boolean scaleHeight= true;
+	
 	private int shiftX = 50;
 	private int shiftY = -50;
 	
@@ -168,6 +173,16 @@ public class GraphPanel extends JPanel
 			points.add(new GraphPanel.Point(0.5f, 0.5f));
 			points.add(new GraphPanel.Point(1.0f, 1.0f));
 		}
+		
+		scaleX = 400.0f;
+		scaleY = 400.0f;
+
+		shiftX = 50;
+		shiftY = -50;
+
+		dragStarted = false;
+		prevMouseX = 0;
+		prevMouseY = 0;
 		
 		updateGraph();
 	}
@@ -295,8 +310,8 @@ public class GraphPanel extends JPanel
 		g.setColor(Color.DARK_GRAY);
 		g.fillRect(0, 0, getWidth(), getHeight());
 		
-		float min = (0 - shiftX) / scale;
-		float max = (getWidth() - shiftX) / scale;
+		float min = (0 - shiftX) / scaleX;
+		float max = (getWidth() - shiftX) / scaleX;
 		float delta = max - min;
 		float spacing = 0.0f;
 		
@@ -308,7 +323,7 @@ public class GraphPanel extends JPanel
 			float start = (float) Math.floor(min / spacing) * spacing;
 			for (float x = start ; x < max + spacing ; x += spacing)
 			{
-				int p_x = (int) (x * scale + shiftX);
+				int p_x = (int) (x * scaleX + shiftX);
 
 				if (Math.abs(x) < 0.00001f)
 					g.setColor(Color.GRAY);
@@ -321,13 +336,13 @@ public class GraphPanel extends JPanel
 				g.drawString("(" + decimalFormat.format(x) + ")", p_x + 5, getHeight() - 11);
 			}
 			
-			min = (getHeight() + shiftY) / scale;
-			max = (shiftY) / scale;
+			min = (getHeight() + shiftY) / scaleY;
+			max = (shiftY) / scaleY;
 			start = (float) Math.floor(min / spacing) * spacing;
 
 			for (float y = start ; y > max - spacing ; y -= spacing)
 			{
-				int p_y = (int) (getHeight() - y * scale + shiftY);
+				int p_y = (int) (getHeight() - y * scaleY + shiftY);
 
 				if (Math.abs(y) < 0.00001f)
 					g.setColor(Color.GRAY);
@@ -343,16 +358,16 @@ public class GraphPanel extends JPanel
 			
 		g.setColor(Color.LIGHT_GRAY);
 				
-		float prev_x = (-1 - shiftX) / scale;
+		float prev_x = (-1 - shiftX) / scaleX;
 		float prev_y = getValue(prev_x);
-		int p_j = (int) (getHeight() - prev_y * scale + shiftY);
+		int p_j = (int) (getHeight() - prev_y * scaleY + shiftY);
 		
 		for (int i = 0 ; i < getWidth() ; i++)
 		{
-			float x = (i - shiftX) / scale;
+			float x = (i - shiftX) / scaleX;
 			float y = getValue(x);
 			
-			int j = (int) (getHeight() - y * scale + shiftY);
+			int j = (int) (getHeight() - y * scaleY + shiftY);
 						
 			g.drawLine(i-1, p_j, i, j);
 			
@@ -364,26 +379,26 @@ public class GraphPanel extends JPanel
 			if (point == draggedPoint)
 			{
 				g.setColor(Color.ORANGE);
-				g.fillOval(shiftX + (int) (scale * point.getX()-3), shiftY + (int) ((getHeight() - scale * point.getY())-3), 7, 7);
+				g.fillOval(shiftX + (int) (scaleX * point.getX()-3), shiftY + (int) ((getHeight() - scaleY * point.getY())-3), 7, 7);
 
 				g.setColor(Color.YELLOW);
-				g.fillOval(shiftX + (int) (scale * point.getX()-1), shiftY + (int) ((getHeight() - scale * point.getY())-1), 3, 3);						
+				g.fillOval(shiftX + (int) (scaleX * point.getX()-1), shiftY + (int) ((getHeight() - scaleY * point.getY())-1), 3, 3);						
 			}
 			else if (point == highlightedPoint)
 			{
 				g.setColor(Color.CYAN);
-				g.fillOval(shiftX + (int) (scale * point.getX()-3), shiftY + (int) ((getHeight() - scale * point.getY())-3), 7, 7);
+				g.fillOval(shiftX + (int) (scaleX * point.getX()-3), shiftY + (int) ((getHeight() - scaleY * point.getY())-3), 7, 7);
 
 				g.setColor(Color.BLUE);
-				g.fillOval(shiftX + (int) (scale * point.getX()-1), shiftY + (int) ((getHeight() - scale * point.getY())-1), 3, 3);	
+				g.fillOval(shiftX + (int) (scaleX * point.getX()-1), shiftY + (int) ((getHeight() - scaleY * point.getY())-1), 3, 3);	
 			}
 			else
 			{
 				g.setColor(Color.GRAY);
-				g.fillOval(shiftX + (int) (scale * point.getX()-3), shiftY + (int) ((getHeight() - scale * point.getY())-3), 7, 7);
+				g.fillOval(shiftX + (int) (scaleX * point.getX()-3), shiftY + (int) ((getHeight() - scaleY * point.getY())-3), 7, 7);
 
 				g.setColor(Color.LIGHT_GRAY);
-				g.fillOval(shiftX + (int) (scale * point.getX()-1), shiftY + (int) ((getHeight() - scale * point.getY())-1), 3, 3);			
+				g.fillOval(shiftX + (int) (scaleX * point.getX()-1), shiftY + (int) ((getHeight() - scaleY * point.getY())-1), 3, 3);			
 			}
 
 		}
@@ -396,7 +411,11 @@ public class GraphPanel extends JPanel
 	{
 		super.processMouseWheelEvent(e);
 				
-		scale = Math.min(1000.0f, Math.max(0.0001f, scale - e.getUnitsToScroll()));
+		if (scaleWidth)
+			scaleX = Math.min(1000.0f, Math.max(0.0001f, scaleX - e.getUnitsToScroll()));
+		
+		if (scaleHeight)
+			scaleY = Math.min(1000.0f, Math.max(0.0001f, scaleY - e.getUnitsToScroll()));
 		
 		repaint();
 	}
@@ -407,8 +426,8 @@ public class GraphPanel extends JPanel
 	{
 		for (Point p : points)
 		{
-			double p_x = p.getX() * scale + shiftX;
-			double p_y = getHeight() - p.getY() * scale + shiftY;
+			double p_x = p.getX() * scaleX + shiftX;
+			double p_y = getHeight() - p.getY() * scaleY + shiftY;
 						
 			if (Math.abs(p_x - x) < 5 && Math.abs(p_y - y) < 5)
 				return p;
@@ -437,7 +456,7 @@ public class GraphPanel extends JPanel
 		
 		if (draggedPoint != null)
 		{
-			draggedPoint.set((e.getX() - shiftX) / scale, (getHeight() - (e.getY() - shiftY)) / scale);
+			draggedPoint.set((e.getX() - shiftX) / scaleX, (getHeight() - (e.getY() - shiftY)) / scaleY);
 			updateGraph();
 			repaint();
 		}
@@ -454,7 +473,7 @@ public class GraphPanel extends JPanel
 		{
 			if (getPoint(e.getX(), e.getY()) == null)
 			{
-				Point p = new Point((e.getX() - shiftX) / scale, (getHeight() - (e.getY() - shiftY)) / scale);
+				Point p = new Point((e.getX() - shiftX) / scaleX, (getHeight() - (e.getY() - shiftY)) / scaleY);
 				
 				points.add(p);
 				
@@ -481,7 +500,7 @@ public class GraphPanel extends JPanel
 		{
 			if (e.getButton() == MouseEvent.BUTTON1 && draggedPoint != null)
 			{
-				draggedPoint.set((e.getX() - shiftX) / scale, (getHeight() - (e.getY() - shiftY)) / scale);				
+				draggedPoint.set((e.getX() - shiftX) / scaleX, (getHeight() - (e.getY() - shiftY)) / scaleY);				
 				draggedPoint = null;
 			
 				update();
@@ -557,6 +576,30 @@ public class GraphPanel extends JPanel
 				function = new PolynomialFunction(PolynomialCurveFitter.create(points.size()).fit(wob.toList()));	
 			}
 				break;
+		}
+	}
+
+	//--------------------------------------------------------------------------
+	
+	@Override
+	protected void processKeyEvent(KeyEvent e)
+	{
+		super.processKeyEvent(e);
+	
+		if (e.getKeyCode() == KeyEvent.VK_CONTROL)
+		{
+			if (e.getID() == KeyEvent.KEY_PRESSED)
+				scaleWidth = false;
+			else if (e.getID() == KeyEvent.KEY_RELEASED)
+				scaleWidth = true;
+		}
+		
+		if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+		{
+			if (e.getID() == KeyEvent.KEY_PRESSED)
+				scaleHeight = false;
+			else if (e.getID() == KeyEvent.KEY_RELEASED)
+				scaleHeight = true;
 		}
 	}
 	

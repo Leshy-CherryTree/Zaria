@@ -7,6 +7,7 @@
 
 package eu.cherrytree.zaria.editor.dialogs;
 
+import eu.cherrytree.zaria.editor.document.ZoneDocument;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 
 import javax.swing.JDialog;
@@ -21,13 +22,16 @@ public abstract class EditorDialog extends JDialog
 	//--------------------------------------------------------------------------
 	
 	protected ZariaObjectDefinition definition;
+	protected ZoneDocument document;
 	
 	//--------------------------------------------------------------------------
 
-	public EditorDialog(JFrame frame, ZariaObjectDefinition definition)
+	public EditorDialog(JFrame frame, ZoneDocument document, ZariaObjectDefinition definition)
 	{
 		super(frame, true);
+		
 		this.definition = definition;
+		this.document = document;
 	}		
 	
 	//--------------------------------------------------------------------------

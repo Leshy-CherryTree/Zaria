@@ -338,7 +338,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 				@Override
 				public void actionPerformed(ActionEvent ae)
 				{			
-					DocumentManager.openEditorDialog(node.getDefinition());
+					DocumentManager.openEditorDialog(node.getDefinition(), getDocument());
 					
 					if(selectedNodes.size() == 1 && selectedNodes.contains(node))
 						showProperties(node);
@@ -469,7 +469,7 @@ public class GraphEditorState implements EditorState, MouseWheelListener, ZoneGr
 	{							
 		if(selectedNodes.size() == 1)
 		{
-			DocumentManager.openEditorDialog(selectedNodes.get(0).getDefinition());
+			DocumentManager.openEditorDialog(selectedNodes.get(0).getDefinition(), getDocument());
 			showProperties(selectedNodes.get(0));
 		}						
 	}

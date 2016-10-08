@@ -53,27 +53,29 @@ public class ZonePropertyEditorFactory extends PropertyEditorFactory
 		{
 			return new ScriptLinkPropertyEditor();
 		}
-		else if(z_prop.getMinMax() != null)
-		{						
-			if (property.getType() == Float.class || property.getType() == float.class)
-			{
-				return new FloatSliderPropertyEditor(z_prop.getMinMax());
-			}
-			else if (	property.getType() == Integer.class || property.getType() == int.class || 
-						property.getType() == Short.class || property.getType() == short.class ||
-						property.getType() == Byte.class || property.getType() == byte.class)
-			{
-				return new IntegerSliderPropertyEditor(z_prop.getMinMax());
-			}
-			else
-			{
-				// TODO Add an popup for the user, as somebody might make a mistake.
-				
-				assert false : "Invalid type " + property.getType() + " for use of sliders.";
-				
-				return null;
-			}
-		}
+// TODO The sliders seem to be broken, disable them until it's fixed.
+//		else if(z_prop.getMinMax() != null)
+//		{						
+//			if (property.getType() == Float.class || property.getType() == float.class)
+//			{
+//				return new FloatSliderPropertyEditor(z_prop.getMinMax());
+//			}
+//			else if (	property.getType() == Long.class || property.getType() == long.class ||
+//						property.getType() == Integer.class || property.getType() == int.class || 
+//						property.getType() == Short.class || property.getType() == short.class ||
+//						property.getType() == Byte.class || property.getType() == byte.class)
+//			{
+//				return new IntegerSliderPropertyEditor(z_prop.getMinMax());
+//			}
+//			else
+//			{
+//				// TODO Add an popup for the user, as somebody might make a mistake.
+//				
+//				assert false : "Invalid type " + property.getType() + " for use of sliders.";
+//				
+//				return null;
+//			}
+//		}
 		else
 			return loadPropertyEditor(property.getType());			
 	}
