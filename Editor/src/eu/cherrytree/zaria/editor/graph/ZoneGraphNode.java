@@ -125,15 +125,12 @@ public final class ZoneGraphNode extends ZoneGraphElement implements PropertyCha
 		ports = new ZoneGraphPort[links.size()+1];
 		
 		float step = portMetrics.getHeight() + 2;
-		
 		float height = ports.length == 1 ? ZoneGraph.gridSize * 2 : ZoneGraph.gridSize + (ports.length-1) * step + 5;
-		
 		float width = nodeMetrics.stringWidth(getName(definition.getClass().getSimpleName())) + 6.0f;
 
 		for (int i = 0 ; i < ports.length-1 ; i++)
 		{
 			ports[i] = new ZoneGraphInputPort(links.get(i), names.get(i), display_names.get(i), arrays.get(i), (ZoneGraph.gridSize + step * i) / height);
-			
 			width = (float) Math.ceil(Math.max(width, portMetrics.stringWidth(ports[i].getDisplayName()) + 5.0f + ports[i].getGeometry().getWidth()));
 		}
 		
