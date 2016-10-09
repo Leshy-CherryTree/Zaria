@@ -22,8 +22,7 @@ public interface DebugUI
 	public void addText(String string, DebugManager.TraceLevel level);	
 	
 	public void showWarningDialog(String title, String message);
-	public void showErrorDialog(String title, String message);
-	public boolean showConfirmDialog(String title, String string);
+	public void showErrorDialog(String title, String message, boolean fatal);
 	
 	public void saveLog(String string);
 }

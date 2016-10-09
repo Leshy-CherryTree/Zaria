@@ -43,6 +43,27 @@ public class ApplicationInstance
 	}
 	
 	//--------------------------------------------------------------------------
+	
+	public static boolean isCursorHidded()
+	{
+		return instance.isCursorHidded();	
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static void showCursor()
+	{
+		instance.showCursor();	
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static void hideCursor()
+	{
+		instance.hideCursor();	
+	}
+	
+	//--------------------------------------------------------------------------
 			
 	public static String getFullApplicationName()
 	{

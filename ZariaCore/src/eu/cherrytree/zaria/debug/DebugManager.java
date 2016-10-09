@@ -378,43 +378,21 @@ public class DebugManager extends SecurityManager
     }
 
     //--------------------------------------------------------------------------
-
-    public synchronized static void alertIf(boolean condition, String message)
-    {
-        if (condition)
-			alert(message);
-    }
-
-    //--------------------------------------------------------------------------
-
-    public synchronized static void alertIf(boolean condition, String title, String message)
-    {
-        if (condition)
-			alert(title, message);
-    }
-
-    //--------------------------------------------------------------------------
-
-    public synchronized static void fatalAlertIf(boolean condition, String message)
-    {
-        if (condition)
-			fatalAlert(message);
-    }
-
-    //--------------------------------------------------------------------------
-
-    public synchronized static void fatalAlertIf(boolean condition, String title, String message)
-    {
-        if (condition)
-			fatalAlert(title, message);
-    }
-
-    //--------------------------------------------------------------------------
 	
 	public synchronized static void showErrorDialog(String title, String message)
 	{
 		if (active)
-			instance.debugUI.showErrorDialog(title, message);
+		{
+			boolean cursor_hidden = ApplicationInstance.isCursorHidded();
+			
+			if (cursor_hidden)
+				ApplicationInstance.showCursor();
+			
+			instance.debugUI.showErrorDialog(title, message, false);
+			
+			if (cursor_hidden)
+				ApplicationInstance.hideCursor();
+		}
 	}
 	
     //--------------------------------------------------------------------------
@@ -422,7 +400,17 @@ public class DebugManager extends SecurityManager
 	public synchronized static void showWarningDialog(String title, String message)
 	{
 		if (active)
+		{
+			boolean cursor_hidden = ApplicationInstance.isCursorHidded();
+			
+			if (cursor_hidden)
+				ApplicationInstance.showCursor();
+			
 			instance.debugUI.showWarningDialog(title, message);
+			
+			if (cursor_hidden)
+				ApplicationInstance.hideCursor();
+		}
 	}
 	
 	//--------------------------------------------------------------------------
@@ -430,14 +418,21 @@ public class DebugManager extends SecurityManager
     private synchronized static void showAlert(String callerClassName, String title, String message, boolean fatal)
     {
         trace(callerClassName, "Alert: " + message, fatal ? TraceLevel.ERROR : TraceLevel.WARNING);
-        boolean cont = true;
+        
+		if (active)
+		{
+			boolean cursor_hidden = ApplicationInstance.isCursorHidded();
+			
+			if (cursor_hidden)
+				ApplicationInstance.showCursor();
+			
+			instance.debugUI.showErrorDialog(title, message, fatal);
+			
+			if (cursor_hidden)
+				ApplicationInstance.hideCursor();
+		}
 
         if (fatal)
-            showErrorDialog(title, message +"\n\nCan't recover from this alert, exiting.");
-        else
-            cont = instance.debugUI.showConfirmDialog(title, message + "\n\nContinue?");
-
-        if (fatal || !cont)
             System.exit(-1);
     }
 
