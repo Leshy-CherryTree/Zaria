@@ -34,6 +34,8 @@ import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 
 import javax.swing.GroupLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -632,9 +634,9 @@ public class DesktopDebugConsoleWindow extends JFrame implements ActionListener,
 	//--------------------------------------------------------------------------
 	
 	@Override
-	public void showErrorDialog(String title, String message)
+	public void showErrorDialog(String title, String message, boolean fatal)
 	{
-		JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+		AlertDialog.show((fatal ? "FATAL ERROR - " : "ERROR - ") + title, message, AlertDialog.Type.Error);
 	}
 	
     //--------------------------------------------------------------------------
@@ -642,16 +644,7 @@ public class DesktopDebugConsoleWindow extends JFrame implements ActionListener,
 	@Override
 	public void showWarningDialog(String title, String message)
 	{
-		JOptionPane.showMessageDialog(null, message, title, JOptionPane.WARNING_MESSAGE);
-	}
-	
-	//--------------------------------------------------------------------------
-	
-	@Override
-	public boolean showConfirmDialog(String title, String message)
-	{
-		int option = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);		
-		return option == JOptionPane.YES_OPTION;
+		AlertDialog.show("WARNING - " + title, message, AlertDialog.Type.Warning);
 	}
 	
 	//--------------------------------------------------------------------------
