@@ -529,6 +529,10 @@ public abstract class ZariaApplication<States extends Enum>
 		
     protected abstract void onInit();
     protected abstract void onExit();	
+		
+	protected abstract boolean isCursorHidded();
+	protected abstract void showCursor();
+	protected abstract void hideCursor();
     
 	//--------------------------------------------------------------------------
 }
