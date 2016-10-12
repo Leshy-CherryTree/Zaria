@@ -11,6 +11,7 @@ import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 import eu.cherrytree.zaria.editor.components.ButtonTabComponent;
 import eu.cherrytree.zaria.editor.database.DataBase;
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
+import eu.cherrytree.zaria.editor.dialogs.EditorFactory;
 import eu.cherrytree.zaria.editor.serialization.Serializer;
 
 import java.awt.Color;
@@ -67,6 +68,14 @@ public class EditorApplication
 	
 	//--------------------------------------------------------------------------
 	
+	private static class CustomEditorMapping
+	{
+		public String type;
+		public String editor;
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	public final static ImageIcon [] icons = {
 						new ImageIcon(ButtonTabComponent.class.getResource("/eu/cherrytree/zaria/editor/res/icons/zone/opened.png")) , 
 						new ImageIcon(ButtonTabComponent.class.getResource("/eu/cherrytree/zaria/editor/res/icons/zone/edited.png")) ,
@@ -89,6 +98,7 @@ public class EditorApplication
 	private static String projectName = "unknown project";
 	
 	private static ArrayList<String> jarPaths = new ArrayList<>();
+	private static ArrayList<CustomEditorMapping> editorMappings = new ArrayList<>();
 	
 	private static Properties properties = new Properties();
 	
@@ -154,12 +164,27 @@ public class EditorApplication
 				DebugConsole.logger.log(Level.SEVERE, null, ex);
 				JOptionPane.showMessageDialog(frame, "Couldn't load palette. " + ex, "Palette error!", JOptionPane.ERROR_MESSAGE);
 			}		
-						
+
 			if (!DataBase.init(dataBaseLocation))
 				throw new ApplicationStartupException("Data base init failed!");
 
 			frame = new EditorFrame(projectName);	
 			debugConsole = new DebugConsole(frame);		
+			
+			for (CustomEditorMapping mapping : editorMappings)
+			{
+				try
+				{
+					EditorFactory.addEditor(Serializer.getJarLoader().loadClass(mapping.type), Serializer.getJarLoader().loadClass(mapping.editor));
+					debugConsole.addLine("Added editor " + mapping.editor + " for type " + mapping.type);
+				}
+				catch (ClassNotFoundException ex)
+				{
+					DebugConsole.logger.log(Level.SEVERE, null, ex);
+					JOptionPane.showMessageDialog(frame,	"Couldn't get editor " + mapping.editor + " for type " + mapping.type + "\n" + ex, 
+															"Custom editor error!", JOptionPane.ERROR_MESSAGE);
+				}				
+			}
 
 			SwingUtilities.invokeLater(new Runnable() {
 
@@ -297,10 +322,23 @@ public class EditorApplication
 					if (element.getElementsByTagName("project").getLength() > 0)
 						projectName = element.getElementsByTagName("project").item(0).getTextContent();
 					
-					int len = element.getElementsByTagName("jar").getLength();
+					int jars_amount = element.getElementsByTagName("jar").getLength();
 					
-					for (int i = 0 ; i < len ; i++)
+					for (int i = 0 ; i < jars_amount ; i++)
 						jarPaths.add(verifyJar(root_path, element.getElementsByTagName("jar").item(i).getTextContent()));
+					
+					int editors_amount = element.getElementsByTagName("typeEditor").getLength();
+					
+					for (int i = 0 ; i <  editors_amount ; i++)
+					{
+						Element editor_element = (Element) element.getElementsByTagName("typeEditor").item(i);
+						
+						CustomEditorMapping mapping = new CustomEditorMapping();
+						mapping.editor = editor_element.getElementsByTagName("editor").item(0).getTextContent();
+						mapping.type = editor_element.getElementsByTagName("type").item(0).getTextContent();
+						
+						editorMappings.add(mapping);
+					}
 				}
 			}
 									
@@ -416,13 +454,6 @@ public class EditorApplication
 	public static String getBlogUrl()
 	{
 		return properties.getProperty("BLOG_URL");
-	}
-		
-	//--------------------------------------------------------------------------
-	
-	public static ArrayList<String> getJarPaths()
-	{
-		return jarPaths;
 	}
 	
 	//--------------------------------------------------------------------------
