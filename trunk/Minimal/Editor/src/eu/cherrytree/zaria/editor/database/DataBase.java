@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -219,9 +220,12 @@ public class DataBase
 			{
 				defs = mapper.readValue(file, ZariaObjectDefinition[].class);
 			}
-			catch (IOException ex)
+			catch (Throwable ex)
 			{
 				DebugConsole.logger.log(Level.SEVERE, null,  ex);
+				JOptionPane.showMessageDialog(null, "Error while rebuilding database!\n" +
+													"Couldn't load " + file.getAbsolutePath() + "\n" +
+													"because of " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
 			}
 
 			if(defs != null)

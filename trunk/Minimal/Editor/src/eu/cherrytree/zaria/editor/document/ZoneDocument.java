@@ -633,6 +633,13 @@ public class ZoneDocument
 	
 	//--------------------------------------------------------------------------
 	
+	public ZariaObjectDefinition[] getDefinitions()
+	{
+		return states[currentState.ordinal()].getDefinitions();
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	public void onFocusGained()
 	{
 		unmark();

@@ -29,6 +29,8 @@ public abstract class EditorDialog extends JDialog
 	public EditorDialog(JFrame frame, ZoneDocument document, ZariaObjectDefinition definition)
 	{
 		super(frame, true);
+	
+		assert definition != null;
 		
 		this.definition = definition;
 		this.document = document;

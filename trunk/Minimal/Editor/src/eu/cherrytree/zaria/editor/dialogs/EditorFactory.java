@@ -37,6 +37,13 @@ public class EditorFactory
 	
 	//--------------------------------------------------------------------------
 	
+	public static void addEditor(Class typeClass, Class editorClass)
+	{
+		editors.put(typeClass, editorClass);
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	public static boolean hasEditor(Class<? extends ZariaObjectDefinition> cls)
 	{
 		for(Class type : editors.keySet())
