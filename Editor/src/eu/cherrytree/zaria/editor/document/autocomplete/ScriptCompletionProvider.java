@@ -10,9 +10,12 @@ package eu.cherrytree.zaria.editor.document.autocomplete;
 import eu.cherrytree.zaria.editor.classlist.ZoneClassList;
 import eu.cherrytree.zaria.editor.classlist.ZoneScriptMethod;
 import eu.cherrytree.zaria.editor.classlist.ZoneScriptStaticFunction;
+import java.io.File;
+import org.fife.ui.autocomplete.AbstractCompletion;
 
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
+import org.fife.ui.autocomplete.ShorthandCompletion;
 
 /**
  *
@@ -22,7 +25,7 @@ public class ScriptCompletionProvider extends DefaultCompletionProvider
 {
 	//--------------------------------------------------------------------------
 
-	public ScriptCompletionProvider(ZoneClassList classList)
+	public ScriptCompletionProvider(ZoneClassList classList, String scriptsLocation)
 	{		
 		addCompletion(new BasicCompletion(this, "break"));
 		addCompletion(new BasicCompletion(this, "case"));
@@ -50,7 +53,11 @@ public class ScriptCompletionProvider extends DefaultCompletionProvider
 		addCompletion(new BasicCompletion(this, "void"));
 		addCompletion(new BasicCompletion(this, "while"));
 		addCompletion(new BasicCompletion(this, "with"));
-	  
+		
+		// This is commented out for now, as completion uses space for separation. Using import suggestions makes
+		// only sense after you type the "import" keyword, which cannot be cought right now.
+		//addImportCompletions(new File(scriptsLocation), scriptsLocation);
+		
 		for (ZoneScriptStaticFunction function : classList.getScriptFunctions())
 			addCompletion(new ScriptFunctionCompletion(this, function));
 					
@@ -58,11 +65,35 @@ public class ScriptCompletionProvider extends DefaultCompletionProvider
 			addCompletion(new ScriptFunctionCompletion(this, method));
 
 //      
-//      this.addCompletion(new ShorthandCompletion(this, "sysout",
-//            "System.out.println(", "System.out.println("));
-//      this.addCompletion(new ShorthandCompletion(this, "syserr",
-//            "System.err.println(", "System.err.println("));
+      this.addCompletion(new ShorthandCompletion(this, "sysout",
+            "System.out.println(", "System.out.println("));
+      this.addCompletion(new ShorthandCompletion(this, "syserr",
+            "System.err.println(", "System.err.println("));
 
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	private void addImportCompletions(File dir, String scriptsLocation)
+	{
+		File[] files = dir.listFiles();
+		
+		for (File file : files)
+		{
+			if (file.isDirectory())
+			{
+				addImportCompletions(file, scriptsLocation);
+			}
+			else
+			{
+				String str = file.getAbsolutePath();
+				
+				str = str.substring(scriptsLocation.length());
+				str = str.substring(0, str.lastIndexOf(".zonescript"));
+				
+				addCompletion(new BasicCompletion(this, "import " + str.replace(File.separatorChar, '.') + ";"));
+			}
+		}
 	}
 
 	//--------------------------------------------------------------------------

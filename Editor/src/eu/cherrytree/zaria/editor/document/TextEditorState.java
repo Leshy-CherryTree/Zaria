@@ -146,7 +146,7 @@ public class TextEditorState implements EditorState, DocumentListener, ScriptDoc
 			{
 				textArea.addParser(new ScriptParser(this, EditorApplication.getScriptsLocation()));
 					     
-				AutoCompletion ac = new AutoCompletion(new ScriptCompletionProvider(classList));
+				AutoCompletion ac = new AutoCompletion(new ScriptCompletionProvider(classList, EditorApplication.getScriptsLocation()));
 				ac.install(textArea);
 				
 				ac.setChoicesWindowSize(800, 200);

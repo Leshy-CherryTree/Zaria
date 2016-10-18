@@ -1381,10 +1381,6 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				JarCreator.createJar(EditorApplication.getScriptsLocation(), EditorApplication.getScriptJarLocation());
 				created_ok = true;
 			}
-			catch(JarCreator.ScriptJarCreationException ex)
-			{
-				ExtendedInformationDialog.show(this, "Script packaging failed", ex.getMessage());
-			}
 			catch (IOException ex)
 			{
 				DebugConsole.logger.log(Level.SEVERE, null, ex);

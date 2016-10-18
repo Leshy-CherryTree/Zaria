@@ -7,20 +7,18 @@
 
 package eu.cherrytree.zaria.editor.scripting;
 
+import com.google.common.io.Files;
+
 import eu.cherrytree.zaria.editor.EditorApplication;
-import eu.cherrytree.zaria.scripting.preprocessor.ScriptPreprocessor;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import org.mozilla.javascript.RhinoException;
 
 
 
@@ -32,57 +30,15 @@ public class JarCreator
 {
 	//--------------------------------------------------------------------------
 	
-	public static class ScriptJarCreationException extends Exception
-	{
-		private ArrayList<ScriptPreprocessor.ScriptError> errors;
-
-		public ScriptJarCreationException(ArrayList<ScriptPreprocessor.ScriptError> errors)
-		{
-			this.errors = errors;
-		}
-		
-		public ScriptJarCreationException(ScriptPreprocessor.ScriptError error)
-		{
-			errors = new ArrayList<>();
-			errors.add(error);
-		}
-
-		public ArrayList<ScriptPreprocessor.ScriptError> getErrors()
-		{
-			return errors;
-		}
-				
-		@Override
-		public String getMessage()
-		{
-			StringBuilder errorBuilder = new StringBuilder();
-			
-			errorBuilder.append("There were errors during jar creation.\n\n");
-			
-			for(ScriptPreprocessor.ScriptError error : errors)
-				errorBuilder.append(error.getMessage()).append("\n");
-			
-			return errorBuilder.toString();
-		}				
-	}
-	
-	//--------------------------------------------------------------------------
-	
-	public static void createJar(String srcDir, String outJar) throws IOException, ScriptJarCreationException
+	public static void createJar(String srcDir, String outJar) throws IOException
 	{
 		Manifest manifest = new Manifest();
 		manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 		manifest.getMainAttributes().put(new Name("Created-By"), "Zone Editor v" + EditorApplication.getVersion());
 		
-		ScriptPreprocessor.setScriptLocation(EditorApplication.getScriptsLocation());
-		
 		try (JarOutputStream target = new JarOutputStream(new FileOutputStream(outJar), manifest))
 		{
 			add(new File(srcDir), target, srcDir);
-		}
-		catch(ScriptPreprocessor.ScriptProcessorError error)
-		{
-			throw new ScriptJarCreationException(error);
 		}
 	}
 	
@@ -92,11 +48,11 @@ public class JarCreator
 	{
 		return path.replace(baseDir, File.separator).replace("\\", "/");
 	}
-	
+
 	//--------------------------------------------------------------------------
 	
-	private static void add(File source, JarOutputStream target, String baseDir) throws IOException, ScriptPreprocessor.ScriptError, ScriptJarCreationException
-	{		
+	private static void add(File source, JarOutputStream target, String baseDir) throws IOException
+	{
 		if (source.isDirectory())
 		{
 			String name = getPath(source.getAbsolutePath(), baseDir);
@@ -113,26 +69,10 @@ public class JarCreator
 				target.closeEntry();
 			}
 
-			ArrayList<ScriptPreprocessor.ScriptError> scriptErrorInfo = new ArrayList<>();
-			
 			for (File nestedFile : source.listFiles())
 			{
-				try
-				{
-					add(nestedFile, target, baseDir);
-				}
-				catch(ScriptPreprocessor.ScriptError error)					
-				{
-					scriptErrorInfo.add(error);
-				}
-				catch(ScriptJarCreationException ex)					
-				{
-					scriptErrorInfo.addAll(ex.getErrors());
-				}
+				add(nestedFile, target, baseDir);
 			}
-			
-			if(!scriptErrorInfo.isEmpty())
-				throw new ScriptJarCreationException(scriptErrorInfo);
 		}
 		else
 		{
@@ -140,18 +80,7 @@ public class JarCreator
 			entry.setTime(source.lastModified());
 			target.putNextEntry(entry);
 
-			String script = ScriptPreprocessor.preProcess(source);
-			
-			try
-			{
-				ScriptPreprocessor.validateScript(source.getName(), script);
-			}
-			catch(RhinoException ex)
-			{
-				throw new ScriptPreprocessor.ScriptValidationError(ex);
-			}
-			
-			target.write(script.getBytes(Charset.forName("UTF-8")));
+			target.write(Files.toByteArray(source));
 			
 			target.closeEntry();
 		}
