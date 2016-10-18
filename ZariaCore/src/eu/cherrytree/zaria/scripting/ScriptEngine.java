@@ -1,7 +1,7 @@
 /****************************************/
 /* ScriptEngine.java						*/
 /* Created on: 29-May-2014				*/
-/* Copyright Cherry Tree Studio 2014		*/
+/* Copyright Cherry Tree Studio 2014	*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -12,6 +12,7 @@ import eu.cherrytree.zaria.debug.DebugManager;
 import eu.cherrytree.zaria.scripting.annotations.ScriptField;
 import eu.cherrytree.zaria.scripting.annotations.ScriptFunction;
 import eu.cherrytree.zaria.scripting.annotations.ScriptMethod;
+import eu.cherrytree.zaria.scripting.preprocessing.ScriptPreprocessor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +47,74 @@ public class ScriptEngine
 	private static HashMap<String, Class> objects;
 	private static HashMap<Class, ArrayList<String>> members;
 	private static HashMap<Class, String[]> functions;
+	
+	//--------------------------------------------------------------------------
+	
+	private static class Preprocessor extends ScriptPreprocessor
+	{
+		private String fixPath(String path)
+		{
+			if (!path.endsWith(".zonescript"))
+				path += ".zonescript";
+
+			path = path.replace('.', '/');
+			path = path.replace("/zonescript", ".zonescript");
+
+			if (!path.startsWith("/"))
+				path = "/" + path;
+			
+			return path;
+		}
+		
+		@Override
+		protected String getSource(String path)
+		{
+			try
+			{
+				path = fixPath(path);
+
+				InputStream inpuStream = ScriptEngine.class.getResourceAsStream(path);
+
+				if (inpuStream == null)	
+				{
+					DebugManager.trace("Couldn't load script " + path, DebugManager.TraceLevel.ERROR);
+					return "";
+				}
+
+				char[] buf = new char[2048];
+
+				Reader r = new InputStreamReader(inpuStream, "UTF-8");
+				StringBuilder s = new StringBuilder();
+
+				while (true)
+				{
+					int n = r.read(buf);
+
+					if (n < 0)
+						break;
+					s.append(buf, 0, n);
+				}
+				
+				return s.toString();
+			}
+			catch(IOException ex)
+			{
+				DebugManager.trace(ex);
+				return "";
+			}
+		}
+
+		@Override
+		protected boolean scriptExist(String path)
+		{
+			return ScriptEngine.class.getResourceAsStream(fixPath(path)) != null;
+		}
+		
+		public String getPreprocessedScript(String path)
+		{
+			return preProcess(getSource(path));
+		}
+	}
 	
 	//--------------------------------------------------------------------------
 	
@@ -137,6 +206,7 @@ public class ScriptEngine
 	//--------------------------------------------------------------------------
 	
 	private static Context context;
+	private static Preprocessor preprocessor = new Preprocessor();
 	
 	//--------------------------------------------------------------------------
 	
@@ -311,41 +381,14 @@ public class ScriptEngine
 	
 	public static Script loadScript(String path, String name)
 	{
-		try
-		{
-			if (!path.startsWith("/"))
-				path = "/" + path;
-			
-			InputStream inpuStream = ScriptEngine.class.getResourceAsStream(path);
-
-			if (inpuStream == null)
-			{
-				DebugManager.trace("Couldn't load script " + path, DebugManager.TraceLevel.ERROR);
-				return null;
-			}
-						
-			char[] buf = new char[2048];
-
-			Reader r = new InputStreamReader(inpuStream, "UTF-8");
-			StringBuilder s = new StringBuilder();
-
-			while (true)
-			{
-				int n = r.read(buf);
-
-				if (n < 0)
-					break;
-				s.append(buf, 0, n);
-			}
-
-			return createScript(s.toString(), name);
-		}
-		catch(IOException ex)
-		{
-			DebugManager.trace("Couldn't load script " + path, ex);
-		}
+		String source = preprocessor.getPreprocessedScript(path);
 		
-		return null;
+		System.out.println(source);
+		
+		if (source.isEmpty())
+			return null;
+		
+		return createScript(source, name);
 	}
 	
 	//--------------------------------------------------------------------------
