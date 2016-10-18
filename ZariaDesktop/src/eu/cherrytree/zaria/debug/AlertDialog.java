@@ -7,7 +7,6 @@
 
 package eu.cherrytree.zaria.debug;
 
-import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;

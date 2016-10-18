@@ -1,7 +1,7 @@
 /****************************************/
 /* DebugConsole.java						*/
 /* Created on: 13-Jun-2014				*/
-/* Copyright Cherry Tree Studio 2014		*/
+/* Copyright Cherry Tree Studio 2014	*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
