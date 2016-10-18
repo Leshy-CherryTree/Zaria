@@ -1,13 +1,9 @@
-/**
- * *************************************
- */
-/* ListSearchDialog.java				*/
+/****************************************/
+/* ListSearchDialog.java					*/
 /* Created on: 26-Jun-2014				*/
 /* Copyright Cherry Tree Studio 2014	*/
 /* Released under EUPL v1.1				*/
-/**
- * *************************************
- */
+/****************************************/
 package eu.cherrytree.zaria.editor.dialogs;
 
 import java.awt.Frame;

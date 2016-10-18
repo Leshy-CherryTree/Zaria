@@ -1,13 +1,16 @@
 /****************************************/
 /* ScriptParser.java						*/
 /* Created on: 31-May-2014				*/
-/* Copyright Cherry Tree Studio 2014		*/
+/* Copyright Cherry Tree Studio 2014	*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
 package eu.cherrytree.zaria.editor.document.parsers;
 
-import eu.cherrytree.zaria.scripting.preprocessor.ScriptPreprocessor;
+import eu.cherrytree.zaria.editor.scripting.FileScriptPreprocessor;
+import eu.cherrytree.zaria.scripting.preprocessing.errors.ScriptNotFoundException;
+import eu.cherrytree.zaria.scripting.preprocessing.errors.ScriptPreprocessorError;
+import eu.cherrytree.zaria.scripting.preprocessing.imports.ImportInfo;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
@@ -50,14 +53,48 @@ public class ScriptParser extends AbstractParser
 		
 		try
 		{
-			ScriptPreprocessor.setScriptLocation(location);
-			source = ScriptPreprocessor.prepareForParsing(source, document.getTitle());
+			FileScriptPreprocessor preprocessor = new FileScriptPreprocessor(location);
+			
+			// Rhino doesn't get import keyword thats why we strip them before further parsing.
+			source = preprocessor.checkImports(source);
 		}
-		catch(ScriptPreprocessor.ScriptProcessorError ex)
+		catch(ScriptPreprocessorError ex)
 		{
-			for(ScriptPreprocessor.ScriptProcessorError.Info info : ex.getInfo())
+			for (ScriptPreprocessorError.Info info : ex.getInfo())
 			{
-				DefaultParserNotice notice = new DefaultParserNotice(this, info.getDetails(), info.getLineNumber(), info.getOffset(), info.getLineSource().length());
+				DefaultParserNotice notice = new DefaultParserNotice(this, info.getDetails(), info.getLineIndex(), info.getOffset(), info.getLineSource().length());
+				result.addNotice(notice);
+			}
+			
+			return result;
+		}
+		catch (ScriptNotFoundException ex)
+		{
+			String[] lines = source.split("\n");
+			
+			for (ImportInfo info : ex.getImports())
+			{
+				String error;
+				
+				if (info.getError() != null)
+					error = info.getError();
+				else if (info.getTarget() != null)
+					error = "Couldn't find import \"" + info.getTarget() + "\"";
+				else
+					error = "Couldn't find \"" + info.getSource() + "\"";
+				
+				int idx = 0;
+				
+				for (int i = 0 ; i < lines.length ; i++)
+				{
+					if (lines[i].contains(info.getSource()))
+					{
+						idx = i;
+						break;
+					}
+				}
+				
+				DefaultParserNotice notice = new DefaultParserNotice(this, error, idx, info.getOffset(), info.getSource().length());
 				result.addNotice(notice);
 			}
 			

@@ -1,8 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/****************************************/
+/* RunScriptDialog.java					*/
+/* Created on: 19-Mar-2016				*/
+/* Copyright Cherry Tree Studio 2016	*/
+/* Released under EUPL v1.1				*/
+/****************************************/
 package eu.cherrytree.zaria.editor.dialogs;
 
 import eu.cherrytree.zaria.editor.EditorApplication;
@@ -12,7 +13,7 @@ import eu.cherrytree.zaria.editor.document.TextEditorState;
 import eu.cherrytree.zaria.editor.document.ZoneDocument;
 import eu.cherrytree.zaria.editor.document.parsers.ScriptDocument;
 import eu.cherrytree.zaria.editor.document.parsers.ScriptParser;
-import eu.cherrytree.zaria.scripting.preprocessor.ScriptPreprocessor;
+import eu.cherrytree.zaria.editor.scripting.FileScriptPreprocessor;
 
 import java.awt.Component;
 import java.awt.Font;
@@ -51,7 +52,7 @@ import org.mozilla.javascript.WrapFactory;
 
 /**
  *
- * @author leshy
+ * @author Leszek Szczepański <leszek.gamedev@gmail.com>
  */
 public class RunScriptDialog extends JDialog implements ActionListener, ScriptDocument
 {
@@ -453,8 +454,8 @@ public class RunScriptDialog extends JDialog implements ActionListener, ScriptDo
 		
 		try
 		{
-			ScriptPreprocessor.setScriptLocation(EditorApplication.getEditorScriptsLocation());
-			String script = ScriptPreprocessor.preProcess(currentScript);
+			FileScriptPreprocessor preprocessor = new FileScriptPreprocessor(EditorApplication.getEditorScriptsLocation());
+			String script = preprocessor.preProcess(currentScript);
 			
 			scope.defineFunctionProperties(functions, ScriptInterface.class, ScriptableObject.DONTENUM);
 			cx.evaluateString(scope, script, "script", 0, null);
