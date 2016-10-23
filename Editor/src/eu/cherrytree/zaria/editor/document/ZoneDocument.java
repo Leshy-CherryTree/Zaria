@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.rmi.ConnectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -851,10 +852,33 @@ public class ZoneDocument
 	
 	public void syncWithGame() throws RemoteException, NotBoundException
 	{
-		Registry registry = LocateRegistry.getRegistry();
-		SyncInterface sync_manager = (SyncInterface) registry.lookup("SyncManager");
+		try
+		{
+			if (documentType == DocumentType.ZONE)
+			{
+				Registry registry = LocateRegistry.getRegistry();
+				SyncInterface sync_manager = (SyncInterface) registry.lookup("SyncManager");
 
-		sync_manager.sync(states[currentState.ordinal()].getText());
+				sync_manager.syncObjects(states[currentState.ordinal()].getText());
+			}
+			else if (documentType == DocumentType.ZONE_SCRIPT)
+			{
+				if (file != null)
+				{
+					Registry registry = LocateRegistry.getRegistry();
+					SyncInterface sync_manager = (SyncInterface) registry.lookup("SyncManager");
+
+					String path = file.getAbsolutePath();
+					path = path.substring(EditorApplication.getScriptsLocation().length());
+
+					sync_manager.syncScript(path, states[currentState.ordinal()].getText());
+				}
+			}
+		}
+		catch(ConnectException ex)
+		{
+			JOptionPane.showMessageDialog(null,"Couldn't perform sync.\nServer is not running.","Sync error!",JOptionPane.ERROR_MESSAGE);
+		}
 	}
 	
 	//--------------------------------------------------------------------------

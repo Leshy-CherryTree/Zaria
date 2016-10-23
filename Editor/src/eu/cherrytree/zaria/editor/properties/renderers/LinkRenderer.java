@@ -7,6 +7,7 @@
 
 package eu.cherrytree.zaria.editor.properties.renderers;
 
+import eu.cherrytree.zaria.editor.EditorApplication;
 import eu.cherrytree.zaria.editor.database.DataBase;
 import java.util.UUID;
 
@@ -21,12 +22,24 @@ public class LinkRenderer extends DefaultCellRenderer
 	@Override
 	protected String convertToString(Object value)
 	{
-		if(value == null)
+		if (value == null)
 			return "";
 		
 		try
 		{
-			return DataBase.getID((UUID) value);
+			UUID uuid = (UUID) value;
+			String name = DataBase.getID(uuid);
+			String location = DataBase.getLocation(uuid);
+
+			if (location != null)
+			{
+				if (location.startsWith(EditorApplication.getAssetsLocation()))
+					location = location.substring(EditorApplication.getAssetsLocation().length());
+				else if (location.startsWith(EditorApplication.getScriptsLocation()))
+					location = location.substring(EditorApplication.getScriptsLocation().length());
+			}
+
+			return name + " [" + location + "]";
 		}
 		catch (DataBase.DuplicateUUIDFoundException ex)
 		{

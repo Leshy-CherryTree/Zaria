@@ -7,6 +7,7 @@
 
 package eu.cherrytree.zaria.editor.components;
 
+import eu.cherrytree.zaria.editor.EditorApplication;
 import eu.cherrytree.zaria.editor.database.DataBase;
 import eu.cherrytree.zaria.editor.debug.DebugConsole;
 
@@ -46,17 +47,29 @@ public class ArrayListRenderer extends DefaultListCellRenderer
 	
 	private String getString(Object obj)
 	{
-		if(obj == null)
+		if (obj == null)
 		{
 			return "";
 		}
-		else if(showingLinks)
+		else if (showingLinks)
 		{
 			assert obj.getClass() == UUID.class;
 			
 			try
 			{
-				return DataBase.getID((UUID) obj);
+				UUID uuid = (UUID) obj;
+				String name = DataBase.getID(uuid);
+				String location = DataBase.getLocation(uuid);
+				
+				if (location != null)
+				{
+					if (location.startsWith(EditorApplication.getAssetsLocation()))
+						location = location.substring(EditorApplication.getAssetsLocation().length());
+					else if (location.startsWith(EditorApplication.getScriptsLocation()))
+						location = location.substring(EditorApplication.getScriptsLocation().length());
+				}
+				
+				return name + " [" + location + "]";
 			}
 			catch (DataBase.DuplicateUUIDFoundException ex)
 			{
