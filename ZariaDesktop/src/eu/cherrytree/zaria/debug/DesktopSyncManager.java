@@ -8,6 +8,7 @@
 package eu.cherrytree.zaria.debug;
 
 import eu.cherrytree.zaria.base.ApplicationRuntimeError;
+import eu.cherrytree.zaria.scripting.ScriptEngine;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinition;
 import eu.cherrytree.zaria.serialization.ZariaObjectDefinitionLibrary;
 import eu.cherrytree.zaria.serialization.ZoneDeserializer;
@@ -31,8 +32,33 @@ public class DesktopSyncManager implements SyncInterface, EditorSyncManager
 {
 	//--------------------------------------------------------------------------
 	
+	private class ScriptSyncInfo
+	{
+		private String path;
+		private String source;
+
+		public ScriptSyncInfo(String path, String source)
+		{
+			this.path = path;
+			this.source = source;
+		}
+
+		public String getPath()
+		{
+			return path;
+		}
+
+		public String getSource()
+		{
+			return source;
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	
 	private ArrayList<ZariaObjectDefinitionLibrary> libraries = new ArrayList<>();
 	private ArrayList<ZariaObjectDefinition> definitionsToSync = new ArrayList<>();
+	private ArrayList<ScriptSyncInfo> scriptsToSync = new ArrayList<>();
 
 	//--------------------------------------------------------------------------
 	
@@ -170,6 +196,8 @@ public class DesktopSyncManager implements SyncInterface, EditorSyncManager
 	{
 		if (!definitionsToSync.isEmpty())
 		{
+			DebugManager.trace("Syncing " + definitionsToSync.size() + " objects.");
+			
 			HashMap<UUID, ZariaObjectDefinitionLibrary> lib_map = new HashMap<>();
 			
 			for (ZariaObjectDefinition definition : definitionsToSync)
@@ -182,6 +210,11 @@ public class DesktopSyncManager implements SyncInterface, EditorSyncManager
 						lib_map.put(definition.getUUID(), library);
 						break;
 					}
+					else
+					{
+						// TODO Add the definition but run the preload together with others.
+						//		(To all libraries?)
+					}
 				}
 			}
 			
@@ -193,18 +226,32 @@ public class DesktopSyncManager implements SyncInterface, EditorSyncManager
 			
 			definitionsToSync.clear();
 			
-			DebugManager.trace("Sync done.");
+			DebugManager.trace("Object sync done.");
+		}
+		
+		if (!scriptsToSync.isEmpty())
+		{
+			DebugManager.trace("Syncing " + scriptsToSync.size() + " scripts.");
+			
+			for (ScriptSyncInfo info : scriptsToSync)
+			{
+				ScriptEngine.updateScripts(info.getPath(), info.getSource());
+			}
+			
+			scriptsToSync.clear();
+			
+			DebugManager.trace("Script sync done.");
 		}
 	}
 	
 	//--------------------------------------------------------------------------
 	
 	@Override
-	public void sync(String zoneSource) throws RemoteException
+	public void syncObjects(String zoneSource) throws RemoteException
 	{
 		if (libraries.isEmpty())
 		{
-			DebugManager.trace("Recieved sync info, but no libraries are prepared for sync.");
+			DebugManager.trace("Recieved sync info, but no libraries are prepared for sync.", DebugManager.TraceLevel.WARNING);
 			return;
 		}
 		
@@ -224,6 +271,16 @@ public class DesktopSyncManager implements SyncInterface, EditorSyncManager
 		{
 			DebugManager.trace(ex);
 		}
+	}
+	
+	//--------------------------------------------------------------------------
+
+	@Override
+	public void syncScript(String path, String source) throws RemoteException
+	{
+		scriptsToSync.add(new ScriptSyncInfo(path, source));
+		
+		DebugManager.trace("Syncing script " + path);
 	}
 	
 	//--------------------------------------------------------------------------

@@ -16,5 +16,6 @@ import java.rmi.RemoteException;
  */
 public interface SyncInterface extends Remote
 {
-	public void sync(String zoneSource) throws RemoteException;
+	public void syncObjects(String zoneSource) throws RemoteException;
+	public void syncScript(String path, String source) throws RemoteException;
 }
