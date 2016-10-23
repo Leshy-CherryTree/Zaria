@@ -263,7 +263,7 @@ public abstract class ScriptPreprocessor
 
 	//--------------------------------------------------------------------------
 	
-	protected String preProcess(String source)
+	public String preProcess(String source)
 	{
 		ArrayList<ImportInfo> imports = new ArrayList<>();
 		

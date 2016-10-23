@@ -8,11 +8,13 @@
 package eu.cherrytree.zaria.scripting;
 
 import eu.cherrytree.zaria.base.ApplicationRuntimeError;
+import eu.cherrytree.zaria.console.Console;
 import eu.cherrytree.zaria.debug.DebugManager;
 import eu.cherrytree.zaria.scripting.annotations.ScriptField;
 import eu.cherrytree.zaria.scripting.annotations.ScriptFunction;
 import eu.cherrytree.zaria.scripting.annotations.ScriptMethod;
 import eu.cherrytree.zaria.scripting.preprocessing.ScriptPreprocessor;
+import eu.cherrytree.zaria.scripting.preprocessing.errors.ScriptPreprocessorError;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +26,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.mozilla.javascript.ClassShutter;
@@ -47,6 +50,8 @@ public class ScriptEngine
 	private static HashMap<String, Class> objects;
 	private static HashMap<Class, ArrayList<String>> members;
 	private static HashMap<Class, String[]> functions;
+	
+	private static HashMap<String, HashSet<Script>> scripts;
 	
 	//--------------------------------------------------------------------------
 	
@@ -247,6 +252,9 @@ public class ScriptEngine
 		
 		context = Context.enter();		
 		context.setClassShutter(new CustomClassShutter());		
+		
+		if (DebugManager.isActive())
+			scripts = new HashMap<>();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -340,6 +348,20 @@ public class ScriptEngine
 	
 	public static void destroy()
 	{
+		if (DebugManager.isActive())
+		{
+			if (!scripts.isEmpty())
+			{
+				DebugManager.trace("There are not cleaned up scripts", DebugManager.TraceLevel.ERROR);
+				
+				for (HashSet<Script> set : scripts.values())
+				{
+					if (!set.isEmpty())
+						DebugManager.trace("Name: " + set.iterator().next().getName() + " Amount: " + set.size(), DebugManager.TraceLevel.ERROR);
+				}
+			}
+		}
+		
 		Context.exit();
 	}
 	
@@ -364,7 +386,7 @@ public class ScriptEngine
 		
 		return ret;
 	}
-		
+	
 	//--------------------------------------------------------------------------
 	
 	public static Script createScript(String source, String name)
@@ -381,14 +403,94 @@ public class ScriptEngine
 	
 	public static Script loadScript(String path, String name)
 	{
-		String source = preprocessor.getPreprocessedScript(path);
+		Console.printOut("Loading script " + path);
 		
-		System.out.println(source);
+		String source = "";
+		
+		try
+		{
+			source = preprocessor.getPreprocessedScript(path);
+		}
+		catch (ScriptPreprocessorError error)
+		{
+			DebugManager.trace(error);
+			DebugManager.alert("Script preprocessing error", DebugManager.getThrowableText("", error));
+		}
 		
 		if (source.isEmpty())
+		{
+			DebugManager.trace("Couldn't create script " + path +  ", preprocessor returned empty string.", DebugManager.TraceLevel.ERROR);
 			return null;
+		}
 		
-		return createScript(source, name);
+		Script script = createScript(source, name);
+		
+		if (DebugManager.isActive())
+		{
+			if (!scripts.containsKey(path))
+				scripts.put(path, new HashSet<Script>());
+		
+			scripts.get(path).add(script);
+		}
+		
+		return script;
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	static void onScriptDestroyed(Script script)
+	{
+		if (DebugManager.isActive())
+		{
+			for (Map.Entry<String, HashSet<Script>> entry : scripts.entrySet())
+			{
+				HashSet<Script> set = entry.getValue();
+				
+				if (set.contains(script))
+				{
+					set.remove(script);
+					
+					if (set.isEmpty())
+						scripts.remove(entry.getKey());
+					
+					break;
+				}
+			}
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public static void updateScripts(String path, String source)
+	{
+		if (scripts.containsKey(path))
+		{
+			for (Script script : scripts.get(path))
+			{
+				try
+				{
+					source = preprocessor.preProcess(source);
+				}
+				catch (ScriptPreprocessorError error)
+				{
+					DebugManager.trace(error);
+					DebugManager.alert("Script preprocessing error", DebugManager.getThrowableText("", error));
+				}
+				
+				if (!source.isEmpty())
+				{
+					script.reinit(source);
+				}
+				else
+				{
+					DebugManager.trace("Couldn't update script " + path +  ", preprocessor returned empty string.", DebugManager.TraceLevel.ERROR);
+				}
+			}
+		}
+		else
+		{
+			DebugManager.trace("Trying to update scripts " + path + ", but no created ones found.");
+		}
 	}
 	
 	//--------------------------------------------------------------------------

@@ -172,7 +172,10 @@ public class DebugManager extends SecurityManager
     public synchronized static void trace(String text)
     {
 		if (active)
-			trace(instance.getClassContext()[1].getSimpleName(), text, TraceLevel.INFO);
+		{
+			if (instance != null)
+				trace(instance.getClassContext()[1].getSimpleName(), text, TraceLevel.INFO);
+		}
     }
 
 	//--------------------------------------------------------------------------
@@ -180,7 +183,12 @@ public class DebugManager extends SecurityManager
     public synchronized static void trace(String text, TraceLevel level)
     {
         if (active)
-            trace(instance.getClassContext()[1].getSimpleName(), text, level);
+		{
+			if (instance != null)
+				trace(instance.getClassContext()[1].getSimpleName(), text, level);
+			else if (level == TraceLevel.WARNING || level == TraceLevel.ERROR)
+				System.err.println(text);
+		}
     }
 
     //--------------------------------------------------------------------------
@@ -201,8 +209,13 @@ public class DebugManager extends SecurityManager
 	
     private synchronized static void trace(String callerClassName, String text, TraceLevel level)
     {
+		String str = "[" + instance.dateFormat.format(new Date()) + " ; " + getThread() + " ; " + callerClassName + "]: " + text + "\n";
+		
         if (!instance.textPaused)
-            instance.debugUI.addText("[" + instance.dateFormat.format(new Date()) + " ; " + getThread() + " ; " + callerClassName + "]: " + text + "\n", level);
+            instance.debugUI.addText(str, level);
+		
+		if (level == TraceLevel.WARNING || level == TraceLevel.ERROR)
+			System.err.println(str);
     }
 
     //--------------------------------------------------------------------------

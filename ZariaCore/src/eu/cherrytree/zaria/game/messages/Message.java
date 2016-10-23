@@ -20,7 +20,7 @@ public abstract class Message
 	
 	//--------------------------------------------------------------------------
 
-	public boolean isContinueProcessing()
+	public final boolean isContinueProcessing()
 	{
 		return continueProcessing;
 	}
@@ -28,9 +28,23 @@ public abstract class Message
 	//--------------------------------------------------------------------------
 	
 	/** Call when the message is handled and no other changes would be needed/valid. */
-	public void cancelProcessing()
+	public final void cancelProcessing()
 	{
 		continueProcessing = false;
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public void startedProcessing()
+	{
+		// Intentionally empty.
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public final void finishedProcessing()
+	{
+		continueProcessing = true;
 	}
 	
 	//--------------------------------------------------------------------------

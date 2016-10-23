@@ -1,7 +1,7 @@
 /****************************************/
 /* ScriptObject.java						*/
 /* Created on: 29-May-2014				*/
-/* Copyright Cherry Tree Studio 2014		*/
+/* Copyright Cherry Tree Studio 2014	*/
 /* Released under EUPL v1.1				*/
 /****************************************/
 
@@ -9,6 +9,8 @@ package eu.cherrytree.zaria.scripting;
 
 import eu.cherrytree.zaria.base.ApplicationRuntimeError;
 import eu.cherrytree.zaria.debug.DebugManager;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
@@ -26,6 +28,7 @@ public class Script
 	
 	private Context context;
 	private Scriptable scope;
+	private String name;
 	
 	private org.mozilla.javascript.Script script;
 	
@@ -34,19 +37,32 @@ public class Script
 	Script(Context context, Scriptable scope, String source, String name) throws RhinoException
 	{
 		this.context = context;
+		this.name = name;
 		this.scope = scope;
 		
+		reinit(source);
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	final void reinit(String source)
+	{
+		assert source != null && !source.isEmpty();
+		
+		// Getting the compile context.
 		Context compile_context = Context.getCurrentContext();
 		boolean local_compile_context = false;
 						
 		try
 		{			
+			// If there is no compile context create a local one.
 			if (compile_context == null)
 			{
 				compile_context = Context.enter();
 				local_compile_context = true;
 			}
 		
+			// Compile the script.
 			script = compile_context.compileString(source, name, 0, null);
 		}
 		catch (RhinoException ex)
@@ -62,6 +78,7 @@ public class Script
 		}
 		finally
 		{
+			// We had a local compile context, it now must be destoryed.
 			if (local_compile_context)
 				Context.exit();
 		}		
@@ -109,6 +126,22 @@ public class Script
 		}
 		
 		return null;
+	}
+	
+	//--------------------------------------------------------------------------
+
+	public String getName()
+	{
+		return name;
+	}
+	
+	//--------------------------------------------------------------------------
+	
+	public void destroy()
+	{
+		script = null;
+		
+		ScriptEngine.onScriptDestroyed(this);
 	}
 	
 	//--------------------------------------------------------------------------
