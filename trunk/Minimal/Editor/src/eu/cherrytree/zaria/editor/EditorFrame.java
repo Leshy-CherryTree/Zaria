@@ -55,8 +55,6 @@ import java.awt.Font;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -71,14 +69,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
-import javax.imageio.ImageIO;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -1535,6 +1531,8 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 		fileList.repaint();
 		recentManager.documentUpdated(document, oldPath);
 		fileListModel.refresh();
+		
+		setEditMode(document.getDocumentType(), document.getEditType());
 	}
 	
 	//--------------------------------------------------------------------------
@@ -1567,6 +1565,17 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				syncMenuSeparator.setVisible(true);
 				syncMenuItem.setVisible(true);
 				syncToolBarButton.setVisible(true);
+				
+				if (documentManager.getCurrentDocument() == null || documentManager.getCurrentDocument().getFile() == null)
+				{
+					syncMenuItem.setEnabled(false);
+					syncToolBarButton.setEnabled(false);
+				}
+				else
+				{
+					syncMenuItem.setEnabled(true);
+					syncToolBarButton.setEnabled(true);
+				}
 					
 				libraryValidationMenuItem.setVisible(false);
 				validateLibraryToolBarButton.setVisible(false);
@@ -1600,10 +1609,20 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				textViewMenuItem.setEnabled(true);
 				graphViewMenuItem.setEnabled(false);
 				
-				// TODO Have sync working for scripts as well.
-				syncMenuSeparator.setVisible(false);
-				syncMenuItem.setVisible(false);
-				syncToolBarButton.setVisible(false);
+				syncMenuSeparator.setVisible(true);
+				syncMenuItem.setVisible(true);
+				syncToolBarButton.setVisible(true);
+				
+				if (documentManager.getCurrentDocument() == null || documentManager.getCurrentDocument().getFile() == null)
+				{
+					syncMenuItem.setEnabled(false);
+					syncToolBarButton.setEnabled(false);
+				}
+				else
+				{
+					syncMenuItem.setEnabled(true);
+					syncToolBarButton.setEnabled(true);
+				}
 				
 				libraryValidationMenuItem.setVisible(false);
 				validateLibraryToolBarButton.setVisible(false);
@@ -1678,7 +1697,7 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 						
 		if (documentType == ZoneDocument.DocumentType.ZONE_LIBRARY)
 			hideRightPane();		
-		else if (splitPaneRight.getRightComponent() != null)
+		else
 			showRightPane(documentType, editType);
 		
 		if (splitPaneMain.getLeftComponent() != null)
@@ -1728,6 +1747,9 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 	{
 		int div_location = splitPaneRight.getDividerLocation();
 		
+		if (splitPaneRight.getWidth() - div_location < 50)
+			div_location = splitPaneRight.getWidth() - 200;
+		
 		switch(type)
 		{
 			case TEXT_EDIT:
@@ -1753,10 +1775,12 @@ public class EditorFrame extends JFrame implements DebugConsoleParentListener, A
 				break;
 				
 			case GRAPH_EDIT:
+				
 				initObjectDefinitionPalette();
 				splitPaneRight.setRightComponent(splitPaneFarRight);		
 				splitPaneFarRight.setTopComponent(palettePanel);
 				splitPaneFarRight.setBottomComponent(propertySheetPanel);
+				
 				break;
 		}	
 		
